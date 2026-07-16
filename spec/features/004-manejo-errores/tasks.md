@@ -23,48 +23,51 @@
 - [x] Disponer de TypeScript.
 - [x] Disponer del cliente Prisma en la ubicacion oficial.
 - [ ] Completar las dependencias funcionales de Autenticacion Core.
-- [ ] Disponer de Zod en la implementacion del proyecto.
+- [x] Disponer de Zod en la implementacion del proyecto.
 
 ## Fase 3 - Respuestas Compartidas
 
-- [ ] Definir los tipos compartidos de respuestas exitosas.
-- [ ] Definir los tipos compartidos de respuestas de error.
-- [ ] Crear la utilidad centralizada para respuestas exitosas.
-- [ ] Crear la utilidad centralizada para respuestas de error.
-- [ ] Garantizar `data: null` en todos los errores.
-- [ ] Garantizar que `status` coincida con el codigo HTTP real.
-- [ ] Garantizar que `errors` solo se utilice para validaciones por campo.
+- [x] Definir los tipos compartidos de respuestas exitosas.
+- [x] Definir los tipos compartidos de respuestas de error.
+- [x] Crear la utilidad centralizada para respuestas exitosas.
+- [x] Crear la utilidad centralizada para respuestas de error.
+- [x] Garantizar `data: null` en todos los errores construidos por la utilidad compartida.
+- [x] Garantizar que `status` coincida con el codigo HTTP real en la utilidad compartida.
+- [x] Permitir detalles opcionales `errors` normalizados para validaciones por campo.
+- [ ] Verificar en los endpoints que `errors` solo se utilice para validaciones por campo.
+- [x] Tipar los estados HTTP aprobados `200`, `201`, `400`, `401`, `403`, `404`, `405`, `409` y `500`.
 
 ## Fase 4 - Errores y Excepciones
 
-- [ ] Definir la representacion de errores controlados de la aplicacion.
-- [ ] Crear el mecanismo centralizado de manejo de errores.
+- [x] Definir la representacion de errores controlados de la aplicacion mediante `ApiError`.
+- [x] Crear el mecanismo centralizado de manejo de errores.
 - [ ] Capturar excepciones no controladas en las rutas.
-- [ ] Traducir excepciones no controladas a `500`.
-- [ ] Utilizar un mensaje publico generico para errores internos.
-- [ ] Evitar stack traces y detalles de implementacion en las respuestas.
+- [x] Traducir excepciones no controladas a `500`.
+- [x] Utilizar un mensaje publico generico para errores internos.
+- [x] Evitar stack traces y detalles de implementacion en las respuestas construidas por el manejador central.
 
 ## Fase 5 - Traduccion de Errores Tecnicos
 
-- [ ] Traducir errores de validacion de Zod.
-- [ ] Normalizar errores de validacion por campo.
+- [x] Traducir errores de validacion de Zod.
+- [x] Normalizar errores de validacion a `field` y `message`.
 - [ ] Traducir errores conocidos de Prisma.
 - [ ] Traducir conflictos funcionales conocidos a `409`.
 - [ ] Traducir errores de jose mediante el contrato de autenticacion.
 - [ ] Traducir fallos de PostgreSQL sin exponer detalles internos.
 - [ ] Adaptar errores de Next.js al contrato uniforme.
-- [ ] Tratar como `500` los errores sin traduccion segura.
+- [x] Tratar como `500` los errores sin traduccion segura en el manejador central.
 
 ## Fase 6 - Logging y Privacidad
 
-- [ ] Crear el mecanismo de logging de errores.
+- [x] Registrar mediante el manejador central los errores desconocidos unicamente en el servidor.
 - [ ] Registrar unicamente los campos aprobados.
 - [ ] Excluir contraseñas, tokens y refresh tokens de los logs.
 - [ ] Excluir hashes, secretos y claves criptograficas de los logs.
 - [ ] Excluir variables de entorno sensibles de los logs.
 - [ ] Excluir cuerpos completos de autenticacion de los logs.
-- [ ] Separar el mensaje interno del mensaje publico.
-- [ ] Verificar que ninguna respuesta exponga datos sensibles.
+- [x] Separar el error interno registrado del mensaje publico generico.
+- [x] Verificar que el manejador central no incluya el error interno en la respuesta.
+- [ ] Verificar funcionalmente que ninguna respuesta de los endpoints exponga datos sensibles.
 
 ## Fase 7 - Integraciones
 
@@ -74,6 +77,7 @@
 - [ ] Aplicar la seleccion explicita de campos publicos antes de responder con datos de Prisma.
 - [ ] Aplicar el contrato uniforme a todas las rutas existentes.
 - [ ] Aplicar el contrato uniforme a las rutas futuras.
+- [x] Crear la utilidad para validar metodos HTTP y responder `405` con la cabecera `Allow`.
 - [ ] Enviar la cabecera `Allow` en todas las respuestas `405`.
 
 ## Fase 8 - Pruebas y Verificacion
@@ -90,9 +94,9 @@
 - [ ] Probar excepciones no controladas.
 - [ ] Probar la ausencia de datos sensibles y stack traces.
 - [ ] Probar que no se devuelvan objetos Prisma completos.
-- [ ] Ejecutar lint.
+- [x] Ejecutar lint.
 - [ ] Ejecutar las pruebas.
-- [ ] Ejecutar el build.
+- [x] Ejecutar el build.
 
 ## Fase 9 - Cierre Documental
 
@@ -104,10 +108,10 @@
 
 La feature solo podra marcarse como completada cuando:
 
-- [ ] Exista un mecanismo centralizado de respuestas.
-- [ ] Exista un mecanismo centralizado de errores.
+- [x] Exista un mecanismo centralizado de respuestas.
+- [x] Exista un mecanismo centralizado de errores.
 - [ ] Todas las rutas utilicen el mismo contrato.
 - [ ] Los errores tecnicos se traduzcan correctamente.
 - [ ] No se filtren datos sensibles.
 - [ ] Las pruebas pasen.
-- [ ] Lint y build finalicen correctamente.
+- [x] Lint y build finalicen correctamente.
