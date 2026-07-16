@@ -27,3 +27,53 @@ export type Rol = Prisma.RolModel
  * 
  */
 export type Usuario = Prisma.UsuarioModel
+/**
+ * Model Sesion
+ * 
+ */
+export type Sesion = Prisma.SesionModel
+/**
+ * Model Categoria
+ * 
+ */
+export type Categoria = Prisma.CategoriaModel
+/**
+ * Model Donacion
+ * 
+ */
+export type Donacion = Prisma.DonacionModel
+/**
+ * Model ImagenDonacion
+ * 
+ */
+export type ImagenDonacion = Prisma.ImagenDonacionModel
+/**
+ * Model Solicitud
+ * 
+ */
+export type Solicitud = Prisma.SolicitudModel
+/**
+ * Model Chat
+ * 
+ */
+export type Chat = Prisma.ChatModel
+/**
+ * Model Mensaje
+ * 
+ */
+export type Mensaje = Prisma.MensajeModel
+/**
+ * Model Calificacion
+ * 
+ */
+export type Calificacion = Prisma.CalificacionModel
+/**
+ * Model ExencionCalificacion
+ * 
+ */
+export type ExencionCalificacion = Prisma.ExencionCalificacionModel
+/**
+ * Model AuditoriaAdministrativa
+ * 
+ */
+export type AuditoriaAdministrativa = Prisma.AuditoriaAdministrativaModel

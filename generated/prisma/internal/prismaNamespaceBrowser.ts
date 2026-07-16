@@ -52,7 +52,17 @@ export const AnyNull = runtime.AnyNull
 
 export const ModelName = {
   Rol: 'Rol',
-  Usuario: 'Usuario'
+  Usuario: 'Usuario',
+  Sesion: 'Sesion',
+  Categoria: 'Categoria',
+  Donacion: 'Donacion',
+  ImagenDonacion: 'ImagenDonacion',
+  Solicitud: 'Solicitud',
+  Chat: 'Chat',
+  Mensaje: 'Mensaje',
+  Calificacion: 'Calificacion',
+  ExencionCalificacion: 'ExencionCalificacion',
+  AuditoriaAdministrativa: 'AuditoriaAdministrativa'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -73,9 +83,11 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const RolScalarFieldEnum = {
   id: 'id',
+  codigo: 'codigo',
   nombre: 'nombre',
   descripcion: 'descripcion',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type RolScalarFieldEnum = (typeof RolScalarFieldEnum)[keyof typeof RolScalarFieldEnum]
@@ -83,10 +95,13 @@ export type RolScalarFieldEnum = (typeof RolScalarFieldEnum)[keyof typeof RolSca
 
 export const UsuarioScalarFieldEnum = {
   id: 'id',
-  nombre: 'nombre',
+  nombreCompleto: 'nombreCompleto',
+  nombreVisible: 'nombreVisible',
   email: 'email',
   passwordHash: 'passwordHash',
+  ciudad: 'ciudad',
   telefono: 'telefono',
+  fotoPerfil: 'fotoPerfil',
   activo: 'activo',
   rolId: 'rolId',
   createdAt: 'createdAt',
@@ -96,12 +111,148 @@ export const UsuarioScalarFieldEnum = {
 export type UsuarioScalarFieldEnum = (typeof UsuarioScalarFieldEnum)[keyof typeof UsuarioScalarFieldEnum]
 
 
+export const SesionScalarFieldEnum = {
+  id: 'id',
+  usuarioId: 'usuarioId',
+  refreshTokenHash: 'refreshTokenHash',
+  expiresAt: 'expiresAt',
+  revokedAt: 'revokedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SesionScalarFieldEnum = (typeof SesionScalarFieldEnum)[keyof typeof SesionScalarFieldEnum]
+
+
+export const CategoriaScalarFieldEnum = {
+  id: 'id',
+  nombre: 'nombre',
+  descripcion: 'descripcion',
+  activo: 'activo',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CategoriaScalarFieldEnum = (typeof CategoriaScalarFieldEnum)[keyof typeof CategoriaScalarFieldEnum]
+
+
+export const DonacionScalarFieldEnum = {
+  id: 'id',
+  titulo: 'titulo',
+  descripcion: 'descripcion',
+  ciudad: 'ciudad',
+  estado: 'estado',
+  propietarioId: 'propietarioId',
+  categoriaId: 'categoriaId',
+  solicitudAceptadaId: 'solicitudAceptadaId',
+  donanteConfirmoAt: 'donanteConfirmoAt',
+  receptorConfirmoAt: 'receptorConfirmoAt',
+  entregadaAt: 'entregadaAt',
+  retiradaAt: 'retiradaAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type DonacionScalarFieldEnum = (typeof DonacionScalarFieldEnum)[keyof typeof DonacionScalarFieldEnum]
+
+
+export const ImagenDonacionScalarFieldEnum = {
+  id: 'id',
+  donacionId: 'donacionId',
+  referencia: 'referencia',
+  orden: 'orden'
+} as const
+
+export type ImagenDonacionScalarFieldEnum = (typeof ImagenDonacionScalarFieldEnum)[keyof typeof ImagenDonacionScalarFieldEnum]
+
+
+export const SolicitudScalarFieldEnum = {
+  id: 'id',
+  donacionId: 'donacionId',
+  solicitanteId: 'solicitanteId',
+  estado: 'estado',
+  causaCancelacion: 'causaCancelacion',
+  aceptadaAt: 'aceptadaAt',
+  rechazadaAt: 'rechazadaAt',
+  canceladaAt: 'canceladaAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SolicitudScalarFieldEnum = (typeof SolicitudScalarFieldEnum)[keyof typeof SolicitudScalarFieldEnum]
+
+
+export const ChatScalarFieldEnum = {
+  id: 'id',
+  solicitudId: 'solicitudId',
+  ultimoMensajeAt: 'ultimoMensajeAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ChatScalarFieldEnum = (typeof ChatScalarFieldEnum)[keyof typeof ChatScalarFieldEnum]
+
+
+export const MensajeScalarFieldEnum = {
+  id: 'id',
+  chatId: 'chatId',
+  remitenteId: 'remitenteId',
+  contenido: 'contenido',
+  createdAt: 'createdAt'
+} as const
+
+export type MensajeScalarFieldEnum = (typeof MensajeScalarFieldEnum)[keyof typeof MensajeScalarFieldEnum]
+
+
+export const CalificacionScalarFieldEnum = {
+  id: 'id',
+  donacionId: 'donacionId',
+  puntuacion: 'puntuacion',
+  createdAt: 'createdAt'
+} as const
+
+export type CalificacionScalarFieldEnum = (typeof CalificacionScalarFieldEnum)[keyof typeof CalificacionScalarFieldEnum]
+
+
+export const ExencionCalificacionScalarFieldEnum = {
+  id: 'id',
+  donacionId: 'donacionId',
+  administradorId: 'administradorId',
+  motivo: 'motivo',
+  createdAt: 'createdAt'
+} as const
+
+export type ExencionCalificacionScalarFieldEnum = (typeof ExencionCalificacionScalarFieldEnum)[keyof typeof ExencionCalificacionScalarFieldEnum]
+
+
+export const AuditoriaAdministrativaScalarFieldEnum = {
+  id: 'id',
+  administradorId: 'administradorId',
+  accion: 'accion',
+  entidad: 'entidad',
+  entidadId: 'entidadId',
+  motivo: 'motivo',
+  metadata: 'metadata',
+  createdAt: 'createdAt'
+} as const
+
+export type AuditoriaAdministrativaScalarFieldEnum = (typeof AuditoriaAdministrativaScalarFieldEnum)[keyof typeof AuditoriaAdministrativaScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -118,4 +269,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

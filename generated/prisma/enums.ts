@@ -9,7 +9,50 @@
 * 🟢 You can import this file directly.
 */
 
+export const RolCodigo = {
+  ADMIN: 'ADMIN',
+  USUARIO: 'USUARIO'
+} as const
+
+export type RolCodigo = (typeof RolCodigo)[keyof typeof RolCodigo]
 
 
-// This file is empty because there are no enums in the schema.
-export {}
+export const EstadoDonacion = {
+  PUBLICADA: 'PUBLICADA',
+  RESERVADA: 'RESERVADA',
+  ENTREGADA: 'ENTREGADA',
+  RETIRADA: 'RETIRADA'
+} as const
+
+export type EstadoDonacion = (typeof EstadoDonacion)[keyof typeof EstadoDonacion]
+
+
+export const EstadoSolicitud = {
+  PENDIENTE: 'PENDIENTE',
+  ACEPTADA: 'ACEPTADA',
+  RECHAZADA: 'RECHAZADA',
+  CANCELADA: 'CANCELADA'
+} as const
+
+export type EstadoSolicitud = (typeof EstadoSolicitud)[keyof typeof EstadoSolicitud]
+
+
+export const CausaCancelacionSolicitud = {
+  VOLUNTARIA: 'VOLUNTARIA',
+  OTRA_SOLICITUD_ACEPTADA: 'OTRA_SOLICITUD_ACEPTADA',
+  DONACION_RETIRADA: 'DONACION_RETIRADA',
+  USUARIO_INACTIVO: 'USUARIO_INACTIVO'
+} as const
+
+export type CausaCancelacionSolicitud = (typeof CausaCancelacionSolicitud)[keyof typeof CausaCancelacionSolicitud]
+
+
+export const AccionAuditoriaAdministrativa = {
+  USUARIO_DESACTIVADO: 'USUARIO_DESACTIVADO',
+  USUARIO_REACTIVADO: 'USUARIO_REACTIVADO',
+  SESIONES_REVOCADAS: 'SESIONES_REVOCADAS',
+  DONACION_RESERVADA_RETIRADA: 'DONACION_RESERVADA_RETIRADA',
+  CALIFICACION_PENDIENTE_EXIMIDA: 'CALIFICACION_PENDIENTE_EXIMIDA'
+} as const
+
+export type AccionAuditoriaAdministrativa = (typeof AccionAuditoriaAdministrativa)[keyof typeof AccionAuditoriaAdministrativa]

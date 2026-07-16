@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
@@ -12,32 +7,216 @@ datasource db {
   provider = "postgresql"
 }
 
-// Modelo: Rol
+enum RolCodigo {
+  ADMIN
+  USUARIO
+}
+
+enum EstadoDonacion {
+  PUBLICADA
+  RESERVADA
+  ENTREGADA
+  RETIRADA
+}
+
+enum EstadoSolicitud {
+  PENDIENTE
+  ACEPTADA
+  RECHAZADA
+  CANCELADA
+}
+
+enum CausaCancelacionSolicitud {
+  VOLUNTARIA
+  OTRA_SOLICITUD_ACEPTADA
+  DONACION_RETIRADA
+  USUARIO_INACTIVO
+}
+
+enum AccionAuditoriaAdministrativa {
+  USUARIO_DESACTIVADO
+  USUARIO_REACTIVADO
+  SESIONES_REVOCADAS
+  DONACION_RESERVADA_RETIRADA
+  CALIFICACION_PENDIENTE_EXIMIDA
+}
 
 model Rol {
-  id          Int   @id @default(autoincrement())
-  nombre      String   @unique
+  id          Int       @id @default(autoincrement())
+  codigo      RolCodigo @unique
+  nombre      String    @unique
   descripcion String?
-  createdAt   DateTime @default(now())
-
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
   usuarios    Usuario[]
 }
 
-// Modelo: Usuario
-
 model Usuario {
-  id           Int   @id @default(autoincrement())
-  nombre       String
-  email        String   @unique
-  passwordHash String
-  telefono     String?
-  activo       Boolean  @default(true)
-
-  rolId        Int
-  rol          Rol      @relation(fields: [rolId], references: [id], onDelete: Restrict)
-
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                      Int                       @id @default(autoincrement())
+  nombreCompleto          String
+  nombreVisible           String                    @unique @db.VarChar(30)
+  email                   String                    @unique
+  passwordHash            String
+  ciudad                  String
+  telefono                String?
+  fotoPerfil              String?                   @db.VarChar(500)
+  activo                  Boolean                   @default(true)
+  rolId                   Int
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  rol                     Rol                       @relation(fields: [rolId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  sesiones                Sesion[]
+  donaciones              Donacion[]                @relation("DonacionesPropietario")
+  solicitudes             Solicitud[]               @relation("SolicitudesSolicitante")
+  mensajes                Mensaje[]                 @relation("MensajesRemitente")
+  exencionesAdministradas ExencionCalificacion[]    @relation("ExencionesAdministrador")
+  auditorias              AuditoriaAdministrativa[] @relation("AuditoriasAdministrador")
 
   @@index([rolId])
+}
+
+model Sesion {
+  id               String    @id @default(uuid()) @db.Uuid
+  usuarioId        Int
+  refreshTokenHash String    @unique
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  usuario          Usuario   @relation(fields: [usuarioId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([usuarioId, revokedAt, expiresAt])
+  @@index([expiresAt])
+}
+
+model Categoria {
+  id          Int        @id @default(autoincrement())
+  nombre      String     @unique @db.VarChar(80)
+  descripcion String?    @db.VarChar(250)
+  activo      Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  donaciones  Donacion[]
+
+  @@index([activo, nombre])
+}
+
+model Donacion {
+  id                   Int                   @id @default(autoincrement())
+  titulo               String                @db.VarChar(100)
+  descripcion          String                @db.VarChar(1000)
+  ciudad               String
+  estado               EstadoDonacion        @default(PUBLICADA)
+  propietarioId        Int
+  categoriaId          Int
+  solicitudAceptadaId  Int?                  @unique
+  donanteConfirmoAt    DateTime?
+  receptorConfirmoAt   DateTime?
+  entregadaAt          DateTime?
+  retiradaAt           DateTime?
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  propietario          Usuario               @relation("DonacionesPropietario", fields: [propietarioId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  categoria            Categoria             @relation(fields: [categoriaId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  imagenes             ImagenDonacion[]
+  solicitudes          Solicitud[]           @relation("SolicitudesDonacion")
+  solicitudAceptada    Solicitud?            @relation("SolicitudAceptada", fields: [solicitudAceptadaId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  calificacion         Calificacion?
+  exencionCalificacion ExencionCalificacion?
+
+  @@index([estado, ciudad, createdAt(sort: Desc), id(sort: Desc)])
+  @@index([propietarioId, estado, createdAt(sort: Desc), id(sort: Desc)])
+  @@index([categoriaId, estado, ciudad, createdAt(sort: Desc), id(sort: Desc)])
+}
+
+model ImagenDonacion {
+  id         Int      @id @default(autoincrement())
+  donacionId Int
+  referencia String
+  orden      Int
+  donacion   Donacion @relation(fields: [donacionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@unique([donacionId, orden])
+}
+
+model Solicitud {
+  id                     Int                        @id @default(autoincrement())
+  donacionId             Int
+  solicitanteId          Int
+  estado                 EstadoSolicitud            @default(PENDIENTE)
+  causaCancelacion       CausaCancelacionSolicitud?
+  aceptadaAt             DateTime?
+  rechazadaAt            DateTime?
+  canceladaAt            DateTime?
+  createdAt              DateTime                   @default(now())
+  updatedAt              DateTime                   @updatedAt
+  donacion               Donacion                   @relation("SolicitudesDonacion", fields: [donacionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  solicitante            Usuario                    @relation("SolicitudesSolicitante", fields: [solicitanteId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  chat                   Chat?
+  seleccionadaEnDonacion Donacion?                  @relation("SolicitudAceptada")
+
+  @@index([solicitanteId, estado, createdAt(sort: Desc), id(sort: Desc)])
+  @@index([donacionId, estado, createdAt(sort: Desc), id(sort: Desc)])
+}
+
+model Chat {
+  id              Int       @id @default(autoincrement())
+  solicitudId     Int       @unique
+  ultimoMensajeAt DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  solicitud       Solicitud @relation(fields: [solicitudId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  mensajes        Mensaje[]
+
+  @@index([ultimoMensajeAt(sort: Desc), createdAt(sort: Desc), id(sort: Desc)])
+}
+
+model Mensaje {
+  id          Int      @id @default(autoincrement())
+  chatId      Int
+  remitenteId Int
+  contenido   String   @db.VarChar(1000)
+  createdAt   DateTime @default(now())
+  chat        Chat     @relation(fields: [chatId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  remitente   Usuario  @relation("MensajesRemitente", fields: [remitenteId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([chatId, createdAt(sort: Desc), id(sort: Desc)])
+  @@index([remitenteId])
+}
+
+model Calificacion {
+  id         Int      @id @default(autoincrement())
+  donacionId Int      @unique
+  puntuacion Int
+  createdAt  DateTime @default(now())
+  donacion   Donacion @relation(fields: [donacionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+}
+
+model ExencionCalificacion {
+  id              Int      @id @default(autoincrement())
+  donacionId      Int      @unique
+  administradorId Int
+  motivo          String   @db.VarChar(500)
+  createdAt       DateTime @default(now())
+  donacion        Donacion @relation(fields: [donacionId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+  administrador   Usuario  @relation("ExencionesAdministrador", fields: [administradorId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([administradorId, createdAt(sort: Desc), id(sort: Desc)])
+}
+
+model AuditoriaAdministrativa {
+  id              Int                           @id @default(autoincrement())
+  administradorId Int
+  accion          AccionAuditoriaAdministrativa
+  entidad         String
+  entidadId       String
+  motivo          String                        @db.VarChar(500)
+  metadata        Json?
+  createdAt       DateTime                      @default(now())
+  administrador   Usuario                       @relation("AuditoriasAdministrador", fields: [administradorId], references: [id], onDelete: Restrict, onUpdate: Cascade)
+
+  @@index([administradorId, createdAt(sort: Desc), id(sort: Desc)])
+  @@index([accion, createdAt(sort: Desc), id(sort: Desc)])
+  @@index([entidad, entidadId, createdAt(sort: Desc), id(sort: Desc)])
+  @@index([createdAt(sort: Desc), id(sort: Desc)])
 }

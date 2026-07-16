@@ -38,10 +38,13 @@ export type UsuarioSumAggregateOutputType = {
 
 export type UsuarioMinAggregateOutputType = {
   id: number | null
-  nombre: string | null
+  nombreCompleto: string | null
+  nombreVisible: string | null
   email: string | null
   passwordHash: string | null
+  ciudad: string | null
   telefono: string | null
+  fotoPerfil: string | null
   activo: boolean | null
   rolId: number | null
   createdAt: Date | null
@@ -50,10 +53,13 @@ export type UsuarioMinAggregateOutputType = {
 
 export type UsuarioMaxAggregateOutputType = {
   id: number | null
-  nombre: string | null
+  nombreCompleto: string | null
+  nombreVisible: string | null
   email: string | null
   passwordHash: string | null
+  ciudad: string | null
   telefono: string | null
+  fotoPerfil: string | null
   activo: boolean | null
   rolId: number | null
   createdAt: Date | null
@@ -62,10 +68,13 @@ export type UsuarioMaxAggregateOutputType = {
 
 export type UsuarioCountAggregateOutputType = {
   id: number
-  nombre: number
+  nombreCompleto: number
+  nombreVisible: number
   email: number
   passwordHash: number
+  ciudad: number
   telefono: number
+  fotoPerfil: number
   activo: number
   rolId: number
   createdAt: number
@@ -86,10 +95,13 @@ export type UsuarioSumAggregateInputType = {
 
 export type UsuarioMinAggregateInputType = {
   id?: true
-  nombre?: true
+  nombreCompleto?: true
+  nombreVisible?: true
   email?: true
   passwordHash?: true
+  ciudad?: true
   telefono?: true
+  fotoPerfil?: true
   activo?: true
   rolId?: true
   createdAt?: true
@@ -98,10 +110,13 @@ export type UsuarioMinAggregateInputType = {
 
 export type UsuarioMaxAggregateInputType = {
   id?: true
-  nombre?: true
+  nombreCompleto?: true
+  nombreVisible?: true
   email?: true
   passwordHash?: true
+  ciudad?: true
   telefono?: true
+  fotoPerfil?: true
   activo?: true
   rolId?: true
   createdAt?: true
@@ -110,10 +125,13 @@ export type UsuarioMaxAggregateInputType = {
 
 export type UsuarioCountAggregateInputType = {
   id?: true
-  nombre?: true
+  nombreCompleto?: true
+  nombreVisible?: true
   email?: true
   passwordHash?: true
+  ciudad?: true
   telefono?: true
+  fotoPerfil?: true
   activo?: true
   rolId?: true
   createdAt?: true
@@ -209,10 +227,13 @@ export type UsuarioGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 
 export type UsuarioGroupByOutputType = {
   id: number
-  nombre: string
+  nombreCompleto: string
+  nombreVisible: string
   email: string
   passwordHash: string
+  ciudad: string
   telefono: string | null
+  fotoPerfil: string | null
   activo: boolean
   rolId: number
   createdAt: Date
@@ -244,52 +265,82 @@ export type UsuarioWhereInput = {
   OR?: Prisma.UsuarioWhereInput[]
   NOT?: Prisma.UsuarioWhereInput | Prisma.UsuarioWhereInput[]
   id?: Prisma.IntFilter<"Usuario"> | number
-  nombre?: Prisma.StringFilter<"Usuario"> | string
+  nombreCompleto?: Prisma.StringFilter<"Usuario"> | string
+  nombreVisible?: Prisma.StringFilter<"Usuario"> | string
   email?: Prisma.StringFilter<"Usuario"> | string
   passwordHash?: Prisma.StringFilter<"Usuario"> | string
+  ciudad?: Prisma.StringFilter<"Usuario"> | string
   telefono?: Prisma.StringNullableFilter<"Usuario"> | string | null
+  fotoPerfil?: Prisma.StringNullableFilter<"Usuario"> | string | null
   activo?: Prisma.BoolFilter<"Usuario"> | boolean
   rolId?: Prisma.IntFilter<"Usuario"> | number
   createdAt?: Prisma.DateTimeFilter<"Usuario"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Usuario"> | Date | string
   rol?: Prisma.XOR<Prisma.RolScalarRelationFilter, Prisma.RolWhereInput>
+  sesiones?: Prisma.SesionListRelationFilter
+  donaciones?: Prisma.DonacionListRelationFilter
+  solicitudes?: Prisma.SolicitudListRelationFilter
+  mensajes?: Prisma.MensajeListRelationFilter
+  exencionesAdministradas?: Prisma.ExencionCalificacionListRelationFilter
+  auditorias?: Prisma.AuditoriaAdministrativaListRelationFilter
 }
 
 export type UsuarioOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  nombre?: Prisma.SortOrder
+  nombreCompleto?: Prisma.SortOrder
+  nombreVisible?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  ciudad?: Prisma.SortOrder
   telefono?: Prisma.SortOrderInput | Prisma.SortOrder
+  fotoPerfil?: Prisma.SortOrderInput | Prisma.SortOrder
   activo?: Prisma.SortOrder
   rolId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   rol?: Prisma.RolOrderByWithRelationInput
+  sesiones?: Prisma.SesionOrderByRelationAggregateInput
+  donaciones?: Prisma.DonacionOrderByRelationAggregateInput
+  solicitudes?: Prisma.SolicitudOrderByRelationAggregateInput
+  mensajes?: Prisma.MensajeOrderByRelationAggregateInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionOrderByRelationAggregateInput
+  auditorias?: Prisma.AuditoriaAdministrativaOrderByRelationAggregateInput
 }
 
 export type UsuarioWhereUniqueInput = Prisma.AtLeast<{
   id?: number
+  nombreVisible?: string
   email?: string
   AND?: Prisma.UsuarioWhereInput | Prisma.UsuarioWhereInput[]
   OR?: Prisma.UsuarioWhereInput[]
   NOT?: Prisma.UsuarioWhereInput | Prisma.UsuarioWhereInput[]
-  nombre?: Prisma.StringFilter<"Usuario"> | string
+  nombreCompleto?: Prisma.StringFilter<"Usuario"> | string
   passwordHash?: Prisma.StringFilter<"Usuario"> | string
+  ciudad?: Prisma.StringFilter<"Usuario"> | string
   telefono?: Prisma.StringNullableFilter<"Usuario"> | string | null
+  fotoPerfil?: Prisma.StringNullableFilter<"Usuario"> | string | null
   activo?: Prisma.BoolFilter<"Usuario"> | boolean
   rolId?: Prisma.IntFilter<"Usuario"> | number
   createdAt?: Prisma.DateTimeFilter<"Usuario"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Usuario"> | Date | string
   rol?: Prisma.XOR<Prisma.RolScalarRelationFilter, Prisma.RolWhereInput>
-}, "id" | "email">
+  sesiones?: Prisma.SesionListRelationFilter
+  donaciones?: Prisma.DonacionListRelationFilter
+  solicitudes?: Prisma.SolicitudListRelationFilter
+  mensajes?: Prisma.MensajeListRelationFilter
+  exencionesAdministradas?: Prisma.ExencionCalificacionListRelationFilter
+  auditorias?: Prisma.AuditoriaAdministrativaListRelationFilter
+}, "id" | "nombreVisible" | "email">
 
 export type UsuarioOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  nombre?: Prisma.SortOrder
+  nombreCompleto?: Prisma.SortOrder
+  nombreVisible?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  ciudad?: Prisma.SortOrder
   telefono?: Prisma.SortOrderInput | Prisma.SortOrder
+  fotoPerfil?: Prisma.SortOrderInput | Prisma.SortOrder
   activo?: Prisma.SortOrder
   rolId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -306,10 +357,13 @@ export type UsuarioScalarWhereWithAggregatesInput = {
   OR?: Prisma.UsuarioScalarWhereWithAggregatesInput[]
   NOT?: Prisma.UsuarioScalarWhereWithAggregatesInput | Prisma.UsuarioScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Usuario"> | number
-  nombre?: Prisma.StringWithAggregatesFilter<"Usuario"> | string
+  nombreCompleto?: Prisma.StringWithAggregatesFilter<"Usuario"> | string
+  nombreVisible?: Prisma.StringWithAggregatesFilter<"Usuario"> | string
   email?: Prisma.StringWithAggregatesFilter<"Usuario"> | string
   passwordHash?: Prisma.StringWithAggregatesFilter<"Usuario"> | string
+  ciudad?: Prisma.StringWithAggregatesFilter<"Usuario"> | string
   telefono?: Prisma.StringNullableWithAggregatesFilter<"Usuario"> | string | null
+  fotoPerfil?: Prisma.StringNullableWithAggregatesFilter<"Usuario"> | string | null
   activo?: Prisma.BoolWithAggregatesFilter<"Usuario"> | boolean
   rolId?: Prisma.IntWithAggregatesFilter<"Usuario"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Usuario"> | Date | string
@@ -317,57 +371,96 @@ export type UsuarioScalarWhereWithAggregatesInput = {
 }
 
 export type UsuarioCreateInput = {
-  nombre: string
+  nombreCompleto: string
+  nombreVisible: string
   email: string
   passwordHash: string
+  ciudad: string
   telefono?: string | null
+  fotoPerfil?: string | null
   activo?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   rol: Prisma.RolCreateNestedOneWithoutUsuariosInput
+  sesiones?: Prisma.SesionCreateNestedManyWithoutUsuarioInput
+  donaciones?: Prisma.DonacionCreateNestedManyWithoutPropietarioInput
+  solicitudes?: Prisma.SolicitudCreateNestedManyWithoutSolicitanteInput
+  mensajes?: Prisma.MensajeCreateNestedManyWithoutRemitenteInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionCreateNestedManyWithoutAdministradorInput
+  auditorias?: Prisma.AuditoriaAdministrativaCreateNestedManyWithoutAdministradorInput
 }
 
 export type UsuarioUncheckedCreateInput = {
   id?: number
-  nombre: string
+  nombreCompleto: string
+  nombreVisible: string
   email: string
   passwordHash: string
+  ciudad: string
   telefono?: string | null
+  fotoPerfil?: string | null
   activo?: boolean
   rolId: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  sesiones?: Prisma.SesionUncheckedCreateNestedManyWithoutUsuarioInput
+  donaciones?: Prisma.DonacionUncheckedCreateNestedManyWithoutPropietarioInput
+  solicitudes?: Prisma.SolicitudUncheckedCreateNestedManyWithoutSolicitanteInput
+  mensajes?: Prisma.MensajeUncheckedCreateNestedManyWithoutRemitenteInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionUncheckedCreateNestedManyWithoutAdministradorInput
+  auditorias?: Prisma.AuditoriaAdministrativaUncheckedCreateNestedManyWithoutAdministradorInput
 }
 
 export type UsuarioUpdateInput = {
-  nombre?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreCompleto?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreVisible?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   rol?: Prisma.RolUpdateOneRequiredWithoutUsuariosNestedInput
+  sesiones?: Prisma.SesionUpdateManyWithoutUsuarioNestedInput
+  donaciones?: Prisma.DonacionUpdateManyWithoutPropietarioNestedInput
+  solicitudes?: Prisma.SolicitudUpdateManyWithoutSolicitanteNestedInput
+  mensajes?: Prisma.MensajeUpdateManyWithoutRemitenteNestedInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionUpdateManyWithoutAdministradorNestedInput
+  auditorias?: Prisma.AuditoriaAdministrativaUpdateManyWithoutAdministradorNestedInput
 }
 
 export type UsuarioUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  nombre?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreCompleto?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreVisible?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rolId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sesiones?: Prisma.SesionUncheckedUpdateManyWithoutUsuarioNestedInput
+  donaciones?: Prisma.DonacionUncheckedUpdateManyWithoutPropietarioNestedInput
+  solicitudes?: Prisma.SolicitudUncheckedUpdateManyWithoutSolicitanteNestedInput
+  mensajes?: Prisma.MensajeUncheckedUpdateManyWithoutRemitenteNestedInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionUncheckedUpdateManyWithoutAdministradorNestedInput
+  auditorias?: Prisma.AuditoriaAdministrativaUncheckedUpdateManyWithoutAdministradorNestedInput
 }
 
 export type UsuarioCreateManyInput = {
   id?: number
-  nombre: string
+  nombreCompleto: string
+  nombreVisible: string
   email: string
   passwordHash: string
+  ciudad: string
   telefono?: string | null
+  fotoPerfil?: string | null
   activo?: boolean
   rolId: number
   createdAt?: Date | string
@@ -375,10 +468,13 @@ export type UsuarioCreateManyInput = {
 }
 
 export type UsuarioUpdateManyMutationInput = {
-  nombre?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreCompleto?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreVisible?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -386,10 +482,13 @@ export type UsuarioUpdateManyMutationInput = {
 
 export type UsuarioUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  nombre?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreCompleto?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreVisible?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   rolId?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -408,10 +507,13 @@ export type UsuarioOrderByRelationAggregateInput = {
 
 export type UsuarioCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  nombre?: Prisma.SortOrder
+  nombreCompleto?: Prisma.SortOrder
+  nombreVisible?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  ciudad?: Prisma.SortOrder
   telefono?: Prisma.SortOrder
+  fotoPerfil?: Prisma.SortOrder
   activo?: Prisma.SortOrder
   rolId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -425,10 +527,13 @@ export type UsuarioAvgOrderByAggregateInput = {
 
 export type UsuarioMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  nombre?: Prisma.SortOrder
+  nombreCompleto?: Prisma.SortOrder
+  nombreVisible?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  ciudad?: Prisma.SortOrder
   telefono?: Prisma.SortOrder
+  fotoPerfil?: Prisma.SortOrder
   activo?: Prisma.SortOrder
   rolId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -437,10 +542,13 @@ export type UsuarioMaxOrderByAggregateInput = {
 
 export type UsuarioMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  nombre?: Prisma.SortOrder
+  nombreCompleto?: Prisma.SortOrder
+  nombreVisible?: Prisma.SortOrder
   email?: Prisma.SortOrder
   passwordHash?: Prisma.SortOrder
+  ciudad?: Prisma.SortOrder
   telefono?: Prisma.SortOrder
+  fotoPerfil?: Prisma.SortOrder
   activo?: Prisma.SortOrder
   rolId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -450,6 +558,11 @@ export type UsuarioMinOrderByAggregateInput = {
 export type UsuarioSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   rolId?: Prisma.SortOrder
+}
+
+export type UsuarioScalarRelationFilter = {
+  is?: Prisma.UsuarioWhereInput
+  isNot?: Prisma.UsuarioWhereInput
 }
 
 export type UsuarioCreateNestedManyWithoutRolInput = {
@@ -498,25 +611,127 @@ export type BoolFieldUpdateOperationsInput = {
   set?: boolean
 }
 
+export type UsuarioCreateNestedOneWithoutSesionesInput = {
+  create?: Prisma.XOR<Prisma.UsuarioCreateWithoutSesionesInput, Prisma.UsuarioUncheckedCreateWithoutSesionesInput>
+  connectOrCreate?: Prisma.UsuarioCreateOrConnectWithoutSesionesInput
+  connect?: Prisma.UsuarioWhereUniqueInput
+}
+
+export type UsuarioUpdateOneRequiredWithoutSesionesNestedInput = {
+  create?: Prisma.XOR<Prisma.UsuarioCreateWithoutSesionesInput, Prisma.UsuarioUncheckedCreateWithoutSesionesInput>
+  connectOrCreate?: Prisma.UsuarioCreateOrConnectWithoutSesionesInput
+  upsert?: Prisma.UsuarioUpsertWithoutSesionesInput
+  connect?: Prisma.UsuarioWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UsuarioUpdateToOneWithWhereWithoutSesionesInput, Prisma.UsuarioUpdateWithoutSesionesInput>, Prisma.UsuarioUncheckedUpdateWithoutSesionesInput>
+}
+
+export type UsuarioCreateNestedOneWithoutDonacionesInput = {
+  create?: Prisma.XOR<Prisma.UsuarioCreateWithoutDonacionesInput, Prisma.UsuarioUncheckedCreateWithoutDonacionesInput>
+  connectOrCreate?: Prisma.UsuarioCreateOrConnectWithoutDonacionesInput
+  connect?: Prisma.UsuarioWhereUniqueInput
+}
+
+export type UsuarioUpdateOneRequiredWithoutDonacionesNestedInput = {
+  create?: Prisma.XOR<Prisma.UsuarioCreateWithoutDonacionesInput, Prisma.UsuarioUncheckedCreateWithoutDonacionesInput>
+  connectOrCreate?: Prisma.UsuarioCreateOrConnectWithoutDonacionesInput
+  upsert?: Prisma.UsuarioUpsertWithoutDonacionesInput
+  connect?: Prisma.UsuarioWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UsuarioUpdateToOneWithWhereWithoutDonacionesInput, Prisma.UsuarioUpdateWithoutDonacionesInput>, Prisma.UsuarioUncheckedUpdateWithoutDonacionesInput>
+}
+
+export type UsuarioCreateNestedOneWithoutSolicitudesInput = {
+  create?: Prisma.XOR<Prisma.UsuarioCreateWithoutSolicitudesInput, Prisma.UsuarioUncheckedCreateWithoutSolicitudesInput>
+  connectOrCreate?: Prisma.UsuarioCreateOrConnectWithoutSolicitudesInput
+  connect?: Prisma.UsuarioWhereUniqueInput
+}
+
+export type UsuarioUpdateOneRequiredWithoutSolicitudesNestedInput = {
+  create?: Prisma.XOR<Prisma.UsuarioCreateWithoutSolicitudesInput, Prisma.UsuarioUncheckedCreateWithoutSolicitudesInput>
+  connectOrCreate?: Prisma.UsuarioCreateOrConnectWithoutSolicitudesInput
+  upsert?: Prisma.UsuarioUpsertWithoutSolicitudesInput
+  connect?: Prisma.UsuarioWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UsuarioUpdateToOneWithWhereWithoutSolicitudesInput, Prisma.UsuarioUpdateWithoutSolicitudesInput>, Prisma.UsuarioUncheckedUpdateWithoutSolicitudesInput>
+}
+
+export type UsuarioCreateNestedOneWithoutMensajesInput = {
+  create?: Prisma.XOR<Prisma.UsuarioCreateWithoutMensajesInput, Prisma.UsuarioUncheckedCreateWithoutMensajesInput>
+  connectOrCreate?: Prisma.UsuarioCreateOrConnectWithoutMensajesInput
+  connect?: Prisma.UsuarioWhereUniqueInput
+}
+
+export type UsuarioUpdateOneRequiredWithoutMensajesNestedInput = {
+  create?: Prisma.XOR<Prisma.UsuarioCreateWithoutMensajesInput, Prisma.UsuarioUncheckedCreateWithoutMensajesInput>
+  connectOrCreate?: Prisma.UsuarioCreateOrConnectWithoutMensajesInput
+  upsert?: Prisma.UsuarioUpsertWithoutMensajesInput
+  connect?: Prisma.UsuarioWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UsuarioUpdateToOneWithWhereWithoutMensajesInput, Prisma.UsuarioUpdateWithoutMensajesInput>, Prisma.UsuarioUncheckedUpdateWithoutMensajesInput>
+}
+
+export type UsuarioCreateNestedOneWithoutExencionesAdministradasInput = {
+  create?: Prisma.XOR<Prisma.UsuarioCreateWithoutExencionesAdministradasInput, Prisma.UsuarioUncheckedCreateWithoutExencionesAdministradasInput>
+  connectOrCreate?: Prisma.UsuarioCreateOrConnectWithoutExencionesAdministradasInput
+  connect?: Prisma.UsuarioWhereUniqueInput
+}
+
+export type UsuarioUpdateOneRequiredWithoutExencionesAdministradasNestedInput = {
+  create?: Prisma.XOR<Prisma.UsuarioCreateWithoutExencionesAdministradasInput, Prisma.UsuarioUncheckedCreateWithoutExencionesAdministradasInput>
+  connectOrCreate?: Prisma.UsuarioCreateOrConnectWithoutExencionesAdministradasInput
+  upsert?: Prisma.UsuarioUpsertWithoutExencionesAdministradasInput
+  connect?: Prisma.UsuarioWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UsuarioUpdateToOneWithWhereWithoutExencionesAdministradasInput, Prisma.UsuarioUpdateWithoutExencionesAdministradasInput>, Prisma.UsuarioUncheckedUpdateWithoutExencionesAdministradasInput>
+}
+
+export type UsuarioCreateNestedOneWithoutAuditoriasInput = {
+  create?: Prisma.XOR<Prisma.UsuarioCreateWithoutAuditoriasInput, Prisma.UsuarioUncheckedCreateWithoutAuditoriasInput>
+  connectOrCreate?: Prisma.UsuarioCreateOrConnectWithoutAuditoriasInput
+  connect?: Prisma.UsuarioWhereUniqueInput
+}
+
+export type UsuarioUpdateOneRequiredWithoutAuditoriasNestedInput = {
+  create?: Prisma.XOR<Prisma.UsuarioCreateWithoutAuditoriasInput, Prisma.UsuarioUncheckedCreateWithoutAuditoriasInput>
+  connectOrCreate?: Prisma.UsuarioCreateOrConnectWithoutAuditoriasInput
+  upsert?: Prisma.UsuarioUpsertWithoutAuditoriasInput
+  connect?: Prisma.UsuarioWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UsuarioUpdateToOneWithWhereWithoutAuditoriasInput, Prisma.UsuarioUpdateWithoutAuditoriasInput>, Prisma.UsuarioUncheckedUpdateWithoutAuditoriasInput>
+}
+
 export type UsuarioCreateWithoutRolInput = {
-  nombre: string
+  nombreCompleto: string
+  nombreVisible: string
   email: string
   passwordHash: string
+  ciudad: string
   telefono?: string | null
+  fotoPerfil?: string | null
   activo?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  sesiones?: Prisma.SesionCreateNestedManyWithoutUsuarioInput
+  donaciones?: Prisma.DonacionCreateNestedManyWithoutPropietarioInput
+  solicitudes?: Prisma.SolicitudCreateNestedManyWithoutSolicitanteInput
+  mensajes?: Prisma.MensajeCreateNestedManyWithoutRemitenteInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionCreateNestedManyWithoutAdministradorInput
+  auditorias?: Prisma.AuditoriaAdministrativaCreateNestedManyWithoutAdministradorInput
 }
 
 export type UsuarioUncheckedCreateWithoutRolInput = {
   id?: number
-  nombre: string
+  nombreCompleto: string
+  nombreVisible: string
   email: string
   passwordHash: string
+  ciudad: string
   telefono?: string | null
+  fotoPerfil?: string | null
   activo?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  sesiones?: Prisma.SesionUncheckedCreateNestedManyWithoutUsuarioInput
+  donaciones?: Prisma.DonacionUncheckedCreateNestedManyWithoutPropietarioInput
+  solicitudes?: Prisma.SolicitudUncheckedCreateNestedManyWithoutSolicitanteInput
+  mensajes?: Prisma.MensajeUncheckedCreateNestedManyWithoutRemitenteInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionUncheckedCreateNestedManyWithoutAdministradorInput
+  auditorias?: Prisma.AuditoriaAdministrativaUncheckedCreateNestedManyWithoutAdministradorInput
 }
 
 export type UsuarioCreateOrConnectWithoutRolInput = {
@@ -550,80 +765,758 @@ export type UsuarioScalarWhereInput = {
   OR?: Prisma.UsuarioScalarWhereInput[]
   NOT?: Prisma.UsuarioScalarWhereInput | Prisma.UsuarioScalarWhereInput[]
   id?: Prisma.IntFilter<"Usuario"> | number
-  nombre?: Prisma.StringFilter<"Usuario"> | string
+  nombreCompleto?: Prisma.StringFilter<"Usuario"> | string
+  nombreVisible?: Prisma.StringFilter<"Usuario"> | string
   email?: Prisma.StringFilter<"Usuario"> | string
   passwordHash?: Prisma.StringFilter<"Usuario"> | string
+  ciudad?: Prisma.StringFilter<"Usuario"> | string
   telefono?: Prisma.StringNullableFilter<"Usuario"> | string | null
+  fotoPerfil?: Prisma.StringNullableFilter<"Usuario"> | string | null
   activo?: Prisma.BoolFilter<"Usuario"> | boolean
   rolId?: Prisma.IntFilter<"Usuario"> | number
   createdAt?: Prisma.DateTimeFilter<"Usuario"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Usuario"> | Date | string
 }
 
-export type UsuarioCreateManyRolInput = {
-  id?: number
-  nombre: string
+export type UsuarioCreateWithoutSesionesInput = {
+  nombreCompleto: string
+  nombreVisible: string
   email: string
   passwordHash: string
+  ciudad: string
   telefono?: string | null
+  fotoPerfil?: string | null
+  activo?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  rol: Prisma.RolCreateNestedOneWithoutUsuariosInput
+  donaciones?: Prisma.DonacionCreateNestedManyWithoutPropietarioInput
+  solicitudes?: Prisma.SolicitudCreateNestedManyWithoutSolicitanteInput
+  mensajes?: Prisma.MensajeCreateNestedManyWithoutRemitenteInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionCreateNestedManyWithoutAdministradorInput
+  auditorias?: Prisma.AuditoriaAdministrativaCreateNestedManyWithoutAdministradorInput
+}
+
+export type UsuarioUncheckedCreateWithoutSesionesInput = {
+  id?: number
+  nombreCompleto: string
+  nombreVisible: string
+  email: string
+  passwordHash: string
+  ciudad: string
+  telefono?: string | null
+  fotoPerfil?: string | null
+  activo?: boolean
+  rolId: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  donaciones?: Prisma.DonacionUncheckedCreateNestedManyWithoutPropietarioInput
+  solicitudes?: Prisma.SolicitudUncheckedCreateNestedManyWithoutSolicitanteInput
+  mensajes?: Prisma.MensajeUncheckedCreateNestedManyWithoutRemitenteInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionUncheckedCreateNestedManyWithoutAdministradorInput
+  auditorias?: Prisma.AuditoriaAdministrativaUncheckedCreateNestedManyWithoutAdministradorInput
+}
+
+export type UsuarioCreateOrConnectWithoutSesionesInput = {
+  where: Prisma.UsuarioWhereUniqueInput
+  create: Prisma.XOR<Prisma.UsuarioCreateWithoutSesionesInput, Prisma.UsuarioUncheckedCreateWithoutSesionesInput>
+}
+
+export type UsuarioUpsertWithoutSesionesInput = {
+  update: Prisma.XOR<Prisma.UsuarioUpdateWithoutSesionesInput, Prisma.UsuarioUncheckedUpdateWithoutSesionesInput>
+  create: Prisma.XOR<Prisma.UsuarioCreateWithoutSesionesInput, Prisma.UsuarioUncheckedCreateWithoutSesionesInput>
+  where?: Prisma.UsuarioWhereInput
+}
+
+export type UsuarioUpdateToOneWithWhereWithoutSesionesInput = {
+  where?: Prisma.UsuarioWhereInput
+  data: Prisma.XOR<Prisma.UsuarioUpdateWithoutSesionesInput, Prisma.UsuarioUncheckedUpdateWithoutSesionesInput>
+}
+
+export type UsuarioUpdateWithoutSesionesInput = {
+  nombreCompleto?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreVisible?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  ciudad?: Prisma.StringFieldUpdateOperationsInput | string
+  telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rol?: Prisma.RolUpdateOneRequiredWithoutUsuariosNestedInput
+  donaciones?: Prisma.DonacionUpdateManyWithoutPropietarioNestedInput
+  solicitudes?: Prisma.SolicitudUpdateManyWithoutSolicitanteNestedInput
+  mensajes?: Prisma.MensajeUpdateManyWithoutRemitenteNestedInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionUpdateManyWithoutAdministradorNestedInput
+  auditorias?: Prisma.AuditoriaAdministrativaUpdateManyWithoutAdministradorNestedInput
+}
+
+export type UsuarioUncheckedUpdateWithoutSesionesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  nombreCompleto?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreVisible?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  ciudad?: Prisma.StringFieldUpdateOperationsInput | string
+  telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rolId?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  donaciones?: Prisma.DonacionUncheckedUpdateManyWithoutPropietarioNestedInput
+  solicitudes?: Prisma.SolicitudUncheckedUpdateManyWithoutSolicitanteNestedInput
+  mensajes?: Prisma.MensajeUncheckedUpdateManyWithoutRemitenteNestedInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionUncheckedUpdateManyWithoutAdministradorNestedInput
+  auditorias?: Prisma.AuditoriaAdministrativaUncheckedUpdateManyWithoutAdministradorNestedInput
+}
+
+export type UsuarioCreateWithoutDonacionesInput = {
+  nombreCompleto: string
+  nombreVisible: string
+  email: string
+  passwordHash: string
+  ciudad: string
+  telefono?: string | null
+  fotoPerfil?: string | null
+  activo?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  rol: Prisma.RolCreateNestedOneWithoutUsuariosInput
+  sesiones?: Prisma.SesionCreateNestedManyWithoutUsuarioInput
+  solicitudes?: Prisma.SolicitudCreateNestedManyWithoutSolicitanteInput
+  mensajes?: Prisma.MensajeCreateNestedManyWithoutRemitenteInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionCreateNestedManyWithoutAdministradorInput
+  auditorias?: Prisma.AuditoriaAdministrativaCreateNestedManyWithoutAdministradorInput
+}
+
+export type UsuarioUncheckedCreateWithoutDonacionesInput = {
+  id?: number
+  nombreCompleto: string
+  nombreVisible: string
+  email: string
+  passwordHash: string
+  ciudad: string
+  telefono?: string | null
+  fotoPerfil?: string | null
+  activo?: boolean
+  rolId: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sesiones?: Prisma.SesionUncheckedCreateNestedManyWithoutUsuarioInput
+  solicitudes?: Prisma.SolicitudUncheckedCreateNestedManyWithoutSolicitanteInput
+  mensajes?: Prisma.MensajeUncheckedCreateNestedManyWithoutRemitenteInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionUncheckedCreateNestedManyWithoutAdministradorInput
+  auditorias?: Prisma.AuditoriaAdministrativaUncheckedCreateNestedManyWithoutAdministradorInput
+}
+
+export type UsuarioCreateOrConnectWithoutDonacionesInput = {
+  where: Prisma.UsuarioWhereUniqueInput
+  create: Prisma.XOR<Prisma.UsuarioCreateWithoutDonacionesInput, Prisma.UsuarioUncheckedCreateWithoutDonacionesInput>
+}
+
+export type UsuarioUpsertWithoutDonacionesInput = {
+  update: Prisma.XOR<Prisma.UsuarioUpdateWithoutDonacionesInput, Prisma.UsuarioUncheckedUpdateWithoutDonacionesInput>
+  create: Prisma.XOR<Prisma.UsuarioCreateWithoutDonacionesInput, Prisma.UsuarioUncheckedCreateWithoutDonacionesInput>
+  where?: Prisma.UsuarioWhereInput
+}
+
+export type UsuarioUpdateToOneWithWhereWithoutDonacionesInput = {
+  where?: Prisma.UsuarioWhereInput
+  data: Prisma.XOR<Prisma.UsuarioUpdateWithoutDonacionesInput, Prisma.UsuarioUncheckedUpdateWithoutDonacionesInput>
+}
+
+export type UsuarioUpdateWithoutDonacionesInput = {
+  nombreCompleto?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreVisible?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  ciudad?: Prisma.StringFieldUpdateOperationsInput | string
+  telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rol?: Prisma.RolUpdateOneRequiredWithoutUsuariosNestedInput
+  sesiones?: Prisma.SesionUpdateManyWithoutUsuarioNestedInput
+  solicitudes?: Prisma.SolicitudUpdateManyWithoutSolicitanteNestedInput
+  mensajes?: Prisma.MensajeUpdateManyWithoutRemitenteNestedInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionUpdateManyWithoutAdministradorNestedInput
+  auditorias?: Prisma.AuditoriaAdministrativaUpdateManyWithoutAdministradorNestedInput
+}
+
+export type UsuarioUncheckedUpdateWithoutDonacionesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  nombreCompleto?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreVisible?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  ciudad?: Prisma.StringFieldUpdateOperationsInput | string
+  telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rolId?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sesiones?: Prisma.SesionUncheckedUpdateManyWithoutUsuarioNestedInput
+  solicitudes?: Prisma.SolicitudUncheckedUpdateManyWithoutSolicitanteNestedInput
+  mensajes?: Prisma.MensajeUncheckedUpdateManyWithoutRemitenteNestedInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionUncheckedUpdateManyWithoutAdministradorNestedInput
+  auditorias?: Prisma.AuditoriaAdministrativaUncheckedUpdateManyWithoutAdministradorNestedInput
+}
+
+export type UsuarioCreateWithoutSolicitudesInput = {
+  nombreCompleto: string
+  nombreVisible: string
+  email: string
+  passwordHash: string
+  ciudad: string
+  telefono?: string | null
+  fotoPerfil?: string | null
+  activo?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  rol: Prisma.RolCreateNestedOneWithoutUsuariosInput
+  sesiones?: Prisma.SesionCreateNestedManyWithoutUsuarioInput
+  donaciones?: Prisma.DonacionCreateNestedManyWithoutPropietarioInput
+  mensajes?: Prisma.MensajeCreateNestedManyWithoutRemitenteInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionCreateNestedManyWithoutAdministradorInput
+  auditorias?: Prisma.AuditoriaAdministrativaCreateNestedManyWithoutAdministradorInput
+}
+
+export type UsuarioUncheckedCreateWithoutSolicitudesInput = {
+  id?: number
+  nombreCompleto: string
+  nombreVisible: string
+  email: string
+  passwordHash: string
+  ciudad: string
+  telefono?: string | null
+  fotoPerfil?: string | null
+  activo?: boolean
+  rolId: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sesiones?: Prisma.SesionUncheckedCreateNestedManyWithoutUsuarioInput
+  donaciones?: Prisma.DonacionUncheckedCreateNestedManyWithoutPropietarioInput
+  mensajes?: Prisma.MensajeUncheckedCreateNestedManyWithoutRemitenteInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionUncheckedCreateNestedManyWithoutAdministradorInput
+  auditorias?: Prisma.AuditoriaAdministrativaUncheckedCreateNestedManyWithoutAdministradorInput
+}
+
+export type UsuarioCreateOrConnectWithoutSolicitudesInput = {
+  where: Prisma.UsuarioWhereUniqueInput
+  create: Prisma.XOR<Prisma.UsuarioCreateWithoutSolicitudesInput, Prisma.UsuarioUncheckedCreateWithoutSolicitudesInput>
+}
+
+export type UsuarioUpsertWithoutSolicitudesInput = {
+  update: Prisma.XOR<Prisma.UsuarioUpdateWithoutSolicitudesInput, Prisma.UsuarioUncheckedUpdateWithoutSolicitudesInput>
+  create: Prisma.XOR<Prisma.UsuarioCreateWithoutSolicitudesInput, Prisma.UsuarioUncheckedCreateWithoutSolicitudesInput>
+  where?: Prisma.UsuarioWhereInput
+}
+
+export type UsuarioUpdateToOneWithWhereWithoutSolicitudesInput = {
+  where?: Prisma.UsuarioWhereInput
+  data: Prisma.XOR<Prisma.UsuarioUpdateWithoutSolicitudesInput, Prisma.UsuarioUncheckedUpdateWithoutSolicitudesInput>
+}
+
+export type UsuarioUpdateWithoutSolicitudesInput = {
+  nombreCompleto?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreVisible?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  ciudad?: Prisma.StringFieldUpdateOperationsInput | string
+  telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rol?: Prisma.RolUpdateOneRequiredWithoutUsuariosNestedInput
+  sesiones?: Prisma.SesionUpdateManyWithoutUsuarioNestedInput
+  donaciones?: Prisma.DonacionUpdateManyWithoutPropietarioNestedInput
+  mensajes?: Prisma.MensajeUpdateManyWithoutRemitenteNestedInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionUpdateManyWithoutAdministradorNestedInput
+  auditorias?: Prisma.AuditoriaAdministrativaUpdateManyWithoutAdministradorNestedInput
+}
+
+export type UsuarioUncheckedUpdateWithoutSolicitudesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  nombreCompleto?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreVisible?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  ciudad?: Prisma.StringFieldUpdateOperationsInput | string
+  telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rolId?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sesiones?: Prisma.SesionUncheckedUpdateManyWithoutUsuarioNestedInput
+  donaciones?: Prisma.DonacionUncheckedUpdateManyWithoutPropietarioNestedInput
+  mensajes?: Prisma.MensajeUncheckedUpdateManyWithoutRemitenteNestedInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionUncheckedUpdateManyWithoutAdministradorNestedInput
+  auditorias?: Prisma.AuditoriaAdministrativaUncheckedUpdateManyWithoutAdministradorNestedInput
+}
+
+export type UsuarioCreateWithoutMensajesInput = {
+  nombreCompleto: string
+  nombreVisible: string
+  email: string
+  passwordHash: string
+  ciudad: string
+  telefono?: string | null
+  fotoPerfil?: string | null
+  activo?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  rol: Prisma.RolCreateNestedOneWithoutUsuariosInput
+  sesiones?: Prisma.SesionCreateNestedManyWithoutUsuarioInput
+  donaciones?: Prisma.DonacionCreateNestedManyWithoutPropietarioInput
+  solicitudes?: Prisma.SolicitudCreateNestedManyWithoutSolicitanteInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionCreateNestedManyWithoutAdministradorInput
+  auditorias?: Prisma.AuditoriaAdministrativaCreateNestedManyWithoutAdministradorInput
+}
+
+export type UsuarioUncheckedCreateWithoutMensajesInput = {
+  id?: number
+  nombreCompleto: string
+  nombreVisible: string
+  email: string
+  passwordHash: string
+  ciudad: string
+  telefono?: string | null
+  fotoPerfil?: string | null
+  activo?: boolean
+  rolId: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sesiones?: Prisma.SesionUncheckedCreateNestedManyWithoutUsuarioInput
+  donaciones?: Prisma.DonacionUncheckedCreateNestedManyWithoutPropietarioInput
+  solicitudes?: Prisma.SolicitudUncheckedCreateNestedManyWithoutSolicitanteInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionUncheckedCreateNestedManyWithoutAdministradorInput
+  auditorias?: Prisma.AuditoriaAdministrativaUncheckedCreateNestedManyWithoutAdministradorInput
+}
+
+export type UsuarioCreateOrConnectWithoutMensajesInput = {
+  where: Prisma.UsuarioWhereUniqueInput
+  create: Prisma.XOR<Prisma.UsuarioCreateWithoutMensajesInput, Prisma.UsuarioUncheckedCreateWithoutMensajesInput>
+}
+
+export type UsuarioUpsertWithoutMensajesInput = {
+  update: Prisma.XOR<Prisma.UsuarioUpdateWithoutMensajesInput, Prisma.UsuarioUncheckedUpdateWithoutMensajesInput>
+  create: Prisma.XOR<Prisma.UsuarioCreateWithoutMensajesInput, Prisma.UsuarioUncheckedCreateWithoutMensajesInput>
+  where?: Prisma.UsuarioWhereInput
+}
+
+export type UsuarioUpdateToOneWithWhereWithoutMensajesInput = {
+  where?: Prisma.UsuarioWhereInput
+  data: Prisma.XOR<Prisma.UsuarioUpdateWithoutMensajesInput, Prisma.UsuarioUncheckedUpdateWithoutMensajesInput>
+}
+
+export type UsuarioUpdateWithoutMensajesInput = {
+  nombreCompleto?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreVisible?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  ciudad?: Prisma.StringFieldUpdateOperationsInput | string
+  telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rol?: Prisma.RolUpdateOneRequiredWithoutUsuariosNestedInput
+  sesiones?: Prisma.SesionUpdateManyWithoutUsuarioNestedInput
+  donaciones?: Prisma.DonacionUpdateManyWithoutPropietarioNestedInput
+  solicitudes?: Prisma.SolicitudUpdateManyWithoutSolicitanteNestedInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionUpdateManyWithoutAdministradorNestedInput
+  auditorias?: Prisma.AuditoriaAdministrativaUpdateManyWithoutAdministradorNestedInput
+}
+
+export type UsuarioUncheckedUpdateWithoutMensajesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  nombreCompleto?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreVisible?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  ciudad?: Prisma.StringFieldUpdateOperationsInput | string
+  telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rolId?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sesiones?: Prisma.SesionUncheckedUpdateManyWithoutUsuarioNestedInput
+  donaciones?: Prisma.DonacionUncheckedUpdateManyWithoutPropietarioNestedInput
+  solicitudes?: Prisma.SolicitudUncheckedUpdateManyWithoutSolicitanteNestedInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionUncheckedUpdateManyWithoutAdministradorNestedInput
+  auditorias?: Prisma.AuditoriaAdministrativaUncheckedUpdateManyWithoutAdministradorNestedInput
+}
+
+export type UsuarioCreateWithoutExencionesAdministradasInput = {
+  nombreCompleto: string
+  nombreVisible: string
+  email: string
+  passwordHash: string
+  ciudad: string
+  telefono?: string | null
+  fotoPerfil?: string | null
+  activo?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  rol: Prisma.RolCreateNestedOneWithoutUsuariosInput
+  sesiones?: Prisma.SesionCreateNestedManyWithoutUsuarioInput
+  donaciones?: Prisma.DonacionCreateNestedManyWithoutPropietarioInput
+  solicitudes?: Prisma.SolicitudCreateNestedManyWithoutSolicitanteInput
+  mensajes?: Prisma.MensajeCreateNestedManyWithoutRemitenteInput
+  auditorias?: Prisma.AuditoriaAdministrativaCreateNestedManyWithoutAdministradorInput
+}
+
+export type UsuarioUncheckedCreateWithoutExencionesAdministradasInput = {
+  id?: number
+  nombreCompleto: string
+  nombreVisible: string
+  email: string
+  passwordHash: string
+  ciudad: string
+  telefono?: string | null
+  fotoPerfil?: string | null
+  activo?: boolean
+  rolId: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sesiones?: Prisma.SesionUncheckedCreateNestedManyWithoutUsuarioInput
+  donaciones?: Prisma.DonacionUncheckedCreateNestedManyWithoutPropietarioInput
+  solicitudes?: Prisma.SolicitudUncheckedCreateNestedManyWithoutSolicitanteInput
+  mensajes?: Prisma.MensajeUncheckedCreateNestedManyWithoutRemitenteInput
+  auditorias?: Prisma.AuditoriaAdministrativaUncheckedCreateNestedManyWithoutAdministradorInput
+}
+
+export type UsuarioCreateOrConnectWithoutExencionesAdministradasInput = {
+  where: Prisma.UsuarioWhereUniqueInput
+  create: Prisma.XOR<Prisma.UsuarioCreateWithoutExencionesAdministradasInput, Prisma.UsuarioUncheckedCreateWithoutExencionesAdministradasInput>
+}
+
+export type UsuarioUpsertWithoutExencionesAdministradasInput = {
+  update: Prisma.XOR<Prisma.UsuarioUpdateWithoutExencionesAdministradasInput, Prisma.UsuarioUncheckedUpdateWithoutExencionesAdministradasInput>
+  create: Prisma.XOR<Prisma.UsuarioCreateWithoutExencionesAdministradasInput, Prisma.UsuarioUncheckedCreateWithoutExencionesAdministradasInput>
+  where?: Prisma.UsuarioWhereInput
+}
+
+export type UsuarioUpdateToOneWithWhereWithoutExencionesAdministradasInput = {
+  where?: Prisma.UsuarioWhereInput
+  data: Prisma.XOR<Prisma.UsuarioUpdateWithoutExencionesAdministradasInput, Prisma.UsuarioUncheckedUpdateWithoutExencionesAdministradasInput>
+}
+
+export type UsuarioUpdateWithoutExencionesAdministradasInput = {
+  nombreCompleto?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreVisible?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  ciudad?: Prisma.StringFieldUpdateOperationsInput | string
+  telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rol?: Prisma.RolUpdateOneRequiredWithoutUsuariosNestedInput
+  sesiones?: Prisma.SesionUpdateManyWithoutUsuarioNestedInput
+  donaciones?: Prisma.DonacionUpdateManyWithoutPropietarioNestedInput
+  solicitudes?: Prisma.SolicitudUpdateManyWithoutSolicitanteNestedInput
+  mensajes?: Prisma.MensajeUpdateManyWithoutRemitenteNestedInput
+  auditorias?: Prisma.AuditoriaAdministrativaUpdateManyWithoutAdministradorNestedInput
+}
+
+export type UsuarioUncheckedUpdateWithoutExencionesAdministradasInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  nombreCompleto?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreVisible?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  ciudad?: Prisma.StringFieldUpdateOperationsInput | string
+  telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rolId?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sesiones?: Prisma.SesionUncheckedUpdateManyWithoutUsuarioNestedInput
+  donaciones?: Prisma.DonacionUncheckedUpdateManyWithoutPropietarioNestedInput
+  solicitudes?: Prisma.SolicitudUncheckedUpdateManyWithoutSolicitanteNestedInput
+  mensajes?: Prisma.MensajeUncheckedUpdateManyWithoutRemitenteNestedInput
+  auditorias?: Prisma.AuditoriaAdministrativaUncheckedUpdateManyWithoutAdministradorNestedInput
+}
+
+export type UsuarioCreateWithoutAuditoriasInput = {
+  nombreCompleto: string
+  nombreVisible: string
+  email: string
+  passwordHash: string
+  ciudad: string
+  telefono?: string | null
+  fotoPerfil?: string | null
+  activo?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  rol: Prisma.RolCreateNestedOneWithoutUsuariosInput
+  sesiones?: Prisma.SesionCreateNestedManyWithoutUsuarioInput
+  donaciones?: Prisma.DonacionCreateNestedManyWithoutPropietarioInput
+  solicitudes?: Prisma.SolicitudCreateNestedManyWithoutSolicitanteInput
+  mensajes?: Prisma.MensajeCreateNestedManyWithoutRemitenteInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionCreateNestedManyWithoutAdministradorInput
+}
+
+export type UsuarioUncheckedCreateWithoutAuditoriasInput = {
+  id?: number
+  nombreCompleto: string
+  nombreVisible: string
+  email: string
+  passwordHash: string
+  ciudad: string
+  telefono?: string | null
+  fotoPerfil?: string | null
+  activo?: boolean
+  rolId: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  sesiones?: Prisma.SesionUncheckedCreateNestedManyWithoutUsuarioInput
+  donaciones?: Prisma.DonacionUncheckedCreateNestedManyWithoutPropietarioInput
+  solicitudes?: Prisma.SolicitudUncheckedCreateNestedManyWithoutSolicitanteInput
+  mensajes?: Prisma.MensajeUncheckedCreateNestedManyWithoutRemitenteInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionUncheckedCreateNestedManyWithoutAdministradorInput
+}
+
+export type UsuarioCreateOrConnectWithoutAuditoriasInput = {
+  where: Prisma.UsuarioWhereUniqueInput
+  create: Prisma.XOR<Prisma.UsuarioCreateWithoutAuditoriasInput, Prisma.UsuarioUncheckedCreateWithoutAuditoriasInput>
+}
+
+export type UsuarioUpsertWithoutAuditoriasInput = {
+  update: Prisma.XOR<Prisma.UsuarioUpdateWithoutAuditoriasInput, Prisma.UsuarioUncheckedUpdateWithoutAuditoriasInput>
+  create: Prisma.XOR<Prisma.UsuarioCreateWithoutAuditoriasInput, Prisma.UsuarioUncheckedCreateWithoutAuditoriasInput>
+  where?: Prisma.UsuarioWhereInput
+}
+
+export type UsuarioUpdateToOneWithWhereWithoutAuditoriasInput = {
+  where?: Prisma.UsuarioWhereInput
+  data: Prisma.XOR<Prisma.UsuarioUpdateWithoutAuditoriasInput, Prisma.UsuarioUncheckedUpdateWithoutAuditoriasInput>
+}
+
+export type UsuarioUpdateWithoutAuditoriasInput = {
+  nombreCompleto?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreVisible?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  ciudad?: Prisma.StringFieldUpdateOperationsInput | string
+  telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  rol?: Prisma.RolUpdateOneRequiredWithoutUsuariosNestedInput
+  sesiones?: Prisma.SesionUpdateManyWithoutUsuarioNestedInput
+  donaciones?: Prisma.DonacionUpdateManyWithoutPropietarioNestedInput
+  solicitudes?: Prisma.SolicitudUpdateManyWithoutSolicitanteNestedInput
+  mensajes?: Prisma.MensajeUpdateManyWithoutRemitenteNestedInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionUpdateManyWithoutAdministradorNestedInput
+}
+
+export type UsuarioUncheckedUpdateWithoutAuditoriasInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  nombreCompleto?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreVisible?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  ciudad?: Prisma.StringFieldUpdateOperationsInput | string
+  telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  rolId?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sesiones?: Prisma.SesionUncheckedUpdateManyWithoutUsuarioNestedInput
+  donaciones?: Prisma.DonacionUncheckedUpdateManyWithoutPropietarioNestedInput
+  solicitudes?: Prisma.SolicitudUncheckedUpdateManyWithoutSolicitanteNestedInput
+  mensajes?: Prisma.MensajeUncheckedUpdateManyWithoutRemitenteNestedInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionUncheckedUpdateManyWithoutAdministradorNestedInput
+}
+
+export type UsuarioCreateManyRolInput = {
+  id?: number
+  nombreCompleto: string
+  nombreVisible: string
+  email: string
+  passwordHash: string
+  ciudad: string
+  telefono?: string | null
+  fotoPerfil?: string | null
   activo?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type UsuarioUpdateWithoutRolInput = {
-  nombre?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreCompleto?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreVisible?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sesiones?: Prisma.SesionUpdateManyWithoutUsuarioNestedInput
+  donaciones?: Prisma.DonacionUpdateManyWithoutPropietarioNestedInput
+  solicitudes?: Prisma.SolicitudUpdateManyWithoutSolicitanteNestedInput
+  mensajes?: Prisma.MensajeUpdateManyWithoutRemitenteNestedInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionUpdateManyWithoutAdministradorNestedInput
+  auditorias?: Prisma.AuditoriaAdministrativaUpdateManyWithoutAdministradorNestedInput
 }
 
 export type UsuarioUncheckedUpdateWithoutRolInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  nombre?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreCompleto?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreVisible?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sesiones?: Prisma.SesionUncheckedUpdateManyWithoutUsuarioNestedInput
+  donaciones?: Prisma.DonacionUncheckedUpdateManyWithoutPropietarioNestedInput
+  solicitudes?: Prisma.SolicitudUncheckedUpdateManyWithoutSolicitanteNestedInput
+  mensajes?: Prisma.MensajeUncheckedUpdateManyWithoutRemitenteNestedInput
+  exencionesAdministradas?: Prisma.ExencionCalificacionUncheckedUpdateManyWithoutAdministradorNestedInput
+  auditorias?: Prisma.AuditoriaAdministrativaUncheckedUpdateManyWithoutAdministradorNestedInput
 }
 
 export type UsuarioUncheckedUpdateManyWithoutRolInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  nombre?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreCompleto?: Prisma.StringFieldUpdateOperationsInput | string
+  nombreVisible?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.StringFieldUpdateOperationsInput | string
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  ciudad?: Prisma.StringFieldUpdateOperationsInput | string
   telefono?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fotoPerfil?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   activo?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
+/**
+ * Count Type UsuarioCountOutputType
+ */
+
+export type UsuarioCountOutputType = {
+  sesiones: number
+  donaciones: number
+  solicitudes: number
+  mensajes: number
+  exencionesAdministradas: number
+  auditorias: number
+}
+
+export type UsuarioCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  sesiones?: boolean | UsuarioCountOutputTypeCountSesionesArgs
+  donaciones?: boolean | UsuarioCountOutputTypeCountDonacionesArgs
+  solicitudes?: boolean | UsuarioCountOutputTypeCountSolicitudesArgs
+  mensajes?: boolean | UsuarioCountOutputTypeCountMensajesArgs
+  exencionesAdministradas?: boolean | UsuarioCountOutputTypeCountExencionesAdministradasArgs
+  auditorias?: boolean | UsuarioCountOutputTypeCountAuditoriasArgs
+}
+
+/**
+ * UsuarioCountOutputType without action
+ */
+export type UsuarioCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UsuarioCountOutputType
+   */
+  select?: Prisma.UsuarioCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * UsuarioCountOutputType without action
+ */
+export type UsuarioCountOutputTypeCountSesionesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SesionWhereInput
+}
+
+/**
+ * UsuarioCountOutputType without action
+ */
+export type UsuarioCountOutputTypeCountDonacionesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DonacionWhereInput
+}
+
+/**
+ * UsuarioCountOutputType without action
+ */
+export type UsuarioCountOutputTypeCountSolicitudesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SolicitudWhereInput
+}
+
+/**
+ * UsuarioCountOutputType without action
+ */
+export type UsuarioCountOutputTypeCountMensajesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.MensajeWhereInput
+}
+
+/**
+ * UsuarioCountOutputType without action
+ */
+export type UsuarioCountOutputTypeCountExencionesAdministradasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ExencionCalificacionWhereInput
+}
+
+/**
+ * UsuarioCountOutputType without action
+ */
+export type UsuarioCountOutputTypeCountAuditoriasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AuditoriaAdministrativaWhereInput
+}
+
 
 export type UsuarioSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  nombre?: boolean
+  nombreCompleto?: boolean
+  nombreVisible?: boolean
   email?: boolean
   passwordHash?: boolean
+  ciudad?: boolean
   telefono?: boolean
+  fotoPerfil?: boolean
   activo?: boolean
   rolId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   rol?: boolean | Prisma.RolDefaultArgs<ExtArgs>
+  sesiones?: boolean | Prisma.Usuario$sesionesArgs<ExtArgs>
+  donaciones?: boolean | Prisma.Usuario$donacionesArgs<ExtArgs>
+  solicitudes?: boolean | Prisma.Usuario$solicitudesArgs<ExtArgs>
+  mensajes?: boolean | Prisma.Usuario$mensajesArgs<ExtArgs>
+  exencionesAdministradas?: boolean | Prisma.Usuario$exencionesAdministradasArgs<ExtArgs>
+  auditorias?: boolean | Prisma.Usuario$auditoriasArgs<ExtArgs>
+  _count?: boolean | Prisma.UsuarioCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["usuario"]>
 
 export type UsuarioSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  nombre?: boolean
+  nombreCompleto?: boolean
+  nombreVisible?: boolean
   email?: boolean
   passwordHash?: boolean
+  ciudad?: boolean
   telefono?: boolean
+  fotoPerfil?: boolean
   activo?: boolean
   rolId?: boolean
   createdAt?: boolean
@@ -633,10 +1526,13 @@ export type UsuarioSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
 
 export type UsuarioSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  nombre?: boolean
+  nombreCompleto?: boolean
+  nombreVisible?: boolean
   email?: boolean
   passwordHash?: boolean
+  ciudad?: boolean
   telefono?: boolean
+  fotoPerfil?: boolean
   activo?: boolean
   rolId?: boolean
   createdAt?: boolean
@@ -646,19 +1542,29 @@ export type UsuarioSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
 
 export type UsuarioSelectScalar = {
   id?: boolean
-  nombre?: boolean
+  nombreCompleto?: boolean
+  nombreVisible?: boolean
   email?: boolean
   passwordHash?: boolean
+  ciudad?: boolean
   telefono?: boolean
+  fotoPerfil?: boolean
   activo?: boolean
   rolId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UsuarioOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nombre" | "email" | "passwordHash" | "telefono" | "activo" | "rolId" | "createdAt" | "updatedAt", ExtArgs["result"]["usuario"]>
+export type UsuarioOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "nombreCompleto" | "nombreVisible" | "email" | "passwordHash" | "ciudad" | "telefono" | "fotoPerfil" | "activo" | "rolId" | "createdAt" | "updatedAt", ExtArgs["result"]["usuario"]>
 export type UsuarioInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rol?: boolean | Prisma.RolDefaultArgs<ExtArgs>
+  sesiones?: boolean | Prisma.Usuario$sesionesArgs<ExtArgs>
+  donaciones?: boolean | Prisma.Usuario$donacionesArgs<ExtArgs>
+  solicitudes?: boolean | Prisma.Usuario$solicitudesArgs<ExtArgs>
+  mensajes?: boolean | Prisma.Usuario$mensajesArgs<ExtArgs>
+  exencionesAdministradas?: boolean | Prisma.Usuario$exencionesAdministradasArgs<ExtArgs>
+  auditorias?: boolean | Prisma.Usuario$auditoriasArgs<ExtArgs>
+  _count?: boolean | Prisma.UsuarioCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UsuarioIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   rol?: boolean | Prisma.RolDefaultArgs<ExtArgs>
@@ -671,13 +1577,22 @@ export type $UsuarioPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   name: "Usuario"
   objects: {
     rol: Prisma.$RolPayload<ExtArgs>
+    sesiones: Prisma.$SesionPayload<ExtArgs>[]
+    donaciones: Prisma.$DonacionPayload<ExtArgs>[]
+    solicitudes: Prisma.$SolicitudPayload<ExtArgs>[]
+    mensajes: Prisma.$MensajePayload<ExtArgs>[]
+    exencionesAdministradas: Prisma.$ExencionCalificacionPayload<ExtArgs>[]
+    auditorias: Prisma.$AuditoriaAdministrativaPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
-    nombre: string
+    nombreCompleto: string
+    nombreVisible: string
     email: string
     passwordHash: string
+    ciudad: string
     telefono: string | null
+    fotoPerfil: string | null
     activo: boolean
     rolId: number
     createdAt: Date
@@ -1077,6 +1992,12 @@ readonly fields: UsuarioFieldRefs;
 export interface Prisma__UsuarioClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   rol<T extends Prisma.RolDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.RolDefaultArgs<ExtArgs>>): Prisma.Prisma__RolClient<runtime.Types.Result.GetResult<Prisma.$RolPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  sesiones<T extends Prisma.Usuario$sesionesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Usuario$sesionesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SesionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  donaciones<T extends Prisma.Usuario$donacionesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Usuario$donacionesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DonacionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  solicitudes<T extends Prisma.Usuario$solicitudesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Usuario$solicitudesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SolicitudPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  mensajes<T extends Prisma.Usuario$mensajesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Usuario$mensajesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MensajePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  exencionesAdministradas<T extends Prisma.Usuario$exencionesAdministradasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Usuario$exencionesAdministradasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExencionCalificacionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  auditorias<T extends Prisma.Usuario$auditoriasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Usuario$auditoriasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditoriaAdministrativaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1107,10 +2028,13 @@ export interface Prisma__UsuarioClient<T, Null = never, ExtArgs extends runtime.
  */
 export interface UsuarioFieldRefs {
   readonly id: Prisma.FieldRef<"Usuario", 'Int'>
-  readonly nombre: Prisma.FieldRef<"Usuario", 'String'>
+  readonly nombreCompleto: Prisma.FieldRef<"Usuario", 'String'>
+  readonly nombreVisible: Prisma.FieldRef<"Usuario", 'String'>
   readonly email: Prisma.FieldRef<"Usuario", 'String'>
   readonly passwordHash: Prisma.FieldRef<"Usuario", 'String'>
+  readonly ciudad: Prisma.FieldRef<"Usuario", 'String'>
   readonly telefono: Prisma.FieldRef<"Usuario", 'String'>
+  readonly fotoPerfil: Prisma.FieldRef<"Usuario", 'String'>
   readonly activo: Prisma.FieldRef<"Usuario", 'Boolean'>
   readonly rolId: Prisma.FieldRef<"Usuario", 'Int'>
   readonly createdAt: Prisma.FieldRef<"Usuario", 'DateTime'>
@@ -1513,6 +2437,150 @@ export type UsuarioDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Limit how many Usuarios to delete.
    */
   limit?: number
+}
+
+/**
+ * Usuario.sesiones
+ */
+export type Usuario$sesionesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Sesion
+   */
+  select?: Prisma.SesionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Sesion
+   */
+  omit?: Prisma.SesionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SesionInclude<ExtArgs> | null
+  where?: Prisma.SesionWhereInput
+  orderBy?: Prisma.SesionOrderByWithRelationInput | Prisma.SesionOrderByWithRelationInput[]
+  cursor?: Prisma.SesionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SesionScalarFieldEnum | Prisma.SesionScalarFieldEnum[]
+}
+
+/**
+ * Usuario.donaciones
+ */
+export type Usuario$donacionesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Donacion
+   */
+  select?: Prisma.DonacionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Donacion
+   */
+  omit?: Prisma.DonacionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DonacionInclude<ExtArgs> | null
+  where?: Prisma.DonacionWhereInput
+  orderBy?: Prisma.DonacionOrderByWithRelationInput | Prisma.DonacionOrderByWithRelationInput[]
+  cursor?: Prisma.DonacionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DonacionScalarFieldEnum | Prisma.DonacionScalarFieldEnum[]
+}
+
+/**
+ * Usuario.solicitudes
+ */
+export type Usuario$solicitudesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Solicitud
+   */
+  select?: Prisma.SolicitudSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Solicitud
+   */
+  omit?: Prisma.SolicitudOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SolicitudInclude<ExtArgs> | null
+  where?: Prisma.SolicitudWhereInput
+  orderBy?: Prisma.SolicitudOrderByWithRelationInput | Prisma.SolicitudOrderByWithRelationInput[]
+  cursor?: Prisma.SolicitudWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SolicitudScalarFieldEnum | Prisma.SolicitudScalarFieldEnum[]
+}
+
+/**
+ * Usuario.mensajes
+ */
+export type Usuario$mensajesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Mensaje
+   */
+  select?: Prisma.MensajeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Mensaje
+   */
+  omit?: Prisma.MensajeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.MensajeInclude<ExtArgs> | null
+  where?: Prisma.MensajeWhereInput
+  orderBy?: Prisma.MensajeOrderByWithRelationInput | Prisma.MensajeOrderByWithRelationInput[]
+  cursor?: Prisma.MensajeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.MensajeScalarFieldEnum | Prisma.MensajeScalarFieldEnum[]
+}
+
+/**
+ * Usuario.exencionesAdministradas
+ */
+export type Usuario$exencionesAdministradasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ExencionCalificacion
+   */
+  select?: Prisma.ExencionCalificacionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ExencionCalificacion
+   */
+  omit?: Prisma.ExencionCalificacionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExencionCalificacionInclude<ExtArgs> | null
+  where?: Prisma.ExencionCalificacionWhereInput
+  orderBy?: Prisma.ExencionCalificacionOrderByWithRelationInput | Prisma.ExencionCalificacionOrderByWithRelationInput[]
+  cursor?: Prisma.ExencionCalificacionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ExencionCalificacionScalarFieldEnum | Prisma.ExencionCalificacionScalarFieldEnum[]
+}
+
+/**
+ * Usuario.auditorias
+ */
+export type Usuario$auditoriasArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AuditoriaAdministrativa
+   */
+  select?: Prisma.AuditoriaAdministrativaSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AuditoriaAdministrativa
+   */
+  omit?: Prisma.AuditoriaAdministrativaOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AuditoriaAdministrativaInclude<ExtArgs> | null
+  where?: Prisma.AuditoriaAdministrativaWhereInput
+  orderBy?: Prisma.AuditoriaAdministrativaOrderByWithRelationInput | Prisma.AuditoriaAdministrativaOrderByWithRelationInput[]
+  cursor?: Prisma.AuditoriaAdministrativaWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AuditoriaAdministrativaScalarFieldEnum | Prisma.AuditoriaAdministrativaScalarFieldEnum[]
 }
 
 /**
