@@ -16,10 +16,11 @@
 
 - [ ] Solicitar aprobacion inmediatamente antes de instalar las dependencias.
 - [ ] Instalar `bcryptjs`, `jose` y `zod`.
-- [ ] Crear `.env.example` con las variables aprobadas.
-- [ ] Permitir el seguimiento de `.env.example` sin exponer `.env`.
-- [ ] Validar las variables de entorno con zod.
-- [ ] Verificar que los secretos de access y refresh sean diferentes.
+- [x] Crear `.env.example` con `DATABASE_URL` y `AUTH_ACCESS_TOKEN_SECRET` ficticios.
+- [x] Permitir el seguimiento de `.env.example` sin exponer `.env`.
+- [x] Validar `DATABASE_URL` con zod.
+- [x] Validar `AUTH_ACCESS_TOKEN_SECRET` como obligatorio, no vacio y con minimo 32 caracteres.
+- [x] Confirmar que solo el access token requiere secreto de firma.
 
 ## Fase 3 - Esquema Prisma
 
@@ -63,15 +64,19 @@
 
 ## Fase 7 - Contrasenas y Tokens
 
-- [ ] Crear el hash de contrasenas con bcryptjs.
-- [ ] Crear la verificacion de contrasenas con bcryptjs.
-- [ ] Crear access tokens con jose.
-- [ ] Incluir `sid` en la emision de access tokens.
-- [ ] Validar access tokens y sus claims.
-- [ ] Validar `sub`, `sid`, Sesion vigente y cuenta activa.
-- [ ] Crear refresh tokens con jose.
-- [ ] Validar refresh tokens y sus claims.
-- [ ] Crear el hash SHA-256 de refresh tokens con `node:crypto`.
+- [x] Definir los roles permitidos `ADMIN` y `USUARIO`.
+- [x] Centralizar la duracion del access token, la duracion del refresh token y el issuer y audience del access token.
+- [x] Crear el hash de contrasenas con bcryptjs.
+- [x] Crear la verificacion de contrasenas con bcryptjs.
+- [x] Centralizar el costo bcrypt en 12 rondas.
+- [x] Crear access tokens con jose mediante `HS256` y duracion de 15 minutos.
+- [x] Incluir `sub`, `sid`, `role`, `type`, `iat` y `exp` en los access tokens.
+- [x] Validar criptograficamente firma, expiracion, issuer y audience del access token.
+- [x] Validar el formato de `sub`, `sid`, `role` y `type` del access token.
+- [ ] Validar Sesion vigente, coincidencia con Usuario, cuenta activa y rol actual en PostgreSQL.
+- [x] Generar refresh tokens opacos con aleatoriedad criptograficamente segura y codificacion Base64URL.
+- [x] Crear el hash SHA-256 hexadecimal de refresh tokens con `node:crypto`.
+- [x] Calcular la expiracion del refresh token a siete dias.
 - [ ] Evitar que tokens, contrasenas y hashes se escriban en logs.
 
 ## Fase 8 - Servicios y Sesiones
@@ -79,9 +84,13 @@
 - [ ] Crear el servicio de registro.
 - [ ] Crear el servicio de inicio de sesion.
 - [ ] Crear sesiones independientes por dispositivo.
+- [ ] Persistir unicamente el hash SHA-256 del refresh token en `Sesion`.
+- [ ] Buscar el hash del refresh token y verificar que la sesion este vigente y no revocada.
 - [ ] Crear el servicio de renovacion.
 - [ ] Implementar rotacion atomica del refresh token.
+- [ ] Reemplazar el hash anterior durante la rotacion.
 - [ ] Impedir la reutilizacion concurrente del token anterior.
+- [ ] Revocar la sesion ante reutilizacion detectada o cierre de sesion.
 - [ ] Crear el servicio de cierre de sesion actual.
 - [ ] Rechazar sesiones expiradas o revocadas.
 - [ ] Rechazar login y refresh para cuentas inactivas.
@@ -104,7 +113,7 @@
 - [ ] Consultar eficientemente Sesion, Usuario y Rol desde `sid`.
 - [ ] Exponer al endpoint protegido la identidad y el rol actual autenticados.
 - [ ] Invalidar inmediatamente access tokens cuando su Sesion sea revocada.
-- [ ] Diferenciar access tokens y refresh tokens por su claim `type`.
+- [ ] Diferenciar el access token JWT del refresh token opaco en servicios y endpoints.
 
 ## Fase 11 - Pruebas y Verificacion
 
@@ -122,9 +131,9 @@
 - [ ] Probar que el rol actual de base de datos prevalezca sobre el token.
 - [ ] Probar que reactivar una cuenta no restaure sesiones ni access tokens.
 - [ ] Probar el formato de respuestas exitosas y de error.
-- [ ] Ejecutar lint.
+- [x] Ejecutar lint.
 - [ ] Ejecutar las pruebas.
-- [ ] Ejecutar el build.
+- [x] Ejecutar el build.
 
 ## Fase 12 - Cierre Documental
 
@@ -139,5 +148,5 @@ La feature unicamente podra marcarse como completada cuando:
 - [ ] Todos los requisitos funcionales del spec esten implementados.
 - [ ] Todas las reglas de negocio esten cumplidas.
 - [ ] Todas las pruebas hayan sido ejecutadas correctamente.
-- [ ] El proyecto compile sin errores.
+- [x] El proyecto compile sin errores.
 - [ ] La documentacion de la feature este actualizada.
