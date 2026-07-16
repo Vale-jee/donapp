@@ -156,7 +156,11 @@ bcryptjs se utilizara exclusivamente para crear y verificar `passwordHash`. El c
 
 ### Access Tokens
 
-jose firmara access tokens de 15 minutos con un secreto exclusivo. La validacion comprobara firma, expiracion, `type: access`, usuario y rol.
+jose firmara access tokens de 15 minutos con un secreto exclusivo. Cada access token incluira `sub` y el UUID de la Sesion en `sid` dentro del token firmado.
+
+La validacion comprobara firma, expiracion, `type: access`, `sub`, `sid`, existencia y vigencia de la Sesion, coincidencia de usuario y cuenta activa. Cuando se requiera rol, consultara el rol actual en la base de datos.
+
+Sesion, Usuario y Rol se resolveran con una consulta eficiente que seleccione unicamente los identificadores, expiracion, revocacion, estado activo y codigo de rol necesarios.
 
 ### Refresh Tokens
 
@@ -170,7 +174,9 @@ El endpoint de refresh validara el token, la sesion, el hash almacenado, la expi
 
 ### Logout
 
-El logout validara el refresh token recibido y asignara `revokedAt` solamente a su sesion. No afectara las demas sesiones del usuario.
+El logout correlacionara la Sesion actual mediante `sid`, validara el refresh token recibido y asignara `revokedAt` solamente a esa Sesion. No afectara las demas sesiones del usuario. La revocacion invalidara inmediatamente los access tokens asociados a esa Sesion.
+
+La revocacion de todas las sesiones invalidara todos los access tokens asociados. Una reactivacion posterior de la cuenta no restaurara sesiones ni tokens y requerira un nuevo login.
 
 ## Endpoints
 

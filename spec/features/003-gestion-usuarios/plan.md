@@ -102,7 +102,13 @@ No se creara un endpoint general para revocar todas las sesiones.
 
 ## Desactivacion de Cuenta
 
-La desactivacion validara la contrasena actual, actualizara `activo = false` y revocara todas las sesiones. La cuenta y su historial permaneceran almacenados.
+La desactivacion propia validara la contrasena actual. La desactivacion propia o administrativa actualizara `activo = false`, revocara todas las sesiones e invalidara inmediatamente sus access tokens mediante `sid`.
+
+La operacion coordinara atomicamente las donaciones `PUBLICADA` a `RETIRADA` y las cancelaciones de solicitudes `PENDIENTE` con las causas aprobadas. No modificara donaciones `RESERVADA`, solicitudes `ACEPTADA`, chats, mensajes ni calificaciones.
+
+Los casos `RESERVADA` bloqueados y la reactivacion administrativa se resolveran en 010. Reactivar cambiara solo `activo = true`, no restaurara sesiones ni estados historicos y requerira un nuevo login.
+
+Los endpoints administrativos no se implementaran en esta feature.
 
 El tratamiento de donaciones y solicitudes activas no se implementara en esta feature.
 

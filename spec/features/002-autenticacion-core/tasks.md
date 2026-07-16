@@ -10,6 +10,7 @@
 - [x] Aprobar los contratos de los cuatro endpoints.
 - [x] Aprobar las reglas de privacidad y el formato uniforme de respuestas.
 - [x] Separar la documentacion en `spec.md`, `plan.md` y `tasks.md`.
+- [x] Sincronizar documentalmente la claim `sid` y la validacion de Sesion para access tokens.
 
 ## Fase 2 - Dependencias y Entorno
 
@@ -65,7 +66,9 @@
 - [ ] Crear el hash de contrasenas con bcryptjs.
 - [ ] Crear la verificacion de contrasenas con bcryptjs.
 - [ ] Crear access tokens con jose.
+- [ ] Incluir `sid` en la emision de access tokens.
 - [ ] Validar access tokens y sus claims.
+- [ ] Validar `sub`, `sid`, Sesion vigente y cuenta activa.
 - [ ] Crear refresh tokens con jose.
 - [ ] Validar refresh tokens y sus claims.
 - [ ] Crear el hash SHA-256 de refresh tokens con `node:crypto`.
@@ -98,7 +101,9 @@
 
 - [ ] Crear un mecanismo reutilizable para extraer el Bearer token.
 - [ ] Validar access tokens en endpoints protegidos.
-- [ ] Exponer al endpoint protegido la identidad y el rol autenticados.
+- [ ] Consultar eficientemente Sesion, Usuario y Rol desde `sid`.
+- [ ] Exponer al endpoint protegido la identidad y el rol actual autenticados.
+- [ ] Invalidar inmediatamente access tokens cuando su Sesion sea revocada.
 - [ ] Diferenciar access tokens y refresh tokens por su claim `type`.
 
 ## Fase 11 - Pruebas y Verificacion
@@ -113,6 +118,9 @@
 - [ ] Probar rotacion y rechazo del refresh token anterior.
 - [ ] Probar concurrencia durante la rotacion.
 - [ ] Probar logout sin afectar otras sesiones.
+- [ ] Probar access tokens con `sid` ausente, invalido, revocado o expirado.
+- [ ] Probar que el rol actual de base de datos prevalezca sobre el token.
+- [ ] Probar que reactivar una cuenta no restaure sesiones ni access tokens.
 - [ ] Probar el formato de respuestas exitosas y de error.
 - [ ] Ejecutar lint.
 - [ ] Ejecutar las pruebas.

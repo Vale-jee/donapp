@@ -10,6 +10,7 @@
 - [x] Aprobar el cambio de correo con `passwordActual`.
 - [x] Aprobar el cambio de contrasena y la revocacion total de sesiones.
 - [x] Aprobar la desactivacion y conservacion del historial.
+- [x] Sincronizar documentalmente la desactivacion propia y administrativa con Sesiones, Donaciones, Solicitudes y 010.
 - [x] Aprobar el formato uniforme de respuestas.
 - [x] Separar la documentacion en `spec.md`, `plan.md` y `tasks.md`.
 
@@ -59,6 +60,10 @@
 - [ ] Revocar todas las sesiones despues de cambiar la contrasena.
 - [ ] Implementar la desactivacion logica de la cuenta.
 - [ ] Revocar todas las sesiones despues de desactivar la cuenta.
+- [ ] Coordinar las donaciones `PUBLICADA -> RETIRADA` durante la desactivacion.
+- [ ] Coordinar la cancelacion de solicitudes `PENDIENTE` con las causas aprobadas.
+- [ ] Invalidar inmediatamente access tokens mediante la validacion de `sid`.
+- [ ] Mantener sin cambios donaciones `RESERVADA`, solicitudes `ACEPTADA`, chats, mensajes y calificaciones.
 - [ ] Garantizar la perdida inmediata de acceso de cuentas inactivas.
 - [ ] Traducir conflictos de unicidad a `409`.
 
@@ -91,6 +96,8 @@
 - [ ] Probar la validacion de `passwordActual` al cambiar correo.
 - [ ] Probar el cambio de contrasena y la revocacion de sesiones.
 - [ ] Probar la desactivacion, el historial y la perdida inmediata de acceso.
+- [ ] Probar la coordinacion con Donaciones, Solicitudes y Sesiones.
+- [ ] Verificar que la reactivacion administrativa no restaure sesiones, tokens ni estados historicos.
 - [ ] Probar autenticacion y autorizacion de rutas protegidas.
 - [ ] Probar el formato uniforme de respuestas.
 - [ ] Ejecutar lint.

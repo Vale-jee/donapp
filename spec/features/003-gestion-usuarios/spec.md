@@ -29,7 +29,7 @@ La feature tambien permite consultar una representacion publica limitada de otro
 - Creacion administrativa de usuarios.
 - Administracion global de usuarios.
 - Cierre general de todas las sesiones solicitado directamente por el usuario.
-- Reglas sobre donaciones o solicitudes activas despues de desactivar una cuenta.
+- Endpoints de desactivacion, reactivacion o revocacion administrativa, que pertenecen a 010-administracion.
 
 ## Requisitos Funcionales
 
@@ -95,13 +95,13 @@ La feature tambien permite consultar una representacion publica limitada de otro
 
 **RN-018** El cambio de contrasena revocara todas las sesiones y obligara a iniciar sesion nuevamente.
 
-**RN-019** La desactivacion establecera `activo = false`, revocara todas las sesiones y conservara fisicamente la cuenta y su historial.
+**RN-019** La desactivacion propia o administrativa establecera `activo = false`, revocara todas las sesiones activas y conservara fisicamente la cuenta y su historial.
 
-**RN-020** La revocacion de todas las sesiones solo se realizara en esta feature como consecuencia del cambio de contrasena o la desactivacion de la cuenta.
+**RN-020** La revocacion de todas las sesiones se realizara por cambio de contrasena o desactivacion de cuenta; 010 tambien podra ordenarla mediante su endpoint administrativo separado.
 
-**RN-021** La revocacion anterior no implica implementar un endpoint general para cerrar todas las sesiones.
+**RN-021** Esta feature no implementara un endpoint general para cerrar todas las sesiones ni duplicara el endpoint administrativo de 010.
 
-**RN-022** El tratamiento de donaciones y solicitudes activas de una cuenta desactivada se definira en sus respectivas features.
+**RN-022** La desactivacion coordinara Donaciones y Solicitudes segun las reglas transversales aprobadas, sin duplicar sus endpoints en esta feature.
 
 **RN-023** El nombre completo solo podra ser consultado por el propietario y por los administradores mediante las funcionalidades que les correspondan.
 
@@ -124,6 +124,23 @@ El perfil propio seleccionara explicitamente los campos permitidos. Nunca devolv
 El perfil publico seleccionara exclusivamente `id`, `nombreVisible`, `fotoPerfil` y `ciudad`. No revelara si una cuenta fue desactivada o nunca existio.
 
 Toda ruta protegida debera validar el access token, confirmar que el usuario exista y confirmar que `Usuario.activo` sea `true`.
+
+## Coordinacion de la Desactivacion
+
+Una desactivacion propia o administrativa debera coordinar consistentemente:
+
+- `Usuario.activo = false`.
+- Revocacion de todas sus sesiones activas.
+- Rechazo inmediato de sus access tokens mediante la validacion de `sid`.
+- Donaciones `PUBLICADA` del usuario a `RETIRADA`.
+- Solicitudes `PENDIENTE` creadas por el usuario a `CANCELADA`, con causa `USUARIO_INACTIVO`.
+- Solicitudes `PENDIENTE` recibidas en sus donaciones retiradas a `CANCELADA`, con causa `DONACION_RETIRADA`.
+
+No modificara automaticamente donaciones `RESERVADA`, solicitudes `ACEPTADA`, chats, mensajes ni calificaciones. Las donaciones `RESERVADA` con participantes inactivos se resolveran mediante 010-administracion.
+
+La reactivacion administrativa cambiara unicamente `Usuario.activo = true`. No restaurara sesiones, access tokens, donaciones retiradas, solicitudes canceladas ni estados historicos, y requerira un nuevo login.
+
+Los endpoints administrativos pertenecen exclusivamente a 010. Esta feature aporta las reglas de dominio y coordinacion, pero no los duplica.
 
 ## Normalizacion y Validaciones
 
@@ -388,4 +405,4 @@ El endpoint provisional `GET /api/usuarios` se retirara al implementar esta feat
 
 Las calificaciones y el total de donaciones entregadas se incorporaran al perfil publico desde sus respectivas features.
 
-Las reglas para donaciones y solicitudes activas de una cuenta desactivada se definiran en las features correspondientes.
+La coordinacion de la desactivacion se implementara junto con Sesiones, Donaciones y Solicitudes. Las resoluciones de casos bloqueados y la reactivacion administrativa pertenecen a 010-administracion.

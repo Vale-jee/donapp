@@ -169,8 +169,10 @@ Codigos iniciales: `ADMIN` y `USUARIO`.
 - Firmado con jose.
 - Duracion de 15 minutos.
 - No se almacena en PostgreSQL.
-- Claims: `sub`, `role`, `type: access`, `iat` y `exp`.
+- Claims: `sub`, `sid`, `role`, `type: access`, `iat` y `exp`.
 - No contiene contrasenas, hashes ni informacion personal sensible.
+- `sid` contiene el UUID de la `Sesion` que origino el token, forma parte del token firmado, no se recibe libremente del cliente y no se expone en respuestas normales.
+- `sid` no contiene el refresh token ni su hash.
 
 ### Refresh Token
 
@@ -180,6 +182,16 @@ Codigos iniciales: `ADMIN` y `USUARIO`.
 - Su hash SHA-256 se almacena en `Sesion`.
 - Se rota despues de cada renovacion exitosa.
 - Deja de ser valido al expirar, rotarse o revocarse.
+
+## Validacion de Access Tokens y Sesiones
+
+Todo guard autenticado comprobara firma valida, token no expirado, existencia de `sub` y `sid`, existencia de la Sesion, coincidencia `Sesion.usuarioId = sub`, `Sesion.revokedAt = null`, `Sesion.expiresAt` posterior a la fecha actual y `Usuario.activo = true`.
+
+Cuando un endpoint requiera autorizacion por rol, el rol actual almacenado en la base de datos sera la fuente definitiva. No se confiara unicamente en un rol antiguo incluido en el token.
+
+La validacion se resolvera mediante una consulta eficiente que seleccione solo `Sesion.id`, `Sesion.usuarioId`, `Sesion.expiresAt`, `Sesion.revokedAt`, `Usuario.id`, `Usuario.activo` y `Rol.codigo` cuando sea necesario. No se devolveran objetos Prisma completos.
+
+El logout actual revocara la Sesion identificada por `sid`. Revocar una Sesion invalidara inmediatamente su access token; revocar todas las sesiones invalidara todos los access tokens asociados. Reactivar una cuenta no reactivara sesiones revocadas y exigira un nuevo inicio de sesion.
 
 ## Endpoints y Contratos
 
