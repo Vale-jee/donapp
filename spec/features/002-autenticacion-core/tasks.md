@@ -24,24 +24,24 @@
 ## Fase 3 - Esquema Prisma
 
 - [x] Disponer de modelos iniciales `Rol` y `Usuario`.
-- [ ] Actualizar `Rol` con `codigo` y `updatedAt`.
-- [ ] Actualizar `Usuario` con los campos definitivos de esta feature.
-- [ ] Agregar las restricciones unicas de `email` y `nombreVisible`.
-- [ ] Crear el modelo `Sesion` con UUID.
-- [ ] Agregar relaciones e indices de sesiones.
-- [ ] Confirmar que no se agreguen `calificacionPromedio` ni `totalDonaciones`.
-- [ ] Validar el esquema Prisma.
+- [x] Actualizar `Rol` con `codigo` y `updatedAt`.
+- [x] Actualizar `Usuario` con los campos definitivos de esta feature.
+- [x] Agregar las restricciones unicas de `email` y `nombreVisible`.
+- [x] Crear el modelo `Sesion` con UUID.
+- [x] Agregar relaciones e indices de sesiones.
+- [x] Confirmar que no se agreguen `calificacionPromedio` ni `totalDonaciones`.
+- [x] Validar el esquema Prisma.
 
 ## Fase 4 - Migracion y Cliente Prisma
 
-- [ ] Definir el tratamiento de registros existentes para los nuevos campos obligatorios.
-- [ ] Crear una migracion nueva.
-- [ ] Revisar el SQL generado y la integridad referencial.
-- [ ] Aplicar la migracion en el entorno de desarrollo.
+- [x] Definir el tratamiento de registros existentes para los nuevos campos obligatorios.
+- [x] Crear una migracion nueva.
+- [x] Revisar el SQL generado y la integridad referencial.
+- [x] Aplicar la migracion en el entorno de desarrollo.
 - [x] Configurar `generated/prisma` como ubicacion oficial del cliente.
-- [ ] Regenerar el cliente Prisma en `generated/prisma`.
-- [ ] Verificar que ningun archivo utilice `src/generated/prisma`.
-- [ ] Eliminar `src/generated/prisma` despues de verificar sus referencias.
+- [x] Regenerar el cliente Prisma en `generated/prisma`.
+- [x] Verificar que ningun archivo utilice `src/generated/prisma`.
+- [x] Eliminar `src/generated/prisma` despues de verificar sus referencias.
 
 ## Fase 5 - Seed de Roles
 

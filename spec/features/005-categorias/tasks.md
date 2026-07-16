@@ -31,20 +31,20 @@
 
 ## Fase 3 - Modelo Prisma
 
-- [ ] Agregar el modelo `Categoria` a `prisma/schema.prisma`.
-- [ ] Configurar `id`, `nombre`, `descripcion`, `activo`, `createdAt` y `updatedAt`.
+- [x] Agregar el modelo `Categoria` a `prisma/schema.prisma`.
+- [x] Configurar `id`, `nombre`, `descripcion`, `activo`, `createdAt` y `updatedAt`.
 - [ ] Garantizar la unicidad del nombre sin distinguir mayusculas y minusculas.
 - [ ] Confirmar que no se agregue todavia la relacion con `Donacion`.
-- [ ] Validar el schema Prisma.
+- [x] Validar el schema Prisma.
 
 ## Fase 4 - Migracion y Cliente Prisma
 
-- [ ] Crear una migracion nueva para `Categoria`.
-- [ ] Revisar las restricciones y valores iniciales generados.
-- [ ] Revisar la estrategia de unicidad normalizada en PostgreSQL.
-- [ ] Aplicar la migracion en el entorno de desarrollo.
-- [ ] Regenerar el cliente Prisma en `generated/prisma`.
-- [ ] Confirmar que la aplicacion utilice el cliente oficial.
+- [x] Crear una migracion nueva para `Categoria`.
+- [x] Revisar las restricciones y valores iniciales generados.
+- [x] Revisar la estrategia de unicidad normalizada en PostgreSQL.
+- [x] Aplicar la migracion en el entorno de desarrollo.
+- [x] Regenerar el cliente Prisma en `generated/prisma`.
+- [x] Confirmar que la aplicacion utilice el cliente oficial.
 
 ## Fase 5 - Seed Inicial
 

@@ -23,27 +23,27 @@
 
 ## Fase 2 - Modelo Prisma
 
-- [ ] Agregar el enum de estados de Donacion.
-- [ ] Agregar el modelo `Donacion`.
-- [ ] Agregar el modelo `ImagenDonacion`.
-- [ ] Configurar los campos conceptuales aprobados.
-- [ ] Configurar la relacion con el propietario.
-- [ ] Configurar la relacion con Categoria.
-- [ ] Agregar `solicitudAceptadaId` opcional y su relacion con Solicitud.
+- [x] Agregar el enum de estados de Donacion.
+- [x] Agregar el modelo `Donacion`.
+- [x] Agregar el modelo `ImagenDonacion`.
+- [x] Configurar los campos conceptuales aprobados.
+- [x] Configurar la relacion con el propietario.
+- [x] Configurar la relacion con Categoria.
+- [x] Agregar `solicitudAceptadaId` opcional y su relacion con Solicitud.
 - [ ] Garantizar que la solicitud referenciada pertenezca a la donacion y este `ACEPTADA`.
-- [ ] Configurar la relacion y orden de ImagenDonacion.
-- [ ] Crear los indices necesarios para listados y filtros.
+- [x] Configurar la relacion y orden de ImagenDonacion.
+- [x] Crear los indices necesarios para listados y filtros.
 - [ ] Confirmar que no se agreguen modelos completos de Solicitud, Chat o Calificacion.
-- [ ] Validar el schema Prisma.
+- [x] Validar el schema Prisma.
 
 ## Fase 3 - Migracion y Cliente Prisma
 
-- [ ] Crear una migracion nueva.
-- [ ] Revisar enum, nulabilidad, valores iniciales e integridad referencial.
-- [ ] Revisar indices y restricciones de imagenes.
-- [ ] Aplicar la migracion en desarrollo.
-- [ ] Regenerar el cliente en `generated/prisma`.
-- [ ] Confirmar el uso del cliente oficial.
+- [x] Crear una migracion nueva.
+- [x] Revisar enum, nulabilidad, valores iniciales e integridad referencial.
+- [x] Revisar indices y restricciones de imagenes.
+- [x] Aplicar la migracion en desarrollo.
+- [x] Regenerar el cliente en `generated/prisma`.
+- [x] Confirmar el uso del cliente oficial.
 
 ## Fase 4 - Validaciones Zod
 

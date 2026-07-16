@@ -16,12 +16,12 @@
 
 ## Fase 2 - Modelos y Migración
 
-- [ ] Incorporar `AuditoriaAdministrativa` en Prisma.
-- [ ] Incorporar `ExencionCalificacion` en Prisma.
-- [ ] Incorporar las claves foráneas obligatorias.
-- [ ] Verificar que no se agreguen campos prohibidos.
-- [ ] Crear y revisar la migración PostgreSQL.
-- [ ] Aplicar la migración.
+- [x] Incorporar `AuditoriaAdministrativa` en Prisma.
+- [x] Incorporar `ExencionCalificacion` en Prisma.
+- [x] Incorporar las claves foráneas obligatorias.
+- [x] Verificar que no se agreguen campos prohibidos.
+- [x] Crear y revisar la migración PostgreSQL.
+- [x] Aplicar la migración.
 
 
 ## Fase 3 - Guard Administrativo y Sesiones
@@ -36,12 +36,13 @@
 
 ## Fase 4 - Restricciones e Índices
 
-- [ ] Agregar `UNIQUE` a `ExencionCalificacion.donacionId`.
-- [ ] Restringir eliminaciones físicas y cascadas destructivas.
-- [ ] Crear índices de Auditoría por administrador, acción, entidad y fecha.
-- [ ] Crear índices de Exención por donación y administrador.
-- [ ] Crear índices para listados y filtros administrativos.
-- [ ] Verificar las restricciones directamente en PostgreSQL.
+- [x] Agregar `UNIQUE` a `ExencionCalificacion.donacionId`.
+- [x] Configurar todas las claves foráneas con `ON DELETE RESTRICT` y `ON UPDATE CASCADE`.
+- [x] Crear índices de Auditoría por administrador, acción, entidad y fecha.
+- [x] Crear índices de Exención por donación y administrador.
+- [x] Crear índices estructurales aprobados para listados administrativos.
+- [ ] Evaluar índices adicionales para filtros administrativos cuando existan consultas implementadas.
+- [x] Verificar las restricciones directamente en PostgreSQL.
 
 
 ## Fase 5 - Validaciones y Servicios Compartidos

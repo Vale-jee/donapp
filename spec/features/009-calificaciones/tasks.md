@@ -19,23 +19,23 @@
 
 ## Fase 2 - Modelo y Migración
 
-- [ ] Incorporar el modelo `Calificacion` con los cuatro campos aprobados.
-- [ ] Incorporar la clave foránea obligatoria hacia Donación.
-- [ ] Verificar que no se agreguen campos derivados o prohibidos al modelo.
-- [ ] Crear y revisar la migración PostgreSQL.
-- [ ] Aplicar la migración en el entorno correspondiente.
+- [x] Incorporar el modelo `Calificacion` con los cuatro campos aprobados.
+- [x] Incorporar la clave foránea obligatoria hacia Donación.
+- [x] Verificar que no se agreguen campos derivados o prohibidos al modelo.
+- [x] Crear y revisar la migración PostgreSQL.
+- [x] Aplicar la migración en el entorno correspondiente.
 
 
 ## Fase 3 - Restricciones e Índices
 
-- [ ] Agregar `UNIQUE` a `Calificacion.donacionId`.
-- [ ] Restringir la puntuación a enteros entre 1 y 5.
-- [ ] Restringir eliminaciones físicas y cascadas destructivas.
-- [ ] Crear índices para detectar calificaciones pendientes.
-- [ ] Incorporar la relación de consulta con `ExencionCalificacion`.
-- [ ] Crear índices para excluir eficientemente donaciones eximidas.
-- [ ] Crear índices para listar calificaciones por propietario y fecha.
-- [ ] Verificar las restricciones directamente en PostgreSQL.
+- [x] Agregar `UNIQUE` a `Calificacion.donacionId`.
+- [x] Restringir la puntuación a enteros entre 1 y 5.
+- [x] Configurar todas las claves foráneas con `ON DELETE RESTRICT` y `ON UPDATE CASCADE`.
+- [x] Crear índices para detectar calificaciones pendientes.
+- [x] Incorporar la relación de consulta con `ExencionCalificacion`.
+- [x] Crear índices para excluir eficientemente donaciones eximidas.
+- [x] Crear índices para listar calificaciones por propietario y fecha.
+- [x] Verificar las restricciones directamente en PostgreSQL.
 
 
 ## Fase 4 - Validaciones y Servicios

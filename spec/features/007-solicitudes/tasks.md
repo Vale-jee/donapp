@@ -15,21 +15,21 @@
 
 ## Fase 2 - Modelo y Migracion
 
-- [ ] Incorporar los enums de estado y causa de cancelacion en Prisma.
-- [ ] Incorporar el modelo `Solicitud` con los campos aprobados.
-- [ ] Incorporar las relaciones obligatorias con Donacion y Usuario.
-- [ ] Incorporar `Donacion.solicitudAceptadaId` nullable sin agregar `receptorId`.
-- [ ] Crear y revisar la migracion.
-- [ ] Aplicar la migracion en el entorno correspondiente.
+- [x] Incorporar los enums de estado y causa de cancelacion en Prisma.
+- [x] Incorporar el modelo `Solicitud` con los campos aprobados.
+- [x] Incorporar las relaciones obligatorias con Donacion y Usuario.
+- [x] Incorporar `Donacion.solicitudAceptadaId` nullable sin agregar `receptorId`.
+- [x] Crear y revisar la migracion.
+- [x] Aplicar la migracion en el entorno correspondiente.
 
 
 ## Fase 3 - Restricciones PostgreSQL
 
-- [ ] Garantizar una sola solicitud `PENDIENTE` o `ACEPTADA` por donacion y solicitante.
-- [ ] Garantizar una sola solicitud `ACEPTADA` por donacion.
+- [x] Garantizar una sola solicitud `PENDIENTE` o `ACEPTADA` por donacion y solicitante.
+- [x] Garantizar una sola solicitud `ACEPTADA` por donacion.
 - [ ] Garantizar coherencia entre estado, causa de cancelacion y fechas.
-- [ ] Restringir la eliminacion fisica de solicitudes.
-- [ ] Verificar las restricciones parciales agregadas en la migracion.
+- [x] Restringir la eliminacion fisica de solicitudes.
+- [x] Verificar las restricciones parciales agregadas en la migracion.
 
 
 ## Fase 4 - Validaciones y Servicios

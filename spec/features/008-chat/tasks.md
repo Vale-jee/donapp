@@ -17,21 +17,21 @@
 
 ## Fase 2 - Modelo y Migración
 
-- [ ] Incorporar el modelo `Chat` con los campos aprobados.
-- [ ] Incorporar el modelo `Mensaje` con los campos aprobados.
-- [ ] Verificar que no se agregue un enum de estado para Chat en `schema.prisma`.
-- [ ] Incorporar las claves foráneas obligatorias.
-- [ ] Crear y revisar la migración.
-- [ ] Aplicar la migración en el entorno correspondiente.
+- [x] Incorporar el modelo `Chat` con los campos aprobados.
+- [x] Incorporar el modelo `Mensaje` con los campos aprobados.
+- [x] Verificar que no se agregue un enum de estado para Chat en `schema.prisma`.
+- [x] Incorporar las claves foráneas obligatorias.
+- [x] Crear y revisar la migración.
+- [x] Aplicar la migración en el entorno correspondiente.
 
 
 ## Fase 3 - Restricciones e Índices
 
-- [ ] Agregar `UNIQUE` a `Chat.solicitudId`.
-- [ ] Restringir eliminaciones físicas y cascadas destructivas.
-- [ ] Crear índices para listar chats de los participantes.
-- [ ] Crear el índice de mensajes por chat, fecha e identificador.
-- [ ] Verificar las restricciones directamente en PostgreSQL.
+- [x] Agregar `UNIQUE` a `Chat.solicitudId`.
+- [x] Configurar todas las claves foráneas con `ON DELETE RESTRICT` y `ON UPDATE CASCADE`.
+- [x] Crear índices para listar chats de los participantes.
+- [x] Crear el índice de mensajes por chat, fecha e identificador.
+- [x] Verificar las restricciones directamente en PostgreSQL.
 
 
 ## Fase 4 - Validaciones y Servicios

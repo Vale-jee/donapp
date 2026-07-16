@@ -18,7 +18,7 @@
 
 - [x] Disponer del modelo inicial `Usuario` como base provisional.
 - [ ] Completar 002-autenticacion-core.
-- [ ] Confirmar el modelo definitivo `Usuario` y sus relaciones.
+- [x] Confirmar el modelo definitivo `Usuario` y sus relaciones.
 - [ ] Reutilizar la autenticacion Bearer.
 - [ ] Reutilizar la verificacion y hash de contrasenas.
 - [ ] Reutilizar la politica de contrasenas.
