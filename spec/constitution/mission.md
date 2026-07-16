@@ -1,52 +1,60 @@
+# Misión de DonApp
+
 ## Misión
 
-DonApp es una aplicación móvil desarrollada para facilitar la donación de artículos entre personas de una misma ciudad, promoviendo la solidaridad, la reutilización de recursos y el apoyo comunitario mediante una plataforma segura, intuitiva y accesible.
+DonApp facilitará la donación responsable de artículos entre personas de una misma ciudad, conectando a quienes tienen objetos disponibles con quienes realmente pueden necesitarlos mediante un proceso seguro, organizado y accesible.
 
-La aplicación busca conectar donantes y receptores a través de un proceso organizado que permita publicar donaciones, solicitar artículos y coordinar las entregas mediante un chat interno, protegiendo en todo momento la información personal de los usuarios.
+## Problema que Resuelve
 
+Muchos artículos útiles dejan de utilizarse aunque todavía puedan beneficiar a otras personas. Encontrar receptores cercanos puede ser difícil y los intercambios informales suelen carecer de confianza, seguimiento y reglas claras. DonApp organiza el proceso desde la publicación hasta la entrega para promover la solidaridad, la reutilización y la colaboración local.
 
-## Visión
+## Usuarios Principales
 
-Ser una plataforma de referencia para fomentar la colaboración entre comunidades locales, impulsando una cultura de solidaridad y consumo responsable mediante el uso de tecnologías móviles.
+- **Donante o propietario:** publica y administra el artículo, revisa solicitudes y selecciona a su receptor.
+- **Solicitante y receptor seleccionado:** solicita una donación y, si es elegido, coordina y confirma su recepción.
+- **Administrador:** supervisa el sistema e interviene únicamente en casos excepcionales mediante acciones limitadas y auditables.
 
+## Flujo General
 
-## Objetivo General
+1. Registro e inicio de sesión.
+2. Publicación de una donación.
+3. Envío de solicitudes por usuarios de la misma ciudad.
+4. Selección de un receptor.
+5. Coordinación mediante un chat privado.
+6. Confirmación de la entrega por las partes.
+7. Calificación del donante por el receptor.
+8. Supervisión administrativa en los casos excepcionales aprobados.
 
-Desarrollar una aplicación móvil que permita gestionar de manera segura y eficiente el proceso de donación de artículos entre usuarios de una misma ciudad, garantizando la privacidad de la información, una experiencia de uso sencilla y una comunicación organizada entre donantes y receptores.
+## Confianza y Reputación
 
-## Objetivos Específicos
+Cada donación entregada admite una única calificación del donante realizada por el receptor seleccionado. La reputación se calcula a partir de calificaciones reales y conservadas. Un receptor debe atender sus calificaciones pendientes antes de solicitar nuevas donaciones. Solo un administrador puede conceder una exención cuando completar la obligación resulte imposible; una exención no crea una puntuación ficticia.
 
-- Facilitar la publicación y gestión de donaciones.
-- Permitir a los usuarios buscar artículos disponibles por categoría.
-- Mostrar únicamente donaciones correspondientes a la misma ciudad del usuario.
-- Proteger la información personal mediante controles de privacidad.
-- Permitir la comunicación únicamente cuando una solicitud haya sido aceptada.
-- Generar confianza entre los usuarios mediante un sistema de calificaciones.
-- Mantener un historial de las donaciones realizadas.
+## Privacidad y Seguridad
 
+DonApp expone únicamente los datos necesarios para cada interacción y protege la información privada de las cuentas. El chat es exclusivo de los participantes de la donación. La administración no permite suplantar usuarios ni leer mensajes privados, y sus intervenciones sensibles deben quedar limitadas y auditadas.
 
-## Público Objetivo
+## Conservación del Historial
 
-DonApp está dirigida a personas que desean donar o recibir artículos dentro de su misma ciudad de manera segura, sencilla y organizada, fortaleciendo la colaboración y el apoyo entre miembros de la comunidad.
+Las donaciones, solicitudes, chats, mensajes, calificaciones y resoluciones administrativas se conservan para mantener trazabilidad. Los estados finales y las decisiones históricas no se eliminan ni se reescriben arbitrariamente.
 
+## Alcance Inicial
 
-## Principios del Proyecto
+La primera versión comprende:
 
-El desarrollo de DonApp estará basado en los siguientes principios:
+- autenticación y sesiones;
+- perfiles públicos y privados;
+- categorías;
+- publicación y gestión de donaciones;
+- solicitudes y selección del receptor;
+- chat privado;
+- confirmación de entrega;
+- calificaciones y reputación;
+- administración y auditoría.
 
-- Priorizar la privacidad de la información personal.
-- Promover la solidaridad y la reutilización de recursos.
-- Mantener una interfaz sencilla e intuitiva.
-- Implementar una arquitectura escalable y de fácil mantenimiento.
-- Documentar cada funcionalidad antes de su implementación.
-- Desarrollar cada módulo siguiendo la metodología Spec Driven Development (SDD).
+## Fuera del Alcance Inicial
 
+La primera versión no incluye pagos, logística o transporte, ubicación en tiempo real, adjuntos o videollamadas en Chat, suplantación, edición o eliminación de calificaciones, lectura administrativa de mensajes, reportes avanzados, detección automática de fraude, recuperación de contraseña ni un frontend administrativo web.
 
-## Valores
+## Criterios Generales de Éxito
 
-- Solidaridad.
-- Confianza.
-- Privacidad.
-- Transparencia.
-- Simplicidad.
-- Colaboración.
+DonApp será exitoso cuando el flujo completo de donación sea consistente y previsible, la información personal permanezca protegida, el historial se conserve, las intervenciones administrativas sean auditables y la API pueda verificarse de forma segura, documentada y reproducible.
