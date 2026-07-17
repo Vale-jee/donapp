@@ -72,7 +72,10 @@ Evidencia de ejecucion:
 - [x] Validar y normalizar `ciudad`, conservando su capitalizacion.
 - [x] Validar el campo opcional `telefono`.
 - [x] Validar el campo opcional `fotoPerfil`.
-- [ ] Crear la validacion de login.
+- [x] Crear un esquema Zod estricto para login.
+- [x] Normalizar el correo de login quitando espacios exteriores y convirtiendolo a minusculas.
+- [x] Conservar la contrasena de login sin transformaciones.
+- [x] Rechazar la contrasena de login vacia o truncada por `bcrypt.truncates`.
 - [ ] Crear la validacion de refresh.
 - [ ] Crear la validacion de logout.
 
@@ -102,9 +105,15 @@ Evidencia de ejecucion:
 - [x] Traducir de forma segura los conflictos Prisma `P2002` conocidos y desconocidos.
 - [x] Tratar la ausencia del rol `USUARIO` como error interno seguro sin asignar otro rol.
 - [x] Confirmar que el registro no crea `Sesion` ni genera access token o refresh token.
-- [ ] Crear el servicio de inicio de sesion.
-- [ ] Crear sesiones independientes por dispositivo.
-- [ ] Persistir unicamente el hash SHA-256 del refresh token en `Sesion`.
+- [x] Crear el servicio de inicio de sesion.
+- [x] Consultar unicamente los campos necesarios de `Usuario` y `Rol` durante el login.
+- [x] Responder genericamente cuando el correo no exista o la contrasena sea incorrecta.
+- [x] Verificar la contrasena mediante `verifyPassword`.
+- [x] Crear una sesion independiente para cada login correcto.
+- [x] Generar un refresh token opaco y persistir unicamente su hash SHA-256 en `Sesion`.
+- [x] Crear `Sesion` con expiracion de siete dias.
+- [x] Crear el access token con `sub`, `sid` y `role`.
+- [x] Ejecutar en una transaccion la creacion de `Sesion` y del access token asociado.
 - [ ] Buscar el hash del refresh token y verificar que la sesion este vigente y no revocada.
 - [ ] Crear el servicio de renovacion.
 - [ ] Implementar rotacion atomica del refresh token.
@@ -113,7 +122,8 @@ Evidencia de ejecucion:
 - [ ] Revocar la sesion ante reutilizacion detectada o cierre de sesion.
 - [ ] Crear el servicio de cierre de sesion actual.
 - [ ] Rechazar sesiones expiradas o revocadas.
-- [ ] Rechazar login y refresh para cuentas inactivas.
+- [x] Rechazar el login de cuentas inactivas con HTTP `403`.
+- [ ] Rechazar el refresh de cuentas inactivas.
 
 ## Fase 9 - Endpoints
 
@@ -123,14 +133,22 @@ Evidencia de ejecucion:
 - [x] Responder HTTP `405` para metodos no permitidos e incluir `Allow: POST`.
 - [x] Responder HTTP `409` para correo o nombre visible duplicados.
 - [x] Responder HTTP `500` de forma segura ante errores internos.
-- [ ] Implementar `POST /api/auth/login`.
+- [x] Implementar `POST /api/auth/login`.
+- [x] Responder el login exitoso con HTTP `200`.
+- [x] Responder HTTP `400` para datos de login invalidos.
+- [x] Responder HTTP `401` para correo inexistente o contrasena incorrecta.
+- [x] Responder HTTP `403` para una cuenta inactiva.
+- [x] Responder HTTP `405` para metodos no permitidos en login e incluir `Allow: POST`.
+- [x] Responder HTTP `500` de forma segura ante errores internos del login.
 - [ ] Implementar `POST /api/auth/refresh`.
 - [ ] Implementar `POST /api/auth/logout`.
 - [x] Aplicar el formato uniforme con `data` en las respuestas del registro.
-- [ ] Aplicar el formato uniforme con `data` en login, refresh y logout.
-- [ ] Seleccionar explicitamente los datos publicos del login.
+- [x] Aplicar el formato uniforme con `data` en login.
+- [ ] Aplicar el formato uniforme con `data` en refresh y logout.
+- [x] Seleccionar explicitamente los datos publicos del login.
 - [x] Confirmar que el endpoint de registro no exponga `passwordHash` ni datos internos.
-- [ ] Confirmar que los endpoints restantes no expongan hashes o datos privados.
+- [x] Confirmar que el endpoint de login no exponga `passwordHash`, `refreshTokenHash` ni datos privados no aprobados.
+- [ ] Confirmar que los endpoints de refresh y logout no expongan hashes o datos privados.
 
 ## Fase 10 - Proteccion de Rutas
 
@@ -150,8 +168,16 @@ Evidencia de ejecucion:
 - [x] Registrar en Postman la evidencia del registro exitoso con HTTP `201`.
 - [ ] Registrar en Postman las evidencias de los casos de error del registro.
 - [ ] Crear pruebas automatizadas para el registro.
-- [ ] Probar login valido, credenciales invalidas y cuenta inactiva.
-- [ ] Probar privacidad de las respuestas.
+- [x] Probar funcionalmente el login valido.
+- [x] Probar funcionalmente la contrasena incorrecta.
+- [x] Probar que `GET /api/auth/login` responda HTTP `405` con encabezado `Allow: POST`.
+- [x] Verificar en PostgreSQL la creacion de una sesion activa y el rol asociado al usuario.
+- [x] Registrar en Postman la evidencia del login exitoso con HTTP `200`.
+- [x] Registrar en Postman la evidencia de credenciales invalidas con HTTP `401`.
+- [x] Registrar la evidencia del HTTP `405`, el encabezado `Allow: POST` y la sesion activa en PostgreSQL.
+- [ ] Probar funcionalmente el login de una cuenta inactiva.
+- [x] Probar la privacidad de la respuesta del login.
+- [ ] Probar la privacidad de las respuestas de refresh, logout y rutas protegidas.
 - [ ] Probar varias sesiones simultaneas.
 - [ ] Probar expiracion y tipo de tokens.
 - [ ] Probar rotacion y rechazo del refresh token anterior.
@@ -161,7 +187,9 @@ Evidencia de ejecucion:
 - [ ] Probar que el rol actual de base de datos prevalezca sobre el token.
 - [ ] Probar que reactivar una cuenta no restaure sesiones ni access tokens.
 - [x] Probar el formato de las respuestas exitosas y de error del registro.
-- [ ] Probar el formato de respuestas de login, refresh, logout y rutas protegidas.
+- [x] Probar el formato de las respuestas HTTP `200`, `401` y `405` del login.
+- [ ] Probar funcionalmente las respuestas HTTP `400`, `403` y `500` del login.
+- [ ] Probar el formato de respuestas de refresh, logout y rutas protegidas.
 - [x] Ejecutar lint.
 - [ ] Ejecutar las pruebas.
 - [x] Ejecutar el build.
@@ -177,6 +205,16 @@ Evidencia funcional del registro:
 - Usuario almacenado con rol `USUARIO`, cuenta activa y datos normalizados.
 - Cero sesiones creadas y ningun access token o refresh token generado.
 - `passwordHash` no expuesto; hash verificado mediante bcryptjs sin registrar su valor.
+
+Evidencia funcional del login:
+
+- Login correcto: HTTP `200` con mensaje `"Sesión iniciada correctamente."`; evidencia conservada en Postman.
+- Contrasena incorrecta: HTTP `401`; evidencia conservada en Postman.
+- Metodo `GET /api/auth/login`: HTTP `405` con encabezado `Allow: POST`.
+- Una sesion activa verificada en PostgreSQL; evidencia conservada de la consulta.
+- Rol del usuario obtenido desde PostgreSQL.
+- Refresh token opaco entregado al cliente y almacenamiento exclusivo de su hash SHA-256.
+- Cero exposicion de contrasenas, `passwordHash` o `refreshTokenHash` en la respuesta.
 
 ## Fase 12 - Cierre Documental
 
