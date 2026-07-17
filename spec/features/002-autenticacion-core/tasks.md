@@ -16,6 +16,7 @@
 
 - [ ] Solicitar aprobacion inmediatamente antes de instalar las dependencias.
 - [ ] Instalar `bcryptjs`, `jose` y `zod`.
+- [x] Instalar `tsx` como dependencia de desarrollo para ejecutar el seed TypeScript.
 - [x] Crear `.env.example` con `DATABASE_URL` y `AUTH_ACCESS_TOKEN_SECRET` ficticios.
 - [x] Permitir el seguimiento de `.env.example` sin exponer `.env`.
 - [x] Validar `DATABASE_URL` con zod.
@@ -46,11 +47,20 @@
 
 ## Fase 5 - Seed de Roles
 
-- [ ] Crear el seed idempotente.
-- [ ] Crear o actualizar el rol `ADMIN` por codigo.
-- [ ] Crear o actualizar el rol `USUARIO` por codigo.
-- [ ] Configurar el comando de ejecucion del seed.
-- [ ] Ejecutar el seed varias veces y comprobar que no duplique registros.
+- [x] Crear el seed idempotente de roles en `prisma/seed.ts`.
+- [x] Configurar oficialmente `tsx prisma/seed.ts` en `prisma.config.ts`.
+- [x] Crear idempotentemente `RolCodigo.ADMIN` con nombre `Administrador`.
+- [x] Crear idempotentemente `RolCodigo.USUARIO` con nombre `Usuario`.
+- [x] Utilizar `createMany` con `skipDuplicates: true` sin modificar registros existentes.
+- [x] Verificar despues de la insercion los codigos y nombres aprobados.
+- [x] Detectar roles ausentes o nombres inconsistentes sin corregirlos automaticamente.
+- [x] Cerrar correctamente Prisma al finalizar, incluso ante errores.
+- [x] Ejecutar el seed dos veces y comprobar que no duplique registros.
+
+Evidencia de ejecucion:
+
+- Primera ejecucion: `created: 2`; `ADMIN` - `Administrador`; `USUARIO` - `Usuario`.
+- Segunda ejecucion: `created: 0`; `ADMIN` - `Administrador`; `USUARIO` - `Usuario`.
 
 ## Fase 6 - Validaciones
 
