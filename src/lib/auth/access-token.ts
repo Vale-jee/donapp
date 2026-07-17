@@ -14,8 +14,16 @@ import {
 
 const ACCESS_TOKEN_ALGORITHM = "HS256";
 
+const accessTokenSubjectSchema = z
+  .string()
+  .regex(/^[1-9]\d*$/)
+  .refine((value) => {
+    const userId = Number(value);
+    return Number.isSafeInteger(userId) && userId > 0;
+  });
+
 const accessTokenSchema = z.object({
-  sub: z.string().min(1),
+  sub: accessTokenSubjectSchema,
   sid: z.uuid(),
   role: z.enum(AUTH_ROLES),
   type: z.literal("access"),
