@@ -78,7 +78,7 @@ Evidencia de ejecucion:
 - [x] Rechazar la contrasena de login vacia o truncada por `bcrypt.truncates`.
 - [x] Crear un esquema Zod estricto para refresh y rechazar campos adicionales.
 - [x] Validar `refreshToken` como Base64URL de exactamente 43 caracteres sin transformarlo.
-- [ ] Crear la validacion de logout.
+- [x] Reutilizar el esquema estricto de refresh mediante `logoutSchema` y exportar `LogoutInput`.
 
 ## Fase 7 - Contrasenas y Tokens
 
@@ -126,8 +126,11 @@ Evidencia de ejecucion:
 - [x] Obtener el rol actual desde PostgreSQL y generar un access token nuevo.
 - [x] Ejecutar la renovacion mediante una transaccion interactiva.
 - [x] Impedir el doble uso concurrente mediante `updateMany` condicionado y `rotation.count === 1`.
-- [ ] Revocar la sesion ante reutilizacion detectada o cierre de sesion.
-- [ ] Crear el servicio de cierre de sesion actual.
+- [x] Calcular el hash SHA-256 del refresh token y localizar la Sesion mediante `refreshTokenHash` durante el logout.
+- [x] Revocar unicamente la Sesion actual asignando `revokedAt` sin eliminarla ni modificar su hash o expiracion.
+- [x] Crear el servicio de cierre de sesion actual mediante un `updateMany` atomico.
+- [x] Rechazar uniformemente el logout con token desconocido, vencido o revocado.
+- [ ] Revocar la sesion ante una reutilizacion detectada fuera del flujo de logout.
 - [x] Rechazar durante el refresh las sesiones expiradas o revocadas con HTTP `401` uniforme.
 - [x] Rechazar el login de cuentas inactivas con HTTP `403`.
 - [x] Rechazar el refresh de cuentas inactivas con HTTP `403` sin rotar ni revocar la Sesion.
@@ -154,16 +157,21 @@ Evidencia de ejecucion:
 - [x] Responder HTTP `403` para una cuenta inactiva.
 - [x] Responder HTTP `405` para metodos no permitidos en refresh e incluir `Allow: POST`.
 - [x] Responder HTTP `500` de forma sanitizada ante errores internos del refresh.
-- [ ] Implementar `POST /api/auth/logout`.
+- [x] Implementar `POST /api/auth/logout` con Pages Router.
+- [x] Responder el logout exitoso con HTTP `200` y `data: {}`.
+- [x] Responder HTTP `400` para un body o refresh token invalido.
+- [x] Responder HTTP `401` uniformemente para un refresh token no utilizable.
+- [x] Responder HTTP `405` para metodos no permitidos en logout e incluir `Allow: POST`.
+- [x] Responder HTTP `500` de forma sanitizada ante errores internos del logout.
 - [x] Aplicar el formato uniforme con `data` en las respuestas del registro.
 - [x] Aplicar el formato uniforme con `data` en login.
 - [x] Aplicar el formato uniforme con `data` en refresh.
-- [ ] Aplicar el formato uniforme con `data` en logout.
+- [x] Aplicar el formato uniforme con `data` en logout.
 - [x] Seleccionar explicitamente los datos publicos del login.
 - [x] Confirmar que el endpoint de registro no exponga `passwordHash` ni datos internos.
 - [x] Confirmar que el endpoint de login no exponga `passwordHash`, `refreshTokenHash` ni datos privados no aprobados.
 - [x] Confirmar que el endpoint de refresh no exponga hashes ni datos internos.
-- [ ] Confirmar que el endpoint de logout no exponga hashes o datos privados.
+- [x] Confirmar que el endpoint de logout no exponga usuario, identificadores, tokens, hashes ni datos internos.
 
 ## Fase 10 - Proteccion de Rutas
 
@@ -173,7 +181,8 @@ Evidencia de ejecucion:
 - [ ] Exponer al endpoint protegido la identidad y el rol actual autenticados.
 - [ ] Invalidar inmediatamente access tokens cuando su Sesion sea revocada.
 - [ ] Diferenciar el access token JWT del refresh token opaco en servicios y endpoints.
-- [ ] Implementar y verificar la autorizacion para `ADMIN`.
+- [ ] Implementar y verificar la autorizacion por roles.
+- [ ] Implementar y verificar rutas exclusivas para `ADMIN`.
 
 ## Fase 11 - Pruebas y Verificacion
 
@@ -194,14 +203,18 @@ Evidencia de ejecucion:
 - [ ] Probar funcionalmente el login de una cuenta inactiva.
 - [x] Probar la privacidad de la respuesta del login.
 - [x] Probar la privacidad de la respuesta del refresh.
-- [ ] Probar la privacidad de las respuestas de logout y rutas protegidas.
+- [x] Probar la privacidad de la respuesta del logout.
+- [ ] Probar la privacidad de las respuestas de rutas protegidas.
 - [ ] Probar varias sesiones simultaneas.
 - [ ] Probar expiracion y tipo de tokens.
 - [x] Probar funcionalmente la rotacion y el rechazo del refresh token anterior.
 - [x] Probar funcionalmente el refresh token nuevo.
 - [ ] Probar funcionalmente el refresh de una cuenta inactiva.
 - [ ] Probar concurrencia durante la rotacion.
-- [ ] Probar logout sin afectar otras sesiones.
+- [x] Probar funcionalmente el cierre de sesion y el rechazo de la reutilizacion del token.
+- [x] Verificar `revokedAt`, cero sesiones activas y conservacion fisica de la Sesion en PostgreSQL.
+- [ ] Probar concurrentemente dos solicitudes de logout con el mismo token.
+- [ ] Probar logout sin afectar otras sesiones activas del mismo usuario.
 - [ ] Probar access tokens con `sid` ausente, invalido, revocado o expirado.
 - [ ] Probar que el rol actual de base de datos prevalezca sobre el token.
 - [ ] Probar que reactivar una cuenta no restaure sesiones ni access tokens.
@@ -210,7 +223,9 @@ Evidencia de ejecucion:
 - [ ] Probar funcionalmente las respuestas HTTP `400`, `403` y `500` del login.
 - [x] Probar el formato de las respuestas HTTP `200` y `401` del refresh.
 - [ ] Probar funcionalmente las respuestas HTTP `400`, `403`, `405` y `500` del refresh.
-- [ ] Probar el formato de respuestas de logout y rutas protegidas.
+- [x] Probar el formato de las respuestas HTTP `200` y `401` del logout.
+- [ ] Probar funcionalmente las respuestas HTTP `400`, `405` y `500` del logout.
+- [ ] Probar el formato de respuestas de rutas protegidas.
 - [x] Ejecutar lint.
 - [ ] Ejecutar las pruebas.
 - [ ] Completar las pruebas automatizadas de autenticacion.
@@ -246,6 +261,14 @@ Evidencia funcional del refresh:
 - El access token mantiene una duracion de `900` segundos.
 - El refresh token mantiene una duracion de `604800` segundos.
 - Peticion guardada en Postman como `Auth - Renovar tokens`.
+
+Evidencia funcional del logout:
+
+- Primer uso del refresh token en logout: HTTP `200`, mensaje `"Sesión cerrada correctamente."` y `data: {}`.
+- Segundo uso del mismo refresh token: HTTP `401` con mensaje `"Refresh token inválido."`.
+- En PostgreSQL, `revokedAt` contiene fecha y hora y existen cero sesiones activas.
+- La Sesion revocada se conserva fisicamente en PostgreSQL.
+- Peticion guardada en Postman como `Auth - Cerrar sesión`.
 
 ## Fase 12 - Cierre Documental
 
