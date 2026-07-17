@@ -64,13 +64,17 @@ Evidencia de ejecucion:
 
 ## Fase 6 - Validaciones
 
-- [ ] Crear la validacion de registro.
+- [x] Crear un esquema Zod estricto para el registro y rechazar campos no permitidos, incluido `rol`.
+- [x] Validar y normalizar `nombreCompleto`, conservando capitalizacion y tildes.
+- [x] Validar y normalizar `nombreVisible` a minusculas.
+- [x] Validar y normalizar el correo a minusculas.
+- [x] Validar la politica de contrasena y rechazar entradas truncadas por `bcrypt.truncates`.
+- [x] Validar y normalizar `ciudad`, conservando su capitalizacion.
+- [x] Validar el campo opcional `telefono`.
+- [x] Validar el campo opcional `fotoPerfil`.
 - [ ] Crear la validacion de login.
 - [ ] Crear la validacion de refresh.
 - [ ] Crear la validacion de logout.
-- [ ] Normalizar el correo antes de almacenarlo o buscarlo.
-- [ ] Validar la politica de contrasena.
-- [ ] Validar los campos opcionales `telefono` y `fotoPerfil`.
 
 ## Fase 7 - Contrasenas y Tokens
 
@@ -91,7 +95,13 @@ Evidencia de ejecucion:
 
 ## Fase 8 - Servicios y Sesiones
 
-- [ ] Crear el servicio de registro.
+- [x] Crear el servicio de registro con datos previamente validados y normalizados.
+- [x] Buscar y asignar automaticamente `RolCodigo.USUARIO`, seleccionando unicamente su identificador.
+- [x] Comprobar previamente conflictos de correo y nombre visible.
+- [x] Generar `passwordHash` mediante bcryptjs y crear `Usuario` sin exponer el hash.
+- [x] Traducir de forma segura los conflictos Prisma `P2002` conocidos y desconocidos.
+- [x] Tratar la ausencia del rol `USUARIO` como error interno seguro sin asignar otro rol.
+- [x] Confirmar que el registro no crea `Sesion` ni genera access token o refresh token.
 - [ ] Crear el servicio de inicio de sesion.
 - [ ] Crear sesiones independientes por dispositivo.
 - [ ] Persistir unicamente el hash SHA-256 del refresh token en `Sesion`.
@@ -107,14 +117,20 @@ Evidencia de ejecucion:
 
 ## Fase 9 - Endpoints
 
-- [ ] Implementar `POST /api/auth/register`.
+- [x] Implementar `POST /api/auth/register` con Pages Router.
+- [x] Responder el registro exitoso con HTTP `201` y `data: {}`.
+- [x] Responder HTTP `400` para datos invalidos.
+- [x] Responder HTTP `405` para metodos no permitidos e incluir `Allow: POST`.
+- [x] Responder HTTP `409` para correo o nombre visible duplicados.
+- [x] Responder HTTP `500` de forma segura ante errores internos.
 - [ ] Implementar `POST /api/auth/login`.
 - [ ] Implementar `POST /api/auth/refresh`.
 - [ ] Implementar `POST /api/auth/logout`.
-- [ ] Rechazar metodos HTTP no permitidos.
-- [ ] Aplicar el formato uniforme con `data` en todas las respuestas.
+- [x] Aplicar el formato uniforme con `data` en las respuestas del registro.
+- [ ] Aplicar el formato uniforme con `data` en login, refresh y logout.
 - [ ] Seleccionar explicitamente los datos publicos del login.
-- [ ] Confirmar que ningun endpoint exponga hashes o datos privados.
+- [x] Confirmar que el endpoint de registro no exponga `passwordHash` ni datos internos.
+- [ ] Confirmar que los endpoints restantes no expongan hashes o datos privados.
 
 ## Fase 10 - Proteccion de Rutas
 
@@ -128,8 +144,12 @@ Evidencia de ejecucion:
 ## Fase 11 - Pruebas y Verificacion
 
 - [ ] Configurar la estrategia de pruebas aprobada para el proyecto.
-- [ ] Probar registro, normalizacion y conflictos de unicidad.
-- [ ] Probar politica y hash de contrasenas.
+- [x] Probar funcionalmente el registro, la normalizacion y los conflictos de unicidad.
+- [x] Probar funcionalmente la politica y el hash de contrasenas durante el registro.
+- [x] Verificar que el registro asigne `USUARIO`, conserve la cuenta activa y no cree sesiones.
+- [x] Registrar en Postman la evidencia del registro exitoso con HTTP `201`.
+- [ ] Registrar en Postman las evidencias de los casos de error del registro.
+- [ ] Crear pruebas automatizadas para el registro.
 - [ ] Probar login valido, credenciales invalidas y cuenta inactiva.
 - [ ] Probar privacidad de las respuestas.
 - [ ] Probar varias sesiones simultaneas.
@@ -140,10 +160,23 @@ Evidencia de ejecucion:
 - [ ] Probar access tokens con `sid` ausente, invalido, revocado o expirado.
 - [ ] Probar que el rol actual de base de datos prevalezca sobre el token.
 - [ ] Probar que reactivar una cuenta no restaure sesiones ni access tokens.
-- [ ] Probar el formato de respuestas exitosas y de error.
+- [x] Probar el formato de las respuestas exitosas y de error del registro.
+- [ ] Probar el formato de respuestas de login, refresh, logout y rutas protegidas.
 - [x] Ejecutar lint.
 - [ ] Ejecutar las pruebas.
 - [x] Ejecutar el build.
+
+Evidencia funcional del registro:
+
+- Registro valido: HTTP `201`, `success: true` y `data: {}`; captura del caso exitoso conservada en Postman.
+- Correo duplicado: HTTP `409`.
+- `nombreVisible` duplicado sin distinguir mayusculas: HTTP `409`.
+- Contrasena invalida: HTTP `400`.
+- Intento de enviar `rol: ADMIN`: HTTP `400`, sin asignacion administrativa.
+- Metodo `GET`: HTTP `405` con encabezado `Allow: POST`.
+- Usuario almacenado con rol `USUARIO`, cuenta activa y datos normalizados.
+- Cero sesiones creadas y ningun access token o refresh token generado.
+- `passwordHash` no expuesto; hash verificado mediante bcryptjs sin registrar su valor.
 
 ## Fase 12 - Cierre Documental
 
