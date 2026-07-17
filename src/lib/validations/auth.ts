@@ -121,3 +121,7 @@ export const refreshSchema = z.strictObject({
 });
 
 export type RefreshInput = z.infer<typeof refreshSchema>;
+
+export const logoutSchema = refreshSchema;
+
+export type LogoutInput = z.infer<typeof logoutSchema>;

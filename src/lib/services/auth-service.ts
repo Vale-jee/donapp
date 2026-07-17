@@ -14,6 +14,7 @@ import {
 } from "@/src/lib/auth/types";
 import type {
   LoginInput,
+  LogoutInput,
   RefreshInput,
   RegisterInput,
 } from "@/src/lib/validations/auth";
@@ -271,4 +272,24 @@ export async function refreshTokens(
       refreshTokenExpiresIn: REFRESH_TOKEN_TTL_MILLISECONDS / 1000,
     };
   });
+}
+
+export async function logoutUser(input: LogoutInput): Promise<void> {
+  const refreshTokenHash = hashRefreshToken(input.refreshToken);
+  const now = new Date();
+
+  const revocation = await prisma.sesion.updateMany({
+    where: {
+      refreshTokenHash,
+      revokedAt: null,
+      expiresAt: { gt: now },
+    },
+    data: {
+      revokedAt: now,
+    },
+  });
+
+  if (revocation.count !== 1) {
+    throw new ApiError(401, INVALID_REFRESH_TOKEN_MESSAGE);
+  }
 }
