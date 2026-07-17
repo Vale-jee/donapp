@@ -109,3 +109,15 @@ export const loginSchema = z.strictObject({
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
+
+export const refreshSchema = z.strictObject({
+  refreshToken: z
+    .string("El refresh token es obligatorio.")
+    .length(43, "El refresh token debe tener exactamente 43 caracteres.")
+    .regex(
+      /^[A-Za-z0-9_-]+$/,
+      "El refresh token debe tener un formato Base64URL válido.",
+    ),
+});
+
+export type RefreshInput = z.infer<typeof refreshSchema>;

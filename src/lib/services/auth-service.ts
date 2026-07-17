@@ -14,6 +14,7 @@ import {
 } from "@/src/lib/auth/types";
 import type {
   LoginInput,
+  RefreshInput,
   RegisterInput,
 } from "@/src/lib/validations/auth";
 
@@ -23,6 +24,7 @@ const GENERIC_CONFLICT_MESSAGE = "Ya existe un usuario con esos datos.";
 const INVALID_CREDENTIALS_MESSAGE =
   "Correo electrónico o contraseña incorrectos.";
 const INACTIVE_ACCOUNT_MESSAGE = "La cuenta se encuentra inactiva.";
+const INVALID_REFRESH_TOKEN_MESSAGE = "Refresh token inválido.";
 
 export interface LoginResult {
   accessToken: string;
@@ -38,6 +40,13 @@ export interface LoginResult {
       nombre: string;
     };
   };
+}
+
+export interface RefreshResult {
+  accessToken: string;
+  refreshToken: string;
+  accessTokenExpiresIn: number;
+  refreshTokenExpiresIn: number;
 }
 
 function translateUniqueConflict(error: unknown): never {
@@ -187,4 +196,79 @@ export async function loginUser(input: LoginInput): Promise<LoginResult> {
       },
     },
   };
+}
+
+export async function refreshTokens(
+  input: RefreshInput,
+): Promise<RefreshResult> {
+  const previousRefreshTokenHash = hashRefreshToken(input.refreshToken);
+
+  return prisma.$transaction(async (transaction) => {
+    const session = await transaction.sesion.findUnique({
+      where: { refreshTokenHash: previousRefreshTokenHash },
+      select: {
+        id: true,
+        expiresAt: true,
+        revokedAt: true,
+        usuario: {
+          select: {
+            id: true,
+            activo: true,
+            rol: {
+              select: { codigo: true },
+            },
+          },
+        },
+      },
+    });
+
+    const now = new Date();
+
+    if (
+      session === null ||
+      session.revokedAt !== null ||
+      session.expiresAt <= now
+    ) {
+      throw new ApiError(401, INVALID_REFRESH_TOKEN_MESSAGE);
+    }
+
+    if (!session.usuario.activo) {
+      throw new ApiError(403, INACTIVE_ACCOUNT_MESSAGE);
+    }
+
+    const refreshToken = generateRefreshToken();
+    const refreshTokenHash = hashRefreshToken(refreshToken);
+    const expiresAt = getRefreshTokenExpirationDate();
+
+    const rotation = await transaction.sesion.updateMany({
+      where: {
+        id: session.id,
+        refreshTokenHash: previousRefreshTokenHash,
+        revokedAt: null,
+        expiresAt: { gt: now },
+      },
+      data: {
+        refreshTokenHash,
+        expiresAt,
+        revokedAt: null,
+      },
+    });
+
+    if (rotation.count !== 1) {
+      throw new ApiError(401, INVALID_REFRESH_TOKEN_MESSAGE);
+    }
+
+    const accessToken = await createAccessToken({
+      sub: String(session.usuario.id),
+      sid: session.id,
+      role: session.usuario.rol.codigo,
+    });
+
+    return {
+      accessToken,
+      refreshToken,
+      accessTokenExpiresIn: ACCESS_TOKEN_TTL_SECONDS,
+      refreshTokenExpiresIn: REFRESH_TOKEN_TTL_MILLISECONDS / 1000,
+    };
+  });
 }
