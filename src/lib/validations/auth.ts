@@ -91,3 +91,21 @@ export const registerSchema = z
   });
 
 export type RegisterInput = z.infer<typeof registerSchema>;
+
+export const loginSchema = z.strictObject({
+  email: z
+    .string("El correo electrónico es obligatorio.")
+    .trim()
+    .toLowerCase()
+    .max(254, "El correo electrónico no puede superar 254 caracteres.")
+    .email("El correo electrónico no es válido."),
+  password: z
+    .string("La contraseña es obligatoria.")
+    .min(1, "La contraseña es obligatoria.")
+    .refine(
+      (password) => !truncates(password),
+      "La contraseña no puede superar los 72 bytes permitidos por bcrypt.",
+    ),
+});
+
+export type LoginInput = z.infer<typeof loginSchema>;

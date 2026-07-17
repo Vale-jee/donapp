@@ -1,12 +1,44 @@
 import { Prisma, RolCodigo } from "@/generated/prisma/client";
 import { prisma } from "@/database/client";
 import { ApiError } from "@/src/lib/api/errors";
-import { hashPassword } from "@/src/lib/auth/password";
-import type { RegisterInput } from "@/src/lib/validations/auth";
+import { createAccessToken } from "@/src/lib/auth/access-token";
+import { hashPassword, verifyPassword } from "@/src/lib/auth/password";
+import {
+  generateRefreshToken,
+  getRefreshTokenExpirationDate,
+  hashRefreshToken,
+} from "@/src/lib/auth/refresh-token";
+import {
+  ACCESS_TOKEN_TTL_SECONDS,
+  REFRESH_TOKEN_TTL_MILLISECONDS,
+} from "@/src/lib/auth/types";
+import type {
+  LoginInput,
+  RegisterInput,
+} from "@/src/lib/validations/auth";
 
 const EMAIL_CONFLICT_MESSAGE = "El correo electrónico ya está registrado.";
 const USERNAME_CONFLICT_MESSAGE = "El nombre visible ya está en uso.";
 const GENERIC_CONFLICT_MESSAGE = "Ya existe un usuario con esos datos.";
+const INVALID_CREDENTIALS_MESSAGE =
+  "Correo electrónico o contraseña incorrectos.";
+const INACTIVE_ACCOUNT_MESSAGE = "La cuenta se encuentra inactiva.";
+
+export interface LoginResult {
+  accessToken: string;
+  refreshToken: string;
+  accessTokenExpiresIn: number;
+  refreshTokenExpiresIn: number;
+  usuario: {
+    id: number;
+    nombreVisible: string;
+    fotoPerfil: string | null;
+    rol: {
+      codigo: "ADMIN" | "USUARIO";
+      nombre: string;
+    };
+  };
+}
 
 function translateUniqueConflict(error: unknown): never {
   if (
@@ -81,4 +113,78 @@ export async function registerUser(input: RegisterInput): Promise<void> {
   } catch (error: unknown) {
     translateUniqueConflict(error);
   }
+}
+
+export async function loginUser(input: LoginInput): Promise<LoginResult> {
+  const user = await prisma.usuario.findUnique({
+    where: { email: input.email },
+    select: {
+      id: true,
+      nombreVisible: true,
+      fotoPerfil: true,
+      passwordHash: true,
+      activo: true,
+      rol: {
+        select: {
+          codigo: true,
+          nombre: true,
+        },
+      },
+    },
+  });
+
+  if (user === null) {
+    throw new ApiError(401, INVALID_CREDENTIALS_MESSAGE);
+  }
+
+  const passwordIsValid = await verifyPassword(
+    input.password,
+    user.passwordHash,
+  );
+
+  if (!passwordIsValid) {
+    throw new ApiError(401, INVALID_CREDENTIALS_MESSAGE);
+  }
+
+  if (!user.activo) {
+    throw new ApiError(403, INACTIVE_ACCOUNT_MESSAGE);
+  }
+
+  const refreshToken = generateRefreshToken();
+  const refreshTokenHash = hashRefreshToken(refreshToken);
+  const expiresAt = getRefreshTokenExpirationDate();
+
+  const accessToken = await prisma.$transaction(async (transaction) => {
+    const session = await transaction.sesion.create({
+      data: {
+        usuarioId: user.id,
+        refreshTokenHash,
+        expiresAt,
+        revokedAt: null,
+      },
+      select: { id: true },
+    });
+
+    return createAccessToken({
+      sub: String(user.id),
+      sid: session.id,
+      role: user.rol.codigo,
+    });
+  });
+
+  return {
+    accessToken,
+    refreshToken,
+    accessTokenExpiresIn: ACCESS_TOKEN_TTL_SECONDS,
+    refreshTokenExpiresIn: REFRESH_TOKEN_TTL_MILLISECONDS / 1000,
+    usuario: {
+      id: user.id,
+      nombreVisible: user.nombreVisible,
+      fotoPerfil: user.fotoPerfil,
+      rol: {
+        codigo: user.rol.codigo,
+        nombre: user.rol.nombre,
+      },
+    },
+  };
 }
