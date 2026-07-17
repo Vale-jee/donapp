@@ -105,8 +105,9 @@
 - [ ] Probar el `404` indistinguible para cuentas inexistentes e inactivas.
 - [ ] Probar todas las normalizaciones y formatos.
 - [x] Probar funcionalmente una actualizacion parcial y el rechazo de body vacio y campos protegidos.
-- [ ] Probar funcionalmente un `email` duplicado.
-- [ ] Probar funcionalmente un `nombreVisible` duplicado.
+- [x] Probar funcionalmente un `email` duplicado y su traduccion segura a HTTP `409`.
+- [x] Probar funcionalmente un `nombreVisible` duplicado y su traduccion segura a HTTP `409`.
+- [x] Confirmar que los conflictos de unicidad no revelen al propietario del dato ni modifiquen el perfil autenticado.
 - [ ] Probar la concurrencia de campos unicos.
 - [x] Probar la exigencia y validacion de `passwordActual` al cambiar correo.
 - [ ] Probar el cambio de contrasena y la revocacion de sesiones.
@@ -146,6 +147,9 @@ Evidencia funcional de `PATCH /api/usuarios/perfil`:
 - Verificacion mediante `GET`: HTTP `200`; el nuevo correo fue devuelto correctamente.
 - Metodo `POST`: HTTP `405` con encabezado `Allow: GET, PATCH`.
 - La respuesta no contiene `passwordActual`, `passwordHash`, sesiones, access tokens, refresh tokens ni objetos Prisma.
+- Conflicto de correo: se registro un segundo usuario llamado Adriana Cruz con `adriana.cruz@donapp.test`; el intento del usuario principal respondio HTTP `409` con `"El correo electrónico ya está registrado."` y no modifico su perfil.
+- Conflicto de nombre visible: el intento de utilizar `adriana.cruz` respondio HTTP `409` con `"El nombre visible ya está en uso."` y no modifico el perfil principal.
+- Las respuestas de conflicto no revelaron la identidad ni otros datos del propietario del correo o nombre visible existentes.
 
 ## Fase 9 - Cierre Documental
 
