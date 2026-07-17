@@ -91,8 +91,9 @@ Evidencia de ejecucion:
 - [x] Incluir `sub`, `sid`, `role`, `type`, `iat` y `exp` en los access tokens.
 - [x] Validar criptograficamente firma, expiracion, issuer y audience del access token.
 - [x] Validar el formato de `sub`, `sid`, `role` y `type` del access token.
+- [x] Endurecer `sub` para aceptar unicamente identificadores enteros positivos y seguros.
 - [x] Validar durante el refresh la Sesion vigente, la cuenta activa y el rol actual en PostgreSQL.
-- [ ] Validar Sesion vigente, coincidencia con Usuario, cuenta activa y rol actual en guards.
+- [x] Validar Sesion vigente, coincidencia con Usuario, cuenta activa y rol actual en guards.
 - [x] Generar refresh tokens opacos con aleatoriedad criptograficamente segura y codificacion Base64URL.
 - [x] Crear el hash SHA-256 hexadecimal de refresh tokens con `node:crypto`.
 - [x] Calcular la expiracion del refresh token a siete dias.
@@ -175,13 +176,17 @@ Evidencia de ejecucion:
 
 ## Fase 10 - Proteccion de Rutas
 
-- [ ] Crear un mecanismo reutilizable para extraer el Bearer token.
-- [ ] Validar access tokens en endpoints protegidos.
-- [ ] Consultar eficientemente Sesion, Usuario y Rol desde `sid`.
-- [ ] Exponer al endpoint protegido la identidad y el rol actual autenticados.
-- [ ] Invalidar inmediatamente access tokens cuando su Sesion sea revocada.
-- [ ] Diferenciar el access token JWT del refresh token opaco en servicios y endpoints.
-- [ ] Implementar y verificar la autorizacion por roles.
+- [x] Crear un mecanismo reutilizable para leer estrictamente un unico encabezado `Authorization: Bearer <accessToken>`.
+- [x] Rechazar uniformemente con HTTP `401` el encabezado `Authorization` ausente, duplicado o mal formado.
+- [x] Validar access tokens en endpoints protegidos mediante `jose` y traducir los errores a `"Access token inválido."`.
+- [x] Consultar eficientemente Sesion, Usuario y Rol desde `sid` mediante una unica consulta con seleccion explicita.
+- [x] Rechazar Sesion inexistente, revocada o vencida y rechazar cuentas inactivas con HTTP `403`.
+- [x] Exponer mediante `AuthContext` la identidad, la Sesion y el rol actual autenticados.
+- [x] Implementar el guard reutilizable `requireAuth`.
+- [x] Invalidar inmediatamente access tokens cuando su Sesion sea revocada.
+- [x] Diferenciar el access token JWT del refresh token opaco en servicios y endpoints.
+- [x] Implementar el guard reutilizable `requireRole` con HTTP `403` por rol insuficiente.
+- [ ] Verificar funcionalmente la autorizacion por roles y el rechazo por rol insuficiente.
 - [ ] Implementar y verificar rutas exclusivas para `ADMIN`.
 
 ## Fase 11 - Pruebas y Verificacion
@@ -204,7 +209,7 @@ Evidencia de ejecucion:
 - [x] Probar la privacidad de la respuesta del login.
 - [x] Probar la privacidad de la respuesta del refresh.
 - [x] Probar la privacidad de la respuesta del logout.
-- [ ] Probar la privacidad de las respuestas de rutas protegidas.
+- [x] Probar la privacidad de las respuestas de rutas protegidas sin exponer tokens, hashes ni objetos Prisma.
 - [ ] Probar varias sesiones simultaneas.
 - [ ] Probar expiracion y tipo de tokens.
 - [x] Probar funcionalmente la rotacion y el rechazo del refresh token anterior.
@@ -215,7 +220,12 @@ Evidencia de ejecucion:
 - [x] Verificar `revokedAt`, cero sesiones activas y conservacion fisica de la Sesion en PostgreSQL.
 - [ ] Probar concurrentemente dos solicitudes de logout con el mismo token.
 - [ ] Probar logout sin afectar otras sesiones activas del mismo usuario.
-- [ ] Probar access tokens con `sid` ausente, invalido, revocado o expirado.
+- [x] Probar que un access token deje de ser utilizable cuando su Sesion sea revocada mediante logout.
+- [ ] Probar access tokens con `sid` ausente, invalido o expirado.
+- [ ] Probar funcionalmente el rechazo de una cuenta inactiva en un endpoint protegido.
+- [ ] Probar funcionalmente el rechazo por rol insuficiente.
+- [ ] Probar encabezados `Authorization` duplicados.
+- [ ] Crear pruebas automatizadas para los guards.
 - [ ] Probar que el rol actual de base de datos prevalezca sobre el token.
 - [ ] Probar que reactivar una cuenta no restaure sesiones ni access tokens.
 - [x] Probar el formato de las respuestas exitosas y de error del registro.
@@ -225,7 +235,7 @@ Evidencia de ejecucion:
 - [ ] Probar funcionalmente las respuestas HTTP `400`, `403`, `405` y `500` del refresh.
 - [x] Probar el formato de las respuestas HTTP `200` y `401` del logout.
 - [ ] Probar funcionalmente las respuestas HTTP `400`, `405` y `500` del logout.
-- [ ] Probar el formato de respuestas de rutas protegidas.
+- [x] Probar funcionalmente el acceso permitido y los rechazos HTTP `401` de una ruta protegida.
 - [x] Ejecutar lint.
 - [ ] Ejecutar las pruebas.
 - [ ] Completar las pruebas automatizadas de autenticacion.
@@ -269,6 +279,14 @@ Evidencia funcional del logout:
 - En PostgreSQL, `revokedAt` contiene fecha y hora y existen cero sesiones activas.
 - La Sesion revocada se conserva fisicamente en PostgreSQL.
 - Peticion guardada en Postman como `Auth - Cerrar sesión`.
+
+Evidencia funcional de los guards:
+
+- Access token valido en `GET /api/usuarios/perfil`: HTTP `200`; el guard permitio continuar.
+- Solicitud sin encabezado `Authorization`: HTTP `401` con mensaje `"Access token inválido."`.
+- Access token mal formado: HTTP `401` con mensaje `"Access token inválido."`.
+- Access token reutilizado despues del logout: HTTP `401` con mensaje `"Access token inválido."`.
+- La Sesion fue consultada en PostgreSQL mediante `sid`; su `revokedAt` impidio el acceso despues del logout.
 
 ## Fase 12 - Cierre Documental
 
