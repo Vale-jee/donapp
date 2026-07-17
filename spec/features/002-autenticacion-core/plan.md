@@ -119,8 +119,8 @@ El registro buscara el rol por `codigo: USUARIO`. Si el rol no existe, la operac
 - Crear `.env.example` con todas las claves requeridas.
 - Ajustar `.gitignore` para permitir versionar `.env.example` sin versionar `.env`.
 - Ampliar `lib/config/env.ts` para validar variables con zod.
-- Exigir secretos diferentes y suficientemente largos.
-- Interpretar `15m`, `7d` y `BCRYPT_ROUNDS` desde configuracion validada.
+- Exigir `AUTH_ACCESS_TOKEN_SECRET` suficientemente largo para firmar unicamente access tokens.
+- Mantener las duraciones y el costo bcrypt en constantes internas aprobadas. El refresh token opaco no requiere secreto de firma.
 
 ## Validaciones
 
@@ -132,7 +132,17 @@ Se definiran esquemas independientes para:
 - Cierre de sesion.
 - Variables de entorno.
 
-El correo se normalizara con eliminacion de espacios exteriores y conversion a minusculas. La contrasena exigira al menos 8 caracteres, una letra y un numero. Los campos opcionales aceptaran solo los formatos establecidos en el contrato.
+El esquema de registro sera estricto y rechazara campos desconocidos, especialmente `rol`, `rolId`, `activo`, `passwordHash`, `id`, `createdAt` y `updatedAt`.
+
+La normalizacion y validacion del registro sera:
+
+- `nombreCompleto`: quitar espacios exteriores, reducir espacios repetidos a uno, conservar capitalizacion y tildes, y limitar a 100 caracteres.
+- `nombreVisible`: quitar espacios exteriores, convertir a minusculas, exigir entre 3 y 30 caracteres y aceptar solo letras, numeros, punto y guion bajo sin espacios.
+- `email`: quitar espacios exteriores, convertir a minusculas, validar el formato y limitar a 254 caracteres.
+- `password`: exigir minimo 8 caracteres, una letra y un numero; rechazar cuando `bcrypt.truncates(password)` sea `true` para impedir entradas que superen 72 bytes UTF-8.
+- `ciudad`: quitar espacios exteriores, reducir espacios repetidos a uno, conservar la capitalizacion ingresada y limitar a 100 caracteres.
+- `telefono`: aceptar `null` o una cadena opcional; convertir la cadena vacia en `null` y permitir de 7 a 15 digitos con un `+` inicial opcional.
+- `fotoPerfil`: convertir la cadena vacia en `null`, limitar a 500 caracteres y aceptar unicamente URL HTTP/HTTPS o ruta relativa iniciada por `/`.
 
 ## Servicios de Autenticacion
 
@@ -152,7 +162,7 @@ Los servicios centralizaran:
 
 ### Contrasenas
 
-bcryptjs se utilizara exclusivamente para crear y verificar `passwordHash`. El coste se obtendra de `BCRYPT_ROUNDS`.
+bcryptjs se utilizara exclusivamente para crear y verificar `passwordHash`, con costo centralizado de 12 rondas. Antes de llamar a `hashPassword`, la validacion rechazara toda contrasena para la que `bcrypt.truncates(password)` sea `true`.
 
 ### Access Tokens
 
@@ -164,9 +174,9 @@ Sesion, Usuario y Rol se resolveran con una consulta eficiente que seleccione un
 
 ### Refresh Tokens
 
-jose firmara refresh tokens de 7 dias con un secreto diferente. Cada token incluira el identificador de sesion en `sid`.
+El refresh token sera un valor opaco generado aleatoriamente con `node:crypto` y codificado en Base64URL. No sera JWT, no contendra claims, issuer ni audience y no se firmara con jose o HS256.
 
-Antes de persistirlo, se generara un hash SHA-256 mediante `node:crypto`. El token original solo se devolvera al cliente y nunca se registrara en logs.
+Antes de persistirlo se generara su hash SHA-256 hexadecimal. Solo ese hash se almacenara en `Sesion`; el token original se devolvera al cliente y nunca se almacenara en texto plano ni se registrara en logs. La persistencia, busqueda, rotacion y revocacion continuan pendientes.
 
 ### Rotacion
 
@@ -183,11 +193,14 @@ La revocacion de todas las sesiones invalidara todos los access tokens asociados
 ### Registro
 
 - Aceptar unicamente `POST`.
-- Validar y normalizar la entrada.
-- Comprobar unicidad de correo y nombre visible.
-- Obtener el rol `USUARIO`.
-- Crear el hash de la contrasena y el usuario.
-- No crear sesion ni devolver el usuario.
+- Validar mediante un esquema Zod estricto y normalizar exclusivamente los siete campos aprobados.
+- Comprobar unicidad del correo y nombre visible ya normalizados.
+- Obtener exclusivamente `RolCodigo.USUARIO`; el cliente no podra seleccionar `ADMIN` ni enviar campos internos.
+- Crear `passwordHash` mediante `hashPassword` y persistir solo los campos aprobados de `Usuario`.
+- Usar las restricciones `UNIQUE` de PostgreSQL como garantia final ante concurrencia y traducir de forma segura los errores `P2002` conocidos a `409`.
+- Tratar la ausencia del rol `USUARIO` como error interno `500`, sin asignar privilegios alternativos.
+- Responder `201` con `data: {}` sin devolver `Usuario` ni `passwordHash`.
+- No crear `Sesion`, access token ni refresh token y no iniciar sesion automaticamente.
 
 ### Login
 
@@ -234,7 +247,7 @@ Se cubriran como minimo:
 - La sustitucion de campos obligatorios puede fallar si existen usuarios sin datos equivalentes; la migracion debe revisarse antes de aplicarse.
 - Los errores de unicidad deben manejar condiciones de carrera, no solo comprobaciones previas.
 - Una rotacion no atomica permitiria reutilizar refresh tokens.
-- Mezclar secretos o tipos de token permitiria usar un token en un flujo incorrecto.
+- Confundir el access token JWT con el refresh token opaco permitiria usar un token en un flujo incorrecto.
 - Devolver objetos Prisma completos podria exponer hashes o datos privados.
 - Los secretos debiles o ausentes deben impedir el arranque de la aplicacion.
 - La carpeta antigua del cliente Prisma no se eliminara hasta confirmar que no se utiliza.

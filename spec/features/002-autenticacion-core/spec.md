@@ -50,11 +50,13 @@ Cada dispositivo podra mantener una sesion independiente. Un mismo usuario podra
 
 **RN-003** No podran existir dos usuarios con el mismo correo electronico normalizado.
 
-**RN-004** No podran existir dos usuarios con el mismo nombre visible.
+**RN-004** El nombre visible se normalizara a minusculas antes de consultar y almacenar. No podran existir dos usuarios con el mismo nombre visible normalizado.
 
 **RN-005** La contrasena debera tener como minimo 8 caracteres.
 
 **RN-006** La contrasena debera incluir al menos una letra y un numero.
+
+**RN-006A** La contrasena se rechazara cuando `bcrypt.truncates(password)` sea `true`; no podra superar los 72 bytes UTF-8 procesados por bcrypt.
 
 **RN-007** La contrasena nunca se almacenara ni se registrara en texto plano.
 
@@ -96,9 +98,9 @@ Cada dispositivo podra mantener una sesion independiente. Un mismo usuario podra
 - Las entradas se validaran con zod.
 - Las contrasenas se almacenaran exclusivamente como hashes de bcryptjs.
 - Los refresh tokens se almacenaran exclusivamente como hashes SHA-256 generados con `node:crypto`.
-- Los access tokens y refresh tokens utilizaran secretos diferentes.
+- Unicamente el access token utilizara un secreto de firma, jose y `HS256`.
 - Los secretos no se incluiran en el codigo ni se expondran al cliente.
-- Los tokens validaran firma, tipo, expiracion y claims requeridos.
+- Los access tokens validaran firma, tipo, expiracion y claims requeridos.
 - Un access token no podra utilizarse como refresh token ni viceversa.
 - Los refresh tokens expirados, revocados o rotados seran rechazados.
 - La rotacion actualizara el hash de forma atomica para evitar reutilizacion.
@@ -107,7 +109,7 @@ Cada dispositivo podra mantener una sesion independiente. Un mismo usuario podra
 - Los errores de credenciales no revelaran si el correo existe.
 - El rol enviado por el cliente durante el registro sera ignorado.
 - Las respuestas seleccionaran explicitamente los campos permitidos.
-- La informacion privada no se incluira en los claims de los tokens.
+- La informacion privada no se incluira en los claims del access token.
 - `fotoPerfil` almacenara una URL o ruta, no la imagen directamente en PostgreSQL.
 
 ## Modelos de Datos Involucrados
@@ -131,13 +133,13 @@ Codigos iniciales: `ADMIN` y `USUARIO`.
 | Campo | Tipo | Reglas |
 |---|---|---|
 | id | Int | Clave primaria autoincremental |
-| nombreCompleto | String | Obligatorio |
-| nombreVisible | String | Obligatorio y unico |
-| email | String | Obligatorio, unico y normalizado |
-| passwordHash | String | Hash bcrypt de la contrasena |
-| ciudad | String | Obligatorio |
-| telefono | String? | Opcional y privado |
-| fotoPerfil | String? | URL o ruta opcional; no almacena la imagen |
+| nombreCompleto | String | Obligatorio; maximo 100 caracteres despues de normalizar |
+| nombreVisible | String @db.VarChar(30) | Obligatorio; entre 3 y 30 caracteres; unico y normalizado a minusculas |
+| email | String | Obligatorio; maximo 254 caracteres; unico y normalizado |
+| passwordHash | String | Hash bcrypt de 60 caracteres; no forma parte del body ni de respuestas |
+| ciudad | String | Obligatorio; maximo 100 caracteres despues de normalizar |
+| telefono | String? | Opcional y privado; entre 7 y 15 digitos y maximo 16 caracteres con `+` |
+| fotoPerfil | String? @db.VarChar(500) | URL HTTP/HTTPS o ruta relativa segura opcional; maximo 500 caracteres |
 | activo | Boolean | Valor inicial `true` |
 | rolId | Int | Clave foranea del rol |
 | rol | Rol | Rol asignado |
@@ -176,12 +178,11 @@ Codigos iniciales: `ADMIN` y `USUARIO`.
 
 ### Refresh Token
 
-- Firmado con jose.
-- Duracion de 7 dias.
-- Claims: `sub`, `sid`, `type: refresh`, `iat` y `exp`.
-- Su hash SHA-256 se almacena en `Sesion`.
-- Se rota despues de cada renovacion exitosa.
-- Deja de ser valido al expirar, rotarse o revocarse.
+- Es un valor opaco generado aleatoriamente con `node:crypto` y codificado en Base64URL.
+- No es un JWT, no contiene claims, no tiene issuer ni audience y no se firma con jose.
+- Su duracion funcional es de 7 dias.
+- En PostgreSQL se almacenara unicamente su hash SHA-256 hexadecimal en `Sesion`; el valor original se entregara al cliente y nunca se persistira en texto plano.
+- La persistencia, busqueda, rotacion y revocacion funcionales continuan pendientes de implementacion.
 
 ## Validacion de Access Tokens y Sesiones
 
@@ -219,6 +220,22 @@ Entrada:
 ```
 
 `telefono` y `fotoPerfil` son opcionales. El registro no inicia sesion automaticamente.
+
+El body sera estricto y aceptara exclusivamente `nombreCompleto`, `nombreVisible`, `email`, `password`, `ciudad`, `telefono` y `fotoPerfil`. Se rechazaran campos desconocidos, incluidos `rol`, `rolId`, `activo`, `passwordHash`, `id`, `createdAt` y `updatedAt`.
+
+Las reglas de validacion y normalizacion del registro seran:
+
+- `nombreCompleto`: obligatorio, entre 1 y 100 caracteres despues de quitar espacios exteriores y reducir espacios repetidos a uno. Conservara las mayusculas, minusculas y tildes ingresadas.
+- `nombreVisible`: obligatorio, entre 3 y 30 caracteres; permitira unicamente letras, numeros, punto y guion bajo, sin espacios. Se quitaran espacios exteriores y se convertira a minusculas antes de consultar y almacenar.
+- `email`: obligatorio, maximo 254 caracteres, con formato de correo valido. Se quitaran espacios exteriores y se convertira a minusculas antes de consultar y almacenar.
+- `password`: obligatorio, minimo 8 caracteres, al menos una letra y un numero. Se rechazara cuando `bcrypt.truncates(password)` sea `true`, por lo que no podra superar los 72 bytes UTF-8 aceptados por bcrypt. Nunca se almacenara directamente; se transformara mediante `hashPassword`.
+- `ciudad`: obligatoria, entre 1 y 100 caracteres despues de quitar espacios exteriores y reducir espacios repetidos a uno. Conservara la capitalizacion ingresada.
+- `telefono`: opcional; una cadena vacia se convertira en `null`. Permitira de 7 a 15 digitos con un unico signo `+` inicial opcional y ningun otro caracter.
+- `fotoPerfil`: opcional, maximo 500 caracteres; una cadena vacia se convertira en `null`. Aceptara unicamente una URL HTTP/HTTPS valida o una ruta relativa que comience con `/`; rechazara `data:`, `javascript:` y cualquier otro esquema.
+
+El registro buscara exclusivamente `RolCodigo.USUARIO` y nunca aceptara un rol elegido por el cliente. Comprobara conflictos de `email` y `nombreVisible` normalizados antes de crear, y las restricciones `UNIQUE` de PostgreSQL seran la garantia final ante concurrencia. Un error Prisma `P2002` conocido se traducira de forma segura a `409`, sin exponer detalles internos. Si el rol `USUARIO` no existe, se respondera con un error interno `500` sin asignar un rol alternativo.
+
+El exito respondera `201` con `data: {}`. No devolvera el objeto `Usuario`, la contrasena ni `passwordHash`. Tampoco creara `Sesion`, access token ni refresh token, y no iniciara sesion automaticamente.
 
 Salida exitosa:
 
@@ -357,20 +374,16 @@ Respuesta con error:
 ```env
 DATABASE_URL=
 AUTH_ACCESS_TOKEN_SECRET=
-AUTH_REFRESH_TOKEN_SECRET=
-AUTH_ACCESS_TOKEN_TTL=15m
-AUTH_REFRESH_TOKEN_TTL=7d
-BCRYPT_ROUNDS=12
 ```
 
-Los secretos seran distintos, suficientemente largos y no usaran el prefijo `NEXT_PUBLIC_`.
+El secreto del access token sera suficientemente largo y no usara el prefijo `NEXT_PUBLIC_`. El refresh token opaco no requiere secreto de firma.
 
 ## Dependencias Aprobadas
 
 - `bcryptjs`: hash y verificacion de contrasenas.
-- `jose`: generacion y validacion de tokens.
+- `jose`: generacion y validacion exclusiva de access tokens JWT.
 - `zod`: validacion de solicitudes y variables de entorno.
-- `node:crypto`: hash SHA-256 de refresh tokens.
+- `node:crypto`: generacion aleatoria del refresh token opaco y hash SHA-256 hexadecimal.
 
 No se instalaran dependencias adicionales sin aprobacion.
 
