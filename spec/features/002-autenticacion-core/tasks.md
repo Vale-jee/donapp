@@ -76,7 +76,8 @@ Evidencia de ejecucion:
 - [x] Normalizar el correo de login quitando espacios exteriores y convirtiendolo a minusculas.
 - [x] Conservar la contrasena de login sin transformaciones.
 - [x] Rechazar la contrasena de login vacia o truncada por `bcrypt.truncates`.
-- [ ] Crear la validacion de refresh.
+- [x] Crear un esquema Zod estricto para refresh y rechazar campos adicionales.
+- [x] Validar `refreshToken` como Base64URL de exactamente 43 caracteres sin transformarlo.
 - [ ] Crear la validacion de logout.
 
 ## Fase 7 - Contrasenas y Tokens
@@ -90,7 +91,8 @@ Evidencia de ejecucion:
 - [x] Incluir `sub`, `sid`, `role`, `type`, `iat` y `exp` en los access tokens.
 - [x] Validar criptograficamente firma, expiracion, issuer y audience del access token.
 - [x] Validar el formato de `sub`, `sid`, `role` y `type` del access token.
-- [ ] Validar Sesion vigente, coincidencia con Usuario, cuenta activa y rol actual en PostgreSQL.
+- [x] Validar durante el refresh la Sesion vigente, la cuenta activa y el rol actual en PostgreSQL.
+- [ ] Validar Sesion vigente, coincidencia con Usuario, cuenta activa y rol actual en guards.
 - [x] Generar refresh tokens opacos con aleatoriedad criptograficamente segura y codificacion Base64URL.
 - [x] Crear el hash SHA-256 hexadecimal de refresh tokens con `node:crypto`.
 - [x] Calcular la expiracion del refresh token a siete dias.
@@ -114,16 +116,21 @@ Evidencia de ejecucion:
 - [x] Crear `Sesion` con expiracion de siete dias.
 - [x] Crear el access token con `sub`, `sid` y `role`.
 - [x] Ejecutar en una transaccion la creacion de `Sesion` y del access token asociado.
-- [ ] Buscar el hash del refresh token y verificar que la sesion este vigente y no revocada.
-- [ ] Crear el servicio de renovacion.
-- [ ] Implementar rotacion atomica del refresh token.
-- [ ] Reemplazar el hash anterior durante la rotacion.
-- [ ] Impedir la reutilizacion concurrente del token anterior.
+- [x] Calcular el hash SHA-256 del refresh token y buscar la Sesion mediante ese hash.
+- [x] Consultar unicamente los campos necesarios de `Sesion`, `Usuario` y `Rol` durante el refresh.
+- [x] Crear el servicio de renovacion.
+- [x] Validar uniformemente la Sesion inexistente, revocada o vencida.
+- [x] Implementar la rotacion atomica del refresh token en la misma Sesion.
+- [x] Generar un refresh token opaco nuevo y reemplazar el hash anterior.
+- [x] Conservar el mismo `sid` y renovar `expiresAt` por siete dias.
+- [x] Obtener el rol actual desde PostgreSQL y generar un access token nuevo.
+- [x] Ejecutar la renovacion mediante una transaccion interactiva.
+- [x] Impedir el doble uso concurrente mediante `updateMany` condicionado y `rotation.count === 1`.
 - [ ] Revocar la sesion ante reutilizacion detectada o cierre de sesion.
 - [ ] Crear el servicio de cierre de sesion actual.
-- [ ] Rechazar sesiones expiradas o revocadas.
+- [x] Rechazar durante el refresh las sesiones expiradas o revocadas con HTTP `401` uniforme.
 - [x] Rechazar el login de cuentas inactivas con HTTP `403`.
-- [ ] Rechazar el refresh de cuentas inactivas.
+- [x] Rechazar el refresh de cuentas inactivas con HTTP `403` sin rotar ni revocar la Sesion.
 
 ## Fase 9 - Endpoints
 
@@ -140,15 +147,23 @@ Evidencia de ejecucion:
 - [x] Responder HTTP `403` para una cuenta inactiva.
 - [x] Responder HTTP `405` para metodos no permitidos en login e incluir `Allow: POST`.
 - [x] Responder HTTP `500` de forma segura ante errores internos del login.
-- [ ] Implementar `POST /api/auth/refresh`.
+- [x] Implementar `POST /api/auth/refresh` con Pages Router.
+- [x] Responder el refresh exitoso con HTTP `200`.
+- [x] Responder HTTP `400` para un body o refresh token invalido.
+- [x] Responder HTTP `401` uniformemente para un refresh token no utilizable.
+- [x] Responder HTTP `403` para una cuenta inactiva.
+- [x] Responder HTTP `405` para metodos no permitidos en refresh e incluir `Allow: POST`.
+- [x] Responder HTTP `500` de forma sanitizada ante errores internos del refresh.
 - [ ] Implementar `POST /api/auth/logout`.
 - [x] Aplicar el formato uniforme con `data` en las respuestas del registro.
 - [x] Aplicar el formato uniforme con `data` en login.
-- [ ] Aplicar el formato uniforme con `data` en refresh y logout.
+- [x] Aplicar el formato uniforme con `data` en refresh.
+- [ ] Aplicar el formato uniforme con `data` en logout.
 - [x] Seleccionar explicitamente los datos publicos del login.
 - [x] Confirmar que el endpoint de registro no exponga `passwordHash` ni datos internos.
 - [x] Confirmar que el endpoint de login no exponga `passwordHash`, `refreshTokenHash` ni datos privados no aprobados.
-- [ ] Confirmar que los endpoints de refresh y logout no expongan hashes o datos privados.
+- [x] Confirmar que el endpoint de refresh no exponga hashes ni datos internos.
+- [ ] Confirmar que el endpoint de logout no exponga hashes o datos privados.
 
 ## Fase 10 - Proteccion de Rutas
 
@@ -158,6 +173,7 @@ Evidencia de ejecucion:
 - [ ] Exponer al endpoint protegido la identidad y el rol actual autenticados.
 - [ ] Invalidar inmediatamente access tokens cuando su Sesion sea revocada.
 - [ ] Diferenciar el access token JWT del refresh token opaco en servicios y endpoints.
+- [ ] Implementar y verificar la autorizacion para `ADMIN`.
 
 ## Fase 11 - Pruebas y Verificacion
 
@@ -177,10 +193,13 @@ Evidencia de ejecucion:
 - [x] Registrar la evidencia del HTTP `405`, el encabezado `Allow: POST` y la sesion activa en PostgreSQL.
 - [ ] Probar funcionalmente el login de una cuenta inactiva.
 - [x] Probar la privacidad de la respuesta del login.
-- [ ] Probar la privacidad de las respuestas de refresh, logout y rutas protegidas.
+- [x] Probar la privacidad de la respuesta del refresh.
+- [ ] Probar la privacidad de las respuestas de logout y rutas protegidas.
 - [ ] Probar varias sesiones simultaneas.
 - [ ] Probar expiracion y tipo de tokens.
-- [ ] Probar rotacion y rechazo del refresh token anterior.
+- [x] Probar funcionalmente la rotacion y el rechazo del refresh token anterior.
+- [x] Probar funcionalmente el refresh token nuevo.
+- [ ] Probar funcionalmente el refresh de una cuenta inactiva.
 - [ ] Probar concurrencia durante la rotacion.
 - [ ] Probar logout sin afectar otras sesiones.
 - [ ] Probar access tokens con `sid` ausente, invalido, revocado o expirado.
@@ -189,9 +208,12 @@ Evidencia de ejecucion:
 - [x] Probar el formato de las respuestas exitosas y de error del registro.
 - [x] Probar el formato de las respuestas HTTP `200`, `401` y `405` del login.
 - [ ] Probar funcionalmente las respuestas HTTP `400`, `403` y `500` del login.
-- [ ] Probar el formato de respuestas de refresh, logout y rutas protegidas.
+- [x] Probar el formato de las respuestas HTTP `200` y `401` del refresh.
+- [ ] Probar funcionalmente las respuestas HTTP `400`, `403`, `405` y `500` del refresh.
+- [ ] Probar el formato de respuestas de logout y rutas protegidas.
 - [x] Ejecutar lint.
 - [ ] Ejecutar las pruebas.
+- [ ] Completar las pruebas automatizadas de autenticacion.
 - [x] Ejecutar el build.
 
 Evidencia funcional del registro:
@@ -216,10 +238,20 @@ Evidencia funcional del login:
 - Refresh token opaco entregado al cliente y almacenamiento exclusivo de su hash SHA-256.
 - Cero exposicion de contrasenas, `passwordHash` o `refreshTokenHash` en la respuesta.
 
+Evidencia funcional del refresh:
+
+- Primer uso del refresh token: HTTP `200` con mensaje `"Tokens renovados correctamente."`.
+- Reutilizacion del refresh token anterior: HTTP `401` con mensaje `"Refresh token inválido."`.
+- Uso del refresh token nuevo: HTTP `200` con mensaje `"Tokens renovados correctamente."`.
+- El access token mantiene una duracion de `900` segundos.
+- El refresh token mantiene una duracion de `604800` segundos.
+- Peticion guardada en Postman como `Auth - Renovar tokens`.
+
 ## Fase 12 - Cierre Documental
 
 - [ ] Registrar los resultados de las pruebas.
 - [ ] Verificar que la implementacion coincida con `spec.md`.
+- [ ] Completar las actividades planificadas para la Semana 8.
 - [ ] Actualizar el estado de la feature solo cuando todos los requisitos esten implementados.
 
 ## Criterios de Finalizacion
