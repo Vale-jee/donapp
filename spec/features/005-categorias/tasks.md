@@ -48,13 +48,13 @@
 
 ## Fase 5 - Seed Inicial
 
-- [ ] Crear el seed de las diez categorias aprobadas.
-- [ ] Reutilizar la normalizacion del nombre en el seed.
-- [ ] Crear unicamente categorias inexistentes.
-- [ ] Evitar que el seed elimine categorias.
-- [ ] Evitar que el seed modifique categorias.
-- [ ] Evitar que el seed reactive categorias.
-- [ ] Ejecutar el seed varias veces y comprobar su idempotencia.
+- [x] Crear el seed de las diez categorias aprobadas y conservar el seed existente de roles.
+- [x] Reutilizar la normalizacion del nombre en el seed.
+- [x] Crear unicamente categorias inexistentes con estado inicial activo.
+- [x] Evitar que el seed elimine categorias.
+- [x] Evitar que el seed modifique categorias.
+- [x] Evitar que el seed reactive categorias.
+- [x] Ejecutar el seed dos veces y comprobar su idempotencia y ausencia de duplicados.
 
 ## Fase 6 - Validaciones
 
@@ -73,8 +73,8 @@
 
 ## Fase 7 - Servicio de Categorias
 
-- [ ] Crear el servicio de listado publico.
-- [ ] Seleccionar exclusivamente `id`, `nombre` y `descripcion` para el catalogo publico.
+- [x] Crear el servicio de listado publico de categorias activas ordenadas por nombre ascendente.
+- [x] Seleccionar exclusivamente `id`, `nombre` y `descripcion` para el catalogo publico.
 - [ ] Crear la consulta publica individual.
 - [ ] Hacer indistinguible el `404` publico de categoria inexistente o inactiva.
 - [ ] Crear la consulta administrativa individual.
@@ -83,7 +83,8 @@
 - [ ] Crear el servicio de cambio de estado.
 - [ ] Garantizar la idempotencia del cambio de estado.
 - [ ] Traducir conflictos de unicidad a `409`.
-- [ ] Evitar devolver objetos Prisma completos.
+- [x] Evitar devolver objetos Prisma completos en el listado publico.
+- [ ] Evitar devolver objetos Prisma completos en los demas endpoints.
 
 ## Fase 8 - Autenticacion y Autorizacion
 
@@ -98,14 +99,18 @@
 
 ## Fase 9 - Endpoints
 
-- [ ] Implementar `GET /api/categorias`.
+- [x] Implementar el endpoint publico `GET /api/categorias` sin autenticacion ni autorizacion.
 - [ ] Implementar `GET /api/categorias/{id}`.
 - [ ] Implementar `POST /api/categorias`.
 - [ ] Implementar `PATCH /api/categorias/{id}`.
 - [ ] Implementar `PATCH /api/categorias/{id}/estado`.
-- [ ] Rechazar metodos no permitidos con `405`.
-- [ ] Enviar la cabecera `Allow` en respuestas `405`.
-- [ ] Aplicar el contrato uniforme de respuestas y errores.
+- [x] Rechazar metodos distintos de `GET` en el listado con HTTP `405` y cabecera `Allow: GET`.
+- [ ] Rechazar metodos no permitidos en los demas endpoints con HTTP `405` y cabecera `Allow`.
+- [x] Rechazar parametros query en el listado con HTTP `400`.
+- [x] Responder HTTP `200` con las categorias activas o un arreglo vacio.
+- [x] Responder HTTP `500` de forma sanitizada ante errores internos del listado.
+- [x] Aplicar el contrato uniforme de respuestas y errores en `GET /api/categorias`.
+- [ ] Aplicar el contrato uniforme de respuestas y errores en los demas endpoints.
 - [ ] Confirmar que no exista un endpoint `DELETE`.
 
 ## Dependencias Futuras
@@ -117,8 +122,8 @@
 
 ## Fase 10 - Pruebas y Verificacion
 
-- [ ] Probar el listado publico y sus campos exactos.
-- [ ] Probar que el listado excluya categorias inactivas.
+- [x] Probar el listado publico con HTTP `200`, sus campos exactos y el orden por nombre ascendente.
+- [x] Probar que el listado devuelva exclusivamente las diez categorias activas iniciales.
 - [ ] Probar la consulta individual publica.
 - [ ] Probar el mismo `404` para categoria inexistente o inactiva.
 - [ ] Probar la consulta administrativa de categorias inactivas.
@@ -130,12 +135,25 @@
 - [ ] Probar la desactivacion, reactivacion e idempotencia.
 - [ ] Probar identificadores invalidos y recursos inexistentes.
 - [ ] Probar respuestas `401` y `403`.
-- [ ] Probar metodos no permitidos y la cabecera `Allow`.
-- [ ] Probar el contrato uniforme de la feature 004.
-- [ ] Probar la idempotencia del seed.
-- [ ] Ejecutar las pruebas con Postman o herramienta equivalente.
-- [ ] Ejecutar lint.
-- [ ] Ejecutar el build.
+- [x] Probar el rechazo de parametros query con HTTP `400`.
+- [x] Probar `POST /api/categorias` con HTTP `405` y cabecera `Allow: GET`.
+- [x] Probar el contrato uniforme observado en el listado publico.
+- [x] Probar la idempotencia del seed mediante dos ejecuciones sin duplicados.
+- [x] Guardar en Postman la peticion `Categorias - Listar activas`.
+- [x] Ejecutar lint.
+- [x] Ejecutar el build.
+
+Evidencia del seed inicial:
+
+- Se crearon activas las diez categorias aprobadas: `Ropa y calzado`, `Alimentos`, `Libros`, `Juguetes`, `Tecnología`, `Muebles`, `Artículos para el hogar`, `Salud`, `Útiles escolares` y `Otros`.
+- El seed conservo los roles existentes y se ejecuto dos veces sin crear categorias duplicadas.
+
+Evidencia funcional de `GET /api/categorias`:
+
+- Listado publico: HTTP `200`, mensaje `"Categorias consultadas correctamente."` y diez categorias activas ordenadas por nombre.
+- Solicitud con `id=1`: HTTP `400`; los parametros query fueron rechazados.
+- Metodo `POST`: HTTP `405` con encabezado `Allow: GET`.
+- Peticion guardada en Postman como `Categorias - Listar activas`.
 
 ## Fase 11 - Cierre Documental
 
@@ -149,11 +167,11 @@ La feature solo podra marcarse como completada cuando:
 
 - [ ] Exista el modelo `Categoria`.
 - [ ] La migracion este aplicada.
-- [ ] El seed sea idempotente.
+- [x] El seed sea idempotente.
 - [ ] Los cinco endpoints funcionen.
 - [ ] Las operaciones administrativas esten protegidas por `ADMIN`.
 - [ ] La feature documente claramente su dependencia futura con `006-donaciones` sin implementar responsabilidades de Donaciones.
 - [ ] Todas las respuestas respeten el contrato de la feature 004.
 - [ ] Las pruebas pasen.
-- [ ] Lint y build finalicen correctamente.
+- [x] Lint y build finalicen correctamente.
 - [ ] La documentacion coincida con la implementacion.
