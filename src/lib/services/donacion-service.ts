@@ -1,4 +1,9 @@
-import { EstadoDonacion, EstadoSolicitud } from "@/generated/prisma/client";
+import {
+  CausaCancelacionSolicitud,
+  EstadoDonacion,
+  EstadoSolicitud,
+  Prisma,
+} from "@/generated/prisma/client";
 import { prisma } from "@/database/client";
 import { ApiError } from "@/src/lib/api/errors";
 import type {
@@ -75,6 +80,16 @@ export interface DonationDetailResult {
 const DONATION_NOT_FOUND_MESSAGE = "Donación no encontrada.";
 const DONATION_NOT_UPDATABLE_MESSAGE =
   "La donación no puede actualizarse en su estado actual.";
+const DONATION_NOT_WITHDRAWABLE_MESSAGE =
+  "La donación no puede retirarse en su estado actual.";
+
+export interface WithdrawnDonation extends CreatedDonation {
+  retiradaAt: Date;
+}
+
+export interface WithdrawDonationResult {
+  donacion: WithdrawnDonation;
+}
 
 export async function createDonation(
   userId: number,
@@ -510,4 +525,118 @@ export async function updateDonation(
 
     return { donacion: updatedDonation };
   });
+}
+
+export async function withdrawDonation(
+  userId: number,
+  donationId: number,
+): Promise<WithdrawDonationResult> {
+  return prisma.$transaction(
+    async (transaction) => {
+      const getWithdrawnDonation = async (): Promise<WithdrawnDonation> => {
+        const withdrawnDonation = await transaction.donacion.findUnique({
+          where: { id: donationId },
+          select: {
+            id: true,
+            titulo: true,
+            descripcion: true,
+            ciudad: true,
+            estado: true,
+            retiradaAt: true,
+            createdAt: true,
+            updatedAt: true,
+            categoria: { select: { id: true, nombre: true } },
+            imagenes: {
+              select: { id: true, referencia: true, orden: true },
+              orderBy: { orden: "asc" },
+            },
+          },
+        });
+
+        if (
+          withdrawnDonation === null ||
+          withdrawnDonation.retiradaAt === null
+        ) {
+          throw new ApiError(500, "Error interno del servidor");
+        }
+
+        return {
+          ...withdrawnDonation,
+          retiradaAt: withdrawnDonation.retiradaAt,
+        };
+      };
+
+      const donation = await transaction.donacion.findUnique({
+        where: { id: donationId },
+        select: {
+          id: true,
+          propietarioId: true,
+          estado: true,
+          retiradaAt: true,
+        },
+      });
+
+      if (donation === null || donation.propietarioId !== userId) {
+        throw new ApiError(404, DONATION_NOT_FOUND_MESSAGE);
+      }
+
+      if (donation.estado === EstadoDonacion.RETIRADA) {
+        return { donacion: await getWithdrawnDonation() };
+      }
+
+      if (donation.estado !== EstadoDonacion.PUBLICADA) {
+        throw new ApiError(409, DONATION_NOT_WITHDRAWABLE_MESSAGE);
+      }
+
+      const now = new Date();
+      const updateResult = await transaction.donacion.updateMany({
+        where: {
+          id: donation.id,
+          propietarioId: userId,
+          estado: EstadoDonacion.PUBLICADA,
+        },
+        data: {
+          estado: EstadoDonacion.RETIRADA,
+          retiradaAt: now,
+        },
+      });
+
+      if (updateResult.count !== 1) {
+        const currentDonation = await transaction.donacion.findUnique({
+          where: { id: donation.id },
+          select: { propietarioId: true, estado: true },
+        });
+
+        if (
+          currentDonation === null ||
+          currentDonation.propietarioId !== userId
+        ) {
+          throw new ApiError(404, DONATION_NOT_FOUND_MESSAGE);
+        }
+
+        if (currentDonation.estado === EstadoDonacion.RETIRADA) {
+          return { donacion: await getWithdrawnDonation() };
+        }
+
+        throw new ApiError(409, DONATION_NOT_WITHDRAWABLE_MESSAGE);
+      }
+
+      await transaction.solicitud.updateMany({
+        where: {
+          donacionId: donation.id,
+          estado: EstadoSolicitud.PENDIENTE,
+        },
+        data: {
+          estado: EstadoSolicitud.CANCELADA,
+          causaCancelacion: CausaCancelacionSolicitud.DONACION_RETIRADA,
+          canceladaAt: now,
+        },
+      });
+
+      return { donacion: await getWithdrawnDonation() };
+    },
+    {
+      isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
+    },
+  );
 }
