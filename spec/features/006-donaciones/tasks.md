@@ -53,7 +53,8 @@
 - [ ] Crear la validacion de retirada.
 - [ ] Crear la validacion de confirmacion de entrega.
 - [x] Crear la validacion estricta de filtros y paginacion para publicaciones propias.
-- [ ] Crear las validaciones de filtros y paginacion para los listados restantes.
+- [x] Crear la validacion estricta de filtros y paginacion para el listado general.
+- [ ] Crear las validaciones de filtros y paginacion para operaciones restantes cuando correspondan.
 - [x] Normalizar y validar el titulo entre 5 y 100 caracteres.
 - [x] Normalizar y validar la descripcion entre 20 y 1000 caracteres como texto plano.
 - [x] Rechazar HTML y Markdown claramente identificables en la descripcion.
@@ -63,6 +64,7 @@
 - [x] Rechazar referencias vacias, duplicadas o mayores a 500 caracteres.
 - [x] Rechazar campos desconocidos, administrativos y protegidos durante la creacion.
 - [x] Rechazar parametros desconocidos, vacios, repetidos, no numericos, decimales, negativos o con ceros iniciales en publicaciones propias.
+- [x] Rechazar parametros desconocidos o invalidos en el listado general.
 - [ ] Rechazar cuerpos vacios cuando correspondan.
 
 ## Fase 5 - Servicios
@@ -71,7 +73,7 @@
 - [x] Obtener propietario y ciudad desde el usuario autenticado al publicar.
 - [x] Validar que la categoria exista y este activa al crear.
 - [ ] Validar la categoria activa al cambiar `categoriaId`.
-- [ ] Crear el servicio de listado general.
+- [x] Crear el servicio de listado general de donaciones disponibles.
 - [x] Crear el servicio de publicaciones propias filtrado exclusivamente por `propietarioId` del usuario autenticado.
 - [ ] Crear el servicio de consulta individual.
 - [ ] Aplicar las reglas de visibilidad por estado.
@@ -87,6 +89,7 @@
 - [ ] Implementar `RESERVADA -> RETIRADA` exclusivamente desde la resolucion administrativa de 010.
 - [x] Seleccionar explicitamente los campos seguros de la respuesta de creacion.
 - [x] Seleccionar explicitamente los campos seguros del listado de publicaciones propias.
+- [x] Seleccionar explicitamente los campos seguros del listado general.
 - [ ] Seleccionar explicitamente los campos de las respuestas restantes.
 
 ## Fase 6 - Autenticacion y Autorizacion
@@ -97,6 +100,8 @@
 - [x] Permitir la creacion a `USUARIO` y `ADMIN` autenticados sin `requireRole`.
 - [x] Proteger el listado propio con `requireAuth` y permitirlo a `USUARIO` y `ADMIN` sin `requireRole`.
 - [x] Impedir que el listado propio consulte publicaciones de otro usuario o donde sea unicamente receptor.
+- [x] Proteger el listado general con `requireAuth` y permitirlo a `USUARIO` y `ADMIN` sin `requireRole`.
+- [x] Obtener la ciudad del perfil autenticado y excluir publicaciones propias y de otras ciudades en el listado general.
 - [ ] Proteger actualizacion y retirada por propiedad.
 - [ ] Identificar al propietario o receptor durante la confirmacion.
 - [ ] Responder `404` cuando la donacion no sea visible.
@@ -120,26 +125,29 @@
 - [x] Ordenar publicaciones propias por `createdAt DESC` e `id DESC`.
 - [x] Ejecutar `findMany` y `count` en una transaccion con el mismo filtro de propiedad y estado.
 - [x] Permitir una coleccion vacia con HTTP `200` y `totalPages` igual a `0`.
-- [ ] Filtrar el listado general por `PUBLICADA` y ciudad.
-- [ ] Excluir publicaciones propias del listado general.
-- [ ] Implementar el filtro por categoria.
+- [x] Implementar `page`, `limit`, metadata y orden estable en el listado general.
+- [x] Ejecutar usuario, `findMany` y `count` del listado general dentro de una transaccion con un unico filtro.
+- [x] Filtrar el listado general por `PUBLICADA` y ciudad.
+- [x] Excluir publicaciones propias del listado general.
+- [x] Implementar el filtro opcional por `categoriaId`.
 - [x] Implementar el filtro opcional por `PUBLICADA`, `RESERVADA`, `ENTREGADA` o `RETIRADA` en publicaciones propias.
 
 ## Fase 9 - Endpoints
 
-- [ ] Implementar `GET /api/donaciones`.
+- [x] Implementar `GET /api/donaciones` en convivencia con `POST /api/donaciones`.
 - [x] Implementar `GET /api/donaciones/mias`.
 - [ ] Implementar `GET /api/donaciones/{id}`.
 - [x] Implementar `POST /api/donaciones`.
 - [ ] Implementar `PATCH /api/donaciones/{id}`.
 - [ ] Implementar `PATCH /api/donaciones/{id}/estado`.
 - [ ] Implementar `PATCH /api/donaciones/{id}/confirmacion-entrega`.
-- [x] Rechazar metodos no permitidos en `/api/donaciones` con `405` y cabecera `Allow: POST` en esta etapa.
+- [x] Rechazar metodos distintos de `GET` y `POST` en `/api/donaciones` con `405` y cabecera `Allow: GET, POST`.
 - [x] Rechazar metodos no permitidos en `/api/donaciones/mias` con `405` y cabecera `Allow: GET`.
 - [ ] Rechazar metodos no permitidos en los endpoints restantes con `405` y cabecera `Allow`.
 - [ ] Confirmar que no existan endpoints `PUT` ni `DELETE`.
 - [x] Aplicar al endpoint de creacion el contrato uniforme de la feature 004 y manejar `400`, `401`, `403`, `404`, `409`, `405` y `500`.
 - [x] Aplicar al listado propio el contrato uniforme de la feature 004 y manejar `200`, `400`, `401`, `403`, `405` y `500`.
+- [x] Aplicar al listado general el contrato uniforme de la feature 004 y manejar `200`, `400`, `401`, `403`, `409`, `405` y `500`.
 - [ ] Aplicar el contrato uniforme de la feature 004 a los endpoints restantes.
 
 ## Dependencias Futuras
@@ -163,12 +171,16 @@
 - [ ] Probar una categoria desactivada posteriormente.
 - [ ] Probar un usuario sin ciudad valida.
 - [x] Probar el listado de publicaciones propias con HTTP `200` y propiedad restringida al usuario autenticado.
-- [ ] Probar el listado general.
+- [x] Probar el listado general con HTTP `200`, misma ciudad, estado `PUBLICADA` y exclusion de publicaciones propias.
 - [x] Probar el filtro `estado=PUBLICADA` en publicaciones propias.
 - [x] Probar el rechazo de `limit=101` con HTTP `400`.
-- [ ] Probar la paginacion con una segunda pagina.
+- [ ] Probar la paginacion de publicaciones propias con una segunda pagina.
 - [ ] Probar los filtros `RESERVADA`, `ENTREGADA` y `RETIRADA` cuando existan datos.
-- [ ] Probar funcionalmente la coleccion vacia.
+- [ ] Probar funcionalmente la coleccion vacia en publicaciones propias.
+- [x] Probar el filtro `categoriaId=6` y una categoria sin coincidencias con coleccion vacia en el listado general.
+- [ ] Probar funcionalmente el listado general con donaciones de otra ciudad.
+- [ ] Probar la exclusion de `RESERVADA`, `ENTREGADA` y `RETIRADA` cuando existan datos.
+- [ ] Probar la segunda pagina del listado general.
 - [ ] Probar visibilidad por estado y participacion.
 - [ ] Probar el mismo `404` para inexistente y no visible.
 - [x] Probar el rechazo de `propietarioId` enviado por el cliente con HTTP `400`.
@@ -182,14 +194,18 @@
 - [ ] Probar los codigos HTTP aprobados restantes.
 - [x] Probar la privacidad de la respuesta de creacion y la ausencia de propietario, sesiones, hashes y tokens.
 - [x] Probar la privacidad del listado propio y la ausencia de descripcion completa, propietario, solicitudes, sesiones, hashes y tokens.
+- [x] Probar la privacidad del listado general y la ausencia de informacion del propietario, solicitudes, sesiones, hashes y tokens.
 - [ ] Probar el contrato uniforme y la privacidad de los endpoints restantes.
 - [x] Guardar en Postman la peticion `Donaciones - Listar mis donaciones`.
+- [x] Guardar en Postman la peticion `Donaciones - Listar disponibles`.
 - [ ] Ejecutar en Postman las pruebas funcionales restantes.
 - [ ] Ejecutar las pruebas automatizadas aprobadas.
 - [x] Ejecutar lint exitosamente para la implementacion de creacion.
 - [x] Ejecutar build exitosamente para la implementacion de creacion.
 - [x] Ejecutar lint exitosamente para el listado de publicaciones propias.
 - [x] Ejecutar build exitosamente para el listado de publicaciones propias.
+- [x] Ejecutar lint exitosamente para el listado general.
+- [x] Ejecutar build exitosamente para el listado general.
 
 ## Evidencia Funcional - POST `/api/donaciones`
 
@@ -200,7 +216,7 @@
 - [x] Campo protegido: `propietarioId` enviado por el cliente fue rechazado con HTTP `400`.
 - [x] Solicitud sin autenticacion: HTTP `401` y mensaje `"Access token inválido."`.
 - [x] Categoria inexistente: HTTP `404` y mensaje `"Categoría no encontrada."`.
-- [x] Metodo `GET` no permitido en esta etapa: HTTP `405` y encabezado `Allow: POST`.
+- [x] Regresion posterior: `POST /api/donaciones` continuo funcionando con HTTP `201` al convivir con el listado general.
 - [x] Seguridad: la respuesta no expuso `propietarioId`, datos privados del propietario, sesiones, hashes ni tokens; ciudad, propietario y estado no pudieron ser definidos por el cliente.
 
 ## Evidencia Funcional - GET `/api/donaciones/mias`
@@ -212,6 +228,18 @@
 - [x] Metodo `POST` no permitido: HTTP `405` y encabezado `Allow: GET`.
 - [x] Seguridad: no se devolvio descripcion completa, `propietarioId`, datos privados del propietario, solicitudes, sesiones, hashes ni tokens; los parametros no permitieron consultar donaciones de otro usuario.
 - [x] Peticion guardada en Postman como `Donaciones - Listar mis donaciones`.
+
+## Evidencia Funcional - GET `/api/donaciones`
+
+- [x] Listado general: HTTP `200`, mensaje `"Donaciones disponibles consultadas correctamente."` y usuario autenticado `prueba.cambio.04@donapp.test`.
+- [x] Visibilidad: mostro `"Mesa auxiliar de madera"` de Adriana Cruz, con ciudad `Quito Norte` y estado `PUBLICADA`, y excluyo las bicicletas del usuario autenticado.
+- [x] Representacion: incluyo categoria, imagen principal, cantidad de imagenes y paginacion.
+- [x] Regresion del POST: Adriana Cruz creo `"Mesa auxiliar de madera"` con HTTP `201` y se confirmo que la creacion continuo funcionando.
+- [x] Filtro `categoriaId=6`: HTTP `200` y resultado de categoria `Muebles`.
+- [x] Categoria sin coincidencias `categoriaId=999999`: HTTP `200`, `donaciones: []`, `total: 0` y `totalPages: 0`.
+- [x] Metodo `PATCH` no permitido: HTTP `405` y encabezado `Allow: GET, POST`.
+- [x] Seguridad: no se devolvio `propietarioId`, nombre, correo, telefono, foto, solicitudes, sesiones, hashes ni tokens; ciudad, propietario y estado no pudieron ser enviados por el cliente y las publicaciones propias se excluyeron automaticamente.
+- [x] Peticion guardada en Postman como `Donaciones - Listar disponibles`.
 
 ## Fase 11 - Cierre Documental
 
@@ -225,7 +253,6 @@
 - [ ] Probar el rechazo de cero y seis imagenes.
 - [ ] Probar una categoria inactiva con HTTP `409`.
 - [ ] Probar un usuario sin ciudad valida.
-- [ ] Implementar `GET /api/donaciones`.
 - [ ] Implementar `GET /api/donaciones/{id}`.
 - [ ] Implementar `PATCH /api/donaciones/{id}`.
 - [ ] Implementar la retirada logica.
@@ -234,6 +261,10 @@
 - [ ] Probar la paginacion de publicaciones propias con una segunda pagina.
 - [ ] Probar los filtros `RESERVADA`, `ENTREGADA` y `RETIRADA` cuando existan datos.
 - [ ] Probar funcionalmente un usuario inactivo.
+- [ ] Probar funcionalmente el listado general con donaciones de otra ciudad.
+- [ ] Probar la exclusion de estados `RESERVADA`, `ENTREGADA` y `RETIRADA` en el listado general.
+- [ ] Probar una segunda pagina en el listado general.
+- [ ] Probar un usuario sin ciudad valida en el listado general.
 - [ ] Ejecutar las pruebas automatizadas aprobadas.
 - [ ] Completar y cerrar la feature.
 
