@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "benchmark:n1:before": "tsx --env-file=.env scripts/benchmark-donaciones-n1.ts --strategy=before",
+    "benchmark:n1:after": "tsx --env-file=.env scripts/benchmark-donaciones-n1.ts --strategy=after",
+    "benchmark:n1:compare": "tsx --env-file=.env scripts/benchmark-donaciones-n1.ts --strategy=compare"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
