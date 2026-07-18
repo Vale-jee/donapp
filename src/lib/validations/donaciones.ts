@@ -117,3 +117,16 @@ export const listOwnDonationsQuerySchema = z.strictObject({
 export type ListOwnDonationsQuery = z.infer<
   typeof listOwnDonationsQuerySchema
 >;
+
+export const listAvailableDonationsQuerySchema = z.strictObject({
+  page: canonicalPositiveIntegerSchema.optional().transform((value) => value ?? 1),
+  limit: canonicalPositiveIntegerSchema
+    .optional()
+    .transform((value) => value ?? 20)
+    .refine((value) => value <= 100, "El límite máximo es 100."),
+  categoriaId: canonicalPositiveIntegerSchema.optional(),
+});
+
+export type ListAvailableDonationsQuery = z.infer<
+  typeof listAvailableDonationsQuerySchema
+>;

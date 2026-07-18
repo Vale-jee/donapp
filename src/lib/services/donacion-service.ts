@@ -3,12 +3,15 @@ import { prisma } from "@/database/client";
 import { ApiError } from "@/src/lib/api/errors";
 import type {
   CreateDonationInput,
+  ListAvailableDonationsQuery,
   ListOwnDonationsQuery,
 } from "@/src/lib/validations/donaciones";
 
 const INVALID_ACCESS_TOKEN_MESSAGE = "Access token inválido.";
 const INVALID_CITY_MESSAGE =
   "Debe completar una ciudad válida en su perfil antes de publicar una donación.";
+const INVALID_CITY_FOR_LIST_MESSAGE =
+  "Debe completar una ciudad válida en su perfil antes de consultar donaciones disponibles.";
 const CATEGORY_NOT_FOUND_MESSAGE = "Categoría no encontrada.";
 const INACTIVE_CATEGORY_MESSAGE =
   "La categoría seleccionada no está activa.";
@@ -60,6 +63,8 @@ export interface OwnDonationsResult {
     totalPages: number;
   };
 }
+
+export type AvailableDonationsResult = OwnDonationsResult;
 
 export async function createDonation(
   userId: number,
@@ -214,4 +219,100 @@ export async function listOwnDonations(
       totalPages: Math.ceil(total / limit),
     },
   };
+}
+
+export async function listAvailableDonations(
+  userId: number,
+  query: ListAvailableDonationsQuery,
+): Promise<AvailableDonationsResult> {
+  const { page, limit, categoriaId } = query;
+
+  return prisma.$transaction(async (transaction) => {
+    const user = await transaction.usuario.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        ciudad: true,
+      },
+    });
+
+    if (user === null) {
+      throw new ApiError(401, INVALID_ACCESS_TOKEN_MESSAGE);
+    }
+
+    const city = user.ciudad?.trim();
+
+    if (city === undefined || city.length === 0) {
+      throw new ApiError(409, INVALID_CITY_FOR_LIST_MESSAGE);
+    }
+
+    const where = {
+      estado: EstadoDonacion.PUBLICADA,
+      ciudad: city,
+      propietarioId: {
+        not: user.id,
+      },
+      ...(categoriaId === undefined ? {} : { categoriaId }),
+    };
+
+    const [donations, total] = await Promise.all([
+      transaction.donacion.findMany({
+        where,
+        skip: (page - 1) * limit,
+        take: limit,
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        select: {
+          id: true,
+          titulo: true,
+          ciudad: true,
+          estado: true,
+          createdAt: true,
+          updatedAt: true,
+          categoria: {
+            select: {
+              id: true,
+              nombre: true,
+            },
+          },
+          imagenes: {
+            select: {
+              id: true,
+              referencia: true,
+              orden: true,
+            },
+            orderBy: {
+              orden: "asc",
+            },
+            take: 1,
+          },
+          _count: {
+            select: {
+              imagenes: true,
+            },
+          },
+        },
+      }),
+      transaction.donacion.count({ where }),
+    ]);
+
+    return {
+      donaciones: donations.map((donation) => ({
+        id: donation.id,
+        titulo: donation.titulo,
+        ciudad: donation.ciudad,
+        estado: donation.estado,
+        createdAt: donation.createdAt,
+        updatedAt: donation.updatedAt,
+        categoria: donation.categoria,
+        imagenPrincipal: donation.imagenes[0] ?? null,
+        cantidadImagenes: donation._count.imagenes,
+      })),
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  });
 }
