@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { EstadoDonacion } from "@/generated/prisma/client";
+
 const CLEAR_HTML_TAG_PATTERN = /<\/?[a-z][^<>]*>/iu;
 const FENCED_CODE_PATTERN = /```/u;
 const MARKDOWN_IMAGE_PATTERN = /!\[[^\]\r\n]*\]\([^\r\n)]+\)/u;
@@ -7,6 +9,7 @@ const MARKDOWN_LINK_PATTERN = /(?<!!)\[[^\]\r\n]+\]\([^\r\n)]+\)/u;
 const MARKDOWN_HEADING_PATTERN = /^\s{0,3}#{1,6}\s+\S/mu;
 const MARKDOWN_QUOTE_PATTERN = /^\s{0,3}>\s+\S/mu;
 const WHITESPACE_PATTERN = /\s/u;
+const CANONICAL_POSITIVE_INTEGER_PATTERN = /^[1-9]\d*$/u;
 
 function normalizeTitle(value: string): string {
   return value.trim().replace(/\s+/gu, " ");
@@ -92,3 +95,25 @@ export const createDonationSchema = z.strictObject({
 });
 
 export type CreateDonationInput = z.infer<typeof createDonationSchema>;
+
+const canonicalPositiveIntegerSchema = z
+  .string()
+  .regex(
+    CANONICAL_POSITIVE_INTEGER_PATTERN,
+    "Debe ser un entero positivo en formato canónico.",
+  )
+  .transform(Number)
+  .refine(Number.isSafeInteger, "Debe ser un entero positivo válido.");
+
+export const listOwnDonationsQuerySchema = z.strictObject({
+  page: canonicalPositiveIntegerSchema.optional().transform((value) => value ?? 1),
+  limit: canonicalPositiveIntegerSchema
+    .optional()
+    .transform((value) => value ?? 20)
+    .refine((value) => value <= 100, "El límite máximo es 100."),
+  estado: z.enum(EstadoDonacion).optional(),
+});
+
+export type ListOwnDonationsQuery = z.infer<
+  typeof listOwnDonationsQuerySchema
+>;

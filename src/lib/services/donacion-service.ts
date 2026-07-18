@@ -1,7 +1,10 @@
 import { EstadoDonacion } from "@/generated/prisma/client";
 import { prisma } from "@/database/client";
 import { ApiError } from "@/src/lib/api/errors";
-import type { CreateDonationInput } from "@/src/lib/validations/donaciones";
+import type {
+  CreateDonationInput,
+  ListOwnDonationsQuery,
+} from "@/src/lib/validations/donaciones";
 
 const INVALID_ACCESS_TOKEN_MESSAGE = "Access token inválido.";
 const INVALID_CITY_MESSAGE =
@@ -27,6 +30,35 @@ export interface CreatedDonation {
     referencia: string;
     orden: number;
   }>;
+}
+
+export interface OwnDonationListItem {
+  id: number;
+  titulo: string;
+  ciudad: string;
+  estado: EstadoDonacion;
+  createdAt: Date;
+  updatedAt: Date;
+  categoria: {
+    id: number;
+    nombre: string;
+  };
+  imagenPrincipal: {
+    id: number;
+    referencia: string;
+    orden: number;
+  } | null;
+  cantidadImagenes: number;
+}
+
+export interface OwnDonationsResult {
+  donaciones: OwnDonationListItem[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 export async function createDonation(
@@ -111,4 +143,75 @@ export async function createDonation(
       },
     });
   });
+}
+
+export async function listOwnDonations(
+  userId: number,
+  query: ListOwnDonationsQuery,
+): Promise<OwnDonationsResult> {
+  const { page, limit, estado } = query;
+  const where = {
+    propietarioId: userId,
+    ...(estado === undefined ? {} : { estado }),
+  };
+
+  const [donations, total] = await prisma.$transaction([
+    prisma.donacion.findMany({
+      where,
+      skip: (page - 1) * limit,
+      take: limit,
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+      select: {
+        id: true,
+        titulo: true,
+        ciudad: true,
+        estado: true,
+        createdAt: true,
+        updatedAt: true,
+        categoria: {
+          select: {
+            id: true,
+            nombre: true,
+          },
+        },
+        imagenes: {
+          select: {
+            id: true,
+            referencia: true,
+            orden: true,
+          },
+          orderBy: {
+            orden: "asc",
+          },
+          take: 1,
+        },
+        _count: {
+          select: {
+            imagenes: true,
+          },
+        },
+      },
+    }),
+    prisma.donacion.count({ where }),
+  ]);
+
+  return {
+    donaciones: donations.map((donation) => ({
+      id: donation.id,
+      titulo: donation.titulo,
+      ciudad: donation.ciudad,
+      estado: donation.estado,
+      createdAt: donation.createdAt,
+      updatedAt: donation.updatedAt,
+      categoria: donation.categoria,
+      imagenPrincipal: donation.imagenes[0] ?? null,
+      cantidadImagenes: donation._count.imagenes,
+    })),
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 }
