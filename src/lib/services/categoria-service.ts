@@ -1,6 +1,11 @@
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/database/client";
 import { ApiError } from "@/src/lib/api/errors";
+import {
+  getActiveCategoriesCache,
+  invalidateActiveCategoriesCache,
+  setActiveCategoriesCache,
+} from "@/src/lib/cache/category-cache";
 import type { CreateCategoryInput } from "@/src/lib/validations/categorias";
 
 const CATEGORY_ALREADY_EXISTS_MESSAGE = "La categoría ya existe.";
@@ -26,8 +31,24 @@ export interface AdministrativeCategory extends PublicCategory {
   updatedAt: Date;
 }
 
-export function listActiveCategories(): Promise<PublicCategory[]> {
-  return prisma.categoria.findMany({
+export type CategoryCacheStatus = "HIT" | "MISS";
+
+export interface ActiveCategoriesResult {
+  categories: PublicCategory[];
+  cacheStatus: CategoryCacheStatus;
+}
+
+export async function listActiveCategories(): Promise<ActiveCategoriesResult> {
+  const cachedCategories = getActiveCategoriesCache();
+
+  if (cachedCategories !== null) {
+    return {
+      categories: cachedCategories,
+      cacheStatus: "HIT",
+    };
+  }
+
+  const categories = await prisma.categoria.findMany({
     where: {
       activo: true,
     },
@@ -40,13 +61,20 @@ export function listActiveCategories(): Promise<PublicCategory[]> {
       nombre: "asc",
     },
   });
+
+  setActiveCategoriesCache(categories);
+
+  return {
+    categories,
+    cacheStatus: "MISS",
+  };
 }
 
 export async function createCategory(
   input: CreateCategoryInput,
 ): Promise<AdministrativeCategory> {
   try {
-    return await prisma.$transaction(
+    const category = await prisma.$transaction(
       async (transaction) => {
         const duplicate = await transaction.categoria.findFirst({
           where: {
@@ -75,6 +103,10 @@ export async function createCategory(
         isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
       },
     );
+
+    invalidateActiveCategoriesCache();
+
+    return category;
   } catch (error: unknown) {
     if (
       error instanceof Prisma.PrismaClientKnownRequestError &&

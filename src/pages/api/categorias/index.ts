@@ -43,7 +43,10 @@ export default async function handler(
         throw new ApiError(400, INVALID_DATA_MESSAGE);
       }
 
-      const categorias = await listActiveCategories();
+      const { categories: categorias, cacheStatus } =
+        await listActiveCategories();
+
+      response.setHeader("X-Cache-Status", cacheStatus);
 
       sendSuccess(response, 200, CATEGORIES_RETRIEVED_MESSAGE, {
         categorias,
