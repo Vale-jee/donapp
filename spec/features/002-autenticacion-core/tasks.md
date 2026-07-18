@@ -292,7 +292,7 @@ Evidencia funcional de los guards:
 
 - [ ] Registrar los resultados de las pruebas.
 - [ ] Verificar que la implementacion coincida con `spec.md`.
-- [ ] Completar las actividades planificadas para la Semana 8.
+- [ ] Completar las actividades planificadas de optimización técnica y rendimiento.
 - [ ] Actualizar el estado de la feature solo cuando todos los requisitos esten implementados.
 
 ## Criterios de Finalizacion
