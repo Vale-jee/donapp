@@ -50,7 +50,7 @@
 - [x] Crear la validacion estricta del identificador para el detalle de donaciones.
 - [ ] Crear la validacion de identificadores para las operaciones restantes.
 - [x] Crear la validacion estricta de creacion con `titulo`, `descripcion`, `categoriaId` e `imagenes`.
-- [ ] Crear la validacion de actualizacion parcial.
+- [x] Crear la validacion estricta de actualizacion parcial con `titulo`, `descripcion`, `categoriaId` e `imagenes` opcionales.
 - [ ] Crear la validacion de retirada.
 - [ ] Crear la validacion de confirmacion de entrega.
 - [x] Crear la validacion estricta de filtros y paginacion para publicaciones propias.
@@ -67,23 +67,26 @@
 - [x] Rechazar parametros desconocidos, vacios, repetidos, no numericos, decimales, negativos o con ceros iniciales en publicaciones propias.
 - [x] Rechazar parametros desconocidos o invalidos en el listado general.
 - [x] Rechazar identificadores y parametros adicionales invalidos en el detalle de donaciones.
-- [ ] Rechazar cuerpos vacios cuando correspondan.
+- [x] Rechazar campos protegidos o desconocidos en la actualizacion parcial.
+- [x] Rechazar el cuerpo vacio y exigir al menos un campo editable en la actualizacion.
+- [ ] Rechazar cuerpos vacios en las operaciones restantes cuando correspondan.
 
 ## Fase 5 - Servicios
 
 - [x] Crear el servicio de publicacion.
 - [x] Obtener propietario y ciudad desde el usuario autenticado al publicar.
 - [x] Validar que la categoria exista y este activa al crear.
-- [ ] Validar la categoria activa al cambiar `categoriaId`.
+- [x] Validar que la categoria exista y este activa al cambiar `categoriaId`.
 - [x] Crear el servicio de listado general de donaciones disponibles.
 - [x] Crear el servicio de publicaciones propias filtrado exclusivamente por `propietarioId` del usuario autenticado.
 - [x] Crear el servicio de consulta individual.
 - [x] Consultar para el detalle unicamente los campos necesarios del usuario, la donacion, la categoria, las imagenes y la solicitud aceptada.
 - [x] Aplicar en el detalle las reglas de visibilidad para propietario, publicacion ajena en la misma ciudad y receptor seleccionado.
 - [x] Restringir en el detalle una donacion `RETIRADA` al propietario.
-- [ ] Crear el servicio de actualizacion parcial.
-- [ ] Restringir la edicion a `PUBLICADA`.
-- [ ] Implementar el reemplazo completo de imagenes.
+- [x] Crear el servicio transaccional de actualizacion parcial.
+- [x] Restringir la edicion a donaciones propias en estado `PUBLICADA` mediante una escritura condicionada por `id`, `propietarioId` y estado.
+- [x] Conservar sin cambios los campos omitidos, incluida la ciudad historica y el estado administrado por el servidor.
+- [x] Implementar el reemplazo completo y atomico de imagenes cuando se envie la coleccion.
 - [ ] Crear el servicio de retirada logica.
 - [ ] Garantizar la idempotencia de la retirada.
 - [ ] Crear el servicio de confirmacion de entrega.
@@ -97,6 +100,7 @@
 - [x] Seleccionar explicitamente los campos seguros del listado general.
 - [x] Seleccionar explicitamente los campos seguros del detalle y omitir los datos internos de autorizacion.
 - [x] Devolver en el detalle la categoria minima y todas las imagenes ordenadas por `orden` ascendente.
+- [x] Seleccionar explicitamente los campos seguros de la respuesta de actualizacion.
 - [ ] Seleccionar explicitamente los campos de las respuestas restantes.
 
 ## Fase 6 - Autenticacion y Autorizacion
@@ -111,10 +115,12 @@
 - [x] Obtener la ciudad del perfil autenticado y excluir publicaciones propias y de otras ciudades en el listado general.
 - [x] Proteger el detalle con `requireAuth` y permitirlo a `USUARIO` y `ADMIN` sin `requireRole` ni privilegios administrativos especiales.
 - [x] Consultar la ciudad actual desde PostgreSQL para decidir la visibilidad de una publicacion ajena.
-- [ ] Proteger actualizacion y retirada por propiedad.
+- [x] Proteger la actualizacion mediante `requireAuth`, sin `requireRole`, y comprobar la propiedad desde PostgreSQL.
+- [ ] Proteger la retirada por propiedad.
 - [ ] Identificar al propietario o receptor durante la confirmacion.
 - [x] Responder uniformemente `404` cuando la donacion del detalle no exista o no sea visible.
-- [ ] Impedir que `ADMIN` modifique publicaciones ajenas mediante rutas normales.
+- [x] Impedir que `ADMIN` modifique publicaciones ajenas mediante la ruta normal de actualizacion.
+- [ ] Impedir que `ADMIN` retire publicaciones ajenas mediante la ruta normal de retirada.
 
 ## Fase 7 - Imagenes
 
@@ -123,8 +129,9 @@
 - [x] Utilizar la imagen de menor orden como principal.
 - [x] Evitar el campo `esPrincipal`.
 - [x] Garantizar mediante validacion entre una y cinco imagenes.
-- [ ] Reemplazar la coleccion completa dentro de una operacion consistente.
-- [ ] Impedir modificaciones de imagenes fuera de `PUBLICADA`.
+- [x] Reemplazar la coleccion completa dentro de una transaccion interactiva.
+- [x] Asignar a las imagenes reemplazadas ordenes consecutivos desde `1`.
+- [x] Impedir modificaciones de imagenes fuera de `PUBLICADA`.
 
 ## Fase 8 - Paginacion y Consultas
 
@@ -147,18 +154,19 @@
 - [x] Implementar `GET /api/donaciones/mias`.
 - [x] Implementar `GET /api/donaciones/{id}` mediante una ruta dinamica de Pages Router.
 - [x] Implementar `POST /api/donaciones`.
-- [ ] Implementar `PATCH /api/donaciones/{id}`.
+- [x] Implementar `PATCH /api/donaciones/{id}` en convivencia con el `GET` existente.
 - [ ] Implementar `PATCH /api/donaciones/{id}/estado`.
 - [ ] Implementar `PATCH /api/donaciones/{id}/confirmacion-entrega`.
 - [x] Rechazar metodos distintos de `GET` y `POST` en `/api/donaciones` con `405` y cabecera `Allow: GET, POST`.
 - [x] Rechazar metodos no permitidos en `/api/donaciones/mias` con `405` y cabecera `Allow: GET`.
-- [x] Rechazar metodos distintos de `GET` en `/api/donaciones/{id}` con `405` y cabecera `Allow: GET`.
+- [x] Rechazar metodos distintos de `GET` y `PATCH` en `/api/donaciones/{id}` con `405` y cabecera `Allow: GET, PATCH`.
 - [ ] Rechazar metodos no permitidos en los endpoints restantes con `405` y cabecera `Allow`.
 - [ ] Confirmar que no existan endpoints `PUT` ni `DELETE`.
 - [x] Aplicar al endpoint de creacion el contrato uniforme de la feature 004 y manejar `400`, `401`, `403`, `404`, `409`, `405` y `500`.
 - [x] Aplicar al listado propio el contrato uniforme de la feature 004 y manejar `200`, `400`, `401`, `403`, `405` y `500`.
 - [x] Aplicar al listado general el contrato uniforme de la feature 004 y manejar `200`, `400`, `401`, `403`, `409`, `405` y `500`.
 - [x] Aplicar al detalle el contrato uniforme de la feature 004 y manejar `200`, `400`, `401`, `403`, `404`, `405` y `500`.
+- [x] Aplicar a la actualizacion el contrato uniforme de la feature 004 y manejar `200`, `400`, `401`, `403`, `404`, `409`, `405` y `500`.
 - [ ] Aplicar el contrato uniforme de la feature 004 a los endpoints restantes.
 
 ## Dependencias Futuras
@@ -201,7 +209,15 @@
 - [x] Probar un identificador invalido con HTTP `400`.
 - [x] Probar un metodo no permitido en el detalle con HTTP `405` y `Allow: GET`.
 - [x] Probar el rechazo de `propietarioId` enviado por el cliente con HTTP `400`.
-- [ ] Probar actualizacion parcial y los campos protegidos restantes.
+- [x] Probar la actualizacion parcial correcta con reemplazo de imagenes y HTTP `200`.
+- [x] Probar que un `GET` posterior conserva el titulo, descripcion e imagenes actualizados.
+- [x] Probar que un usuario ajeno recibe el mismo HTTP `404` sin revelar la propiedad.
+- [x] Probar el rechazo del cuerpo vacio con HTTP `400`.
+- [x] Probar el rechazo del campo protegido `estado` con HTTP `400`.
+- [ ] Probar los campos protegidos restantes de la actualizacion.
+- [ ] Probar una categoria inexistente durante la actualizacion.
+- [ ] Probar una categoria inactiva durante la actualizacion.
+- [ ] Probar al propietario intentando editar una donacion `RESERVADA`, `ENTREGADA` o `RETIRADA`.
 - [ ] Probar retirada, idempotencia y estados incompatibles.
 - [ ] Probar ambas confirmaciones y su idempotencia.
 - [ ] Probar la segunda confirmacion atomica.
@@ -226,6 +242,8 @@
 - [x] Ejecutar build exitosamente para el listado general.
 - [x] Ejecutar lint exitosamente para el detalle de una donacion.
 - [x] Ejecutar build exitosamente para el detalle de una donacion.
+- [x] Ejecutar lint exitosamente para la actualizacion de una donacion.
+- [x] Ejecutar build exitosamente para la actualizacion de una donacion.
 
 ## Evidencia Funcional - POST `/api/donaciones`
 
@@ -272,6 +290,21 @@
 - [x] Evidencia grafica `05_GET_detalle_donacion_200.png`.
 - [x] Evidencia grafica `06_GET_donacion_inexistente_404.png`.
 
+## Evidencia Funcional - PATCH `/api/donaciones/{id}`
+
+- [x] Actualizacion correcta de `PATCH /api/donaciones/3`: HTTP `200`, mensaje `"Donación actualizada correctamente."`, titulo `"Bicicleta infantil con casco"`, descripcion actualizada y categoria `Juguetes`.
+- [x] Campos administrados: se conservaron la ciudad `Quito Norte` y el estado `PUBLICADA`.
+- [x] Imagenes: la coleccion fue reemplazada con dos referencias en ordenes `1` y `2`.
+- [x] Seguridad: la respuesta no devolvio `propietarioId` ni informacion privada.
+- [x] Confirmacion posterior mediante `GET /api/donaciones/3`: HTTP `200` y persistencia del titulo, descripcion e imagenes actualizados.
+- [x] Proteccion de propiedad: Adriana Cruz intento actualizar la donacion `3` y recibio HTTP `404` con mensaje `"Donación no encontrada."` sin revelar su propietario.
+- [x] Cuerpo vacio `{}`: HTTP `400` y mensaje `"Datos inválidos."`.
+- [x] Campo protegido `estado: "RETIRADA"`: HTTP `400` y mensaje `"Datos inválidos."`.
+- [x] Metodo `POST` no permitido en `/api/donaciones/3`: HTTP `405` y encabezado `Allow: GET, PATCH`.
+- [x] Evidencia grafica `07_PATCH_donacion_actualizada_200.png`.
+- [x] Evidencia grafica `08_GET_donacion_actualizada_200.png`.
+- [x] Evidencia grafica `09_PATCH_donacion_ajena_404.png`.
+
 ## Fase 11 - Cierre Documental
 
 - [ ] Verificar que la implementacion coincida con `spec.md`.
@@ -287,7 +320,11 @@
 - [ ] Probar al propietario con donaciones `RESERVADA`, `ENTREGADA` y `RETIRADA`.
 - [ ] Probar el detalle como receptor seleccionado.
 - [ ] Probar el detalle con un usuario de otra ciudad.
-- [ ] Implementar `PATCH /api/donaciones/{id}`.
+- [ ] Probar una categoria inexistente durante la actualizacion.
+- [ ] Probar una categoria inactiva durante la actualizacion.
+- [ ] Probar al propietario intentando editar una donacion `RESERVADA`.
+- [ ] Probar al propietario intentando editar una donacion `ENTREGADA`.
+- [ ] Probar al propietario intentando editar una donacion `RETIRADA`.
 - [ ] Implementar la retirada logica.
 - [ ] Implementar la confirmacion de entrega.
 - [ ] Probar funcionalmente la coleccion vacia en publicaciones propias.
