@@ -51,7 +51,7 @@
 - [ ] Crear la validacion de identificadores para las operaciones restantes.
 - [x] Crear la validacion estricta de creacion con `titulo`, `descripcion`, `categoriaId` e `imagenes`.
 - [x] Crear la validacion estricta de actualizacion parcial con `titulo`, `descripcion`, `categoriaId` e `imagenes` opcionales.
-- [ ] Crear la validacion de retirada.
+- [x] Crear la validacion estricta de retirada con el literal `estado: RETIRADA`.
 - [ ] Crear la validacion de confirmacion de entrega.
 - [x] Crear la validacion estricta de filtros y paginacion para publicaciones propias.
 - [x] Crear la validacion estricta de filtros y paginacion para el listado general.
@@ -69,6 +69,7 @@
 - [x] Rechazar identificadores y parametros adicionales invalidos en el detalle de donaciones.
 - [x] Rechazar campos protegidos o desconocidos en la actualizacion parcial.
 - [x] Rechazar el cuerpo vacio y exigir al menos un campo editable en la actualizacion.
+- [x] Rechazar en la retirada el cuerpo vacio, estados diferentes de `RETIRADA` y campos adicionales.
 - [ ] Rechazar cuerpos vacios en las operaciones restantes cuando correspondan.
 
 ## Fase 5 - Servicios
@@ -87,8 +88,11 @@
 - [x] Restringir la edicion a donaciones propias en estado `PUBLICADA` mediante una escritura condicionada por `id`, `propietarioId` y estado.
 - [x] Conservar sin cambios los campos omitidos, incluida la ciudad historica y el estado administrado por el servidor.
 - [x] Implementar el reemplazo completo y atomico de imagenes cuando se envie la coleccion.
-- [ ] Crear el servicio de retirada logica.
-- [ ] Garantizar la idempotencia de la retirada.
+- [x] Crear el servicio de retirada logica mediante una transaccion interactiva `Serializable`.
+- [x] Implementar la transicion condicionada `PUBLICADA -> RETIRADA` y registrar `retiradaAt`.
+- [x] Cancelar atomicamente las solicitudes `PENDIENTE` con causa `DONACION_RETIRADA` y conservar las solicitudes no pendientes.
+- [x] Garantizar la idempotencia de la retirada sin reescribir `retiradaAt` ni `updatedAt`.
+- [x] Conservar categoria, imagenes, ciudad y relaciones durante la retirada.
 - [ ] Crear el servicio de confirmacion de entrega.
 - [ ] Garantizar la idempotencia de cada confirmacion.
 - [ ] Implementar atomicamente la segunda confirmacion y `ENTREGADA`.
@@ -101,6 +105,7 @@
 - [x] Seleccionar explicitamente los campos seguros del detalle y omitir los datos internos de autorizacion.
 - [x] Devolver en el detalle la categoria minima y todas las imagenes ordenadas por `orden` ascendente.
 - [x] Seleccionar explicitamente los campos seguros de la respuesta de actualizacion.
+- [x] Seleccionar explicitamente los campos seguros de la respuesta de retirada.
 - [ ] Seleccionar explicitamente los campos de las respuestas restantes.
 
 ## Fase 6 - Autenticacion y Autorizacion
@@ -116,11 +121,11 @@
 - [x] Proteger el detalle con `requireAuth` y permitirlo a `USUARIO` y `ADMIN` sin `requireRole` ni privilegios administrativos especiales.
 - [x] Consultar la ciudad actual desde PostgreSQL para decidir la visibilidad de una publicacion ajena.
 - [x] Proteger la actualizacion mediante `requireAuth`, sin `requireRole`, y comprobar la propiedad desde PostgreSQL.
-- [ ] Proteger la retirada por propiedad.
+- [x] Proteger la retirada mediante `requireAuth`, sin `requireRole`, y comprobar la propiedad desde PostgreSQL.
 - [ ] Identificar al propietario o receptor durante la confirmacion.
 - [x] Responder uniformemente `404` cuando la donacion del detalle no exista o no sea visible.
 - [x] Impedir que `ADMIN` modifique publicaciones ajenas mediante la ruta normal de actualizacion.
-- [ ] Impedir que `ADMIN` retire publicaciones ajenas mediante la ruta normal de retirada.
+- [x] Impedir que `ADMIN` retire publicaciones ajenas mediante la ruta normal de retirada.
 
 ## Fase 7 - Imagenes
 
@@ -155,11 +160,12 @@
 - [x] Implementar `GET /api/donaciones/{id}` mediante una ruta dinamica de Pages Router.
 - [x] Implementar `POST /api/donaciones`.
 - [x] Implementar `PATCH /api/donaciones/{id}` en convivencia con el `GET` existente.
-- [ ] Implementar `PATCH /api/donaciones/{id}/estado`.
+- [x] Implementar `PATCH /api/donaciones/{id}/estado`.
 - [ ] Implementar `PATCH /api/donaciones/{id}/confirmacion-entrega`.
 - [x] Rechazar metodos distintos de `GET` y `POST` en `/api/donaciones` con `405` y cabecera `Allow: GET, POST`.
 - [x] Rechazar metodos no permitidos en `/api/donaciones/mias` con `405` y cabecera `Allow: GET`.
 - [x] Rechazar metodos distintos de `GET` y `PATCH` en `/api/donaciones/{id}` con `405` y cabecera `Allow: GET, PATCH`.
+- [x] Rechazar metodos distintos de `PATCH` en `/api/donaciones/{id}/estado` con `405` y cabecera `Allow: PATCH`.
 - [ ] Rechazar metodos no permitidos en los endpoints restantes con `405` y cabecera `Allow`.
 - [ ] Confirmar que no existan endpoints `PUT` ni `DELETE`.
 - [x] Aplicar al endpoint de creacion el contrato uniforme de la feature 004 y manejar `400`, `401`, `403`, `404`, `409`, `405` y `500`.
@@ -167,6 +173,7 @@
 - [x] Aplicar al listado general el contrato uniforme de la feature 004 y manejar `200`, `400`, `401`, `403`, `409`, `405` y `500`.
 - [x] Aplicar al detalle el contrato uniforme de la feature 004 y manejar `200`, `400`, `401`, `403`, `404`, `405` y `500`.
 - [x] Aplicar a la actualizacion el contrato uniforme de la feature 004 y manejar `200`, `400`, `401`, `403`, `404`, `409`, `405` y `500`.
+- [x] Aplicar a la retirada el contrato uniforme de la feature 004 y manejar `200`, `400`, `401`, `403`, `404`, `409`, `405` y `500`.
 - [ ] Aplicar el contrato uniforme de la feature 004 a los endpoints restantes.
 
 ## Dependencias Futuras
@@ -218,7 +225,15 @@
 - [ ] Probar una categoria inexistente durante la actualizacion.
 - [ ] Probar una categoria inactiva durante la actualizacion.
 - [ ] Probar al propietario intentando editar una donacion `RESERVADA`, `ENTREGADA` o `RETIRADA`.
-- [ ] Probar retirada, idempotencia y estados incompatibles.
+- [x] Probar la retirada correcta de una donacion `PUBLICADA` con HTTP `200`.
+- [x] Probar la retirada repetida con HTTP `200` sin modificar `retiradaAt` ni `updatedAt`.
+- [x] Probar que un usuario ajeno recibe HTTP `404` al intentar retirar la donacion.
+- [x] Probar el cuerpo vacio, un estado diferente y un metodo no permitido.
+- [x] Probar los efectos posteriores en el listado general, publicaciones propias, detalle y actualizacion.
+- [ ] Probar la retirada de una donacion `RESERVADA` con HTTP `409`.
+- [ ] Probar la retirada de una donacion `ENTREGADA` con HTTP `409`.
+- [ ] Probar funcionalmente la cancelacion de solicitudes `PENDIENTE`.
+- [ ] Probar la concurrencia entre retirada y aceptacion de una solicitud.
 - [ ] Probar ambas confirmaciones y su idempotencia.
 - [ ] Probar la segunda confirmacion atomica.
 - [ ] Probar la consistencia de `solicitudAceptadaId`.
@@ -244,6 +259,8 @@
 - [x] Ejecutar build exitosamente para el detalle de una donacion.
 - [x] Ejecutar lint exitosamente para la actualizacion de una donacion.
 - [x] Ejecutar build exitosamente para la actualizacion de una donacion.
+- [x] Ejecutar lint exitosamente para la retirada logica.
+- [x] Ejecutar build exitosamente para la retirada logica.
 
 ## Evidencia Funcional - POST `/api/donaciones`
 
@@ -305,6 +322,21 @@
 - [x] Evidencia grafica `08_GET_donacion_actualizada_200.png`.
 - [x] Evidencia grafica `09_PATCH_donacion_ajena_404.png`.
 
+## Evidencia Funcional - PATCH `/api/donaciones/{id}/estado`
+
+- [x] Retirada correcta de `PATCH /api/donaciones/3/estado`: HTTP `200`, mensaje `"Donación retirada correctamente."`, estado `RETIRADA` y `retiradaAt` registrado.
+- [x] Conservacion: categoria `Juguetes`, ciudad `Quito Norte` e imagenes con ordenes `1` y `2` permanecieron asociadas.
+- [x] Seguridad: la respuesta no devolvio datos privados.
+- [x] Listado propio con `estado=RETIRADA`: HTTP `200`, donacion `3`, `total: 1` y `totalPages: 1`.
+- [x] Idempotencia: la segunda retirada respondio HTTP `200` y conservo sin cambios `retiradaAt` y `updatedAt`.
+- [x] Proteccion de propiedad: Adriana Cruz recibio HTTP `404` y mensaje `"Donación no encontrada."` al intentar retirar la donacion `3`.
+- [x] Efectos posteriores: el propietario consulto el detalle con HTTP `200`, la actualizacion respondio HTTP `409` y el listado general dejo de mostrar la donacion.
+- [x] Validaciones: cuerpo `{}` y `estado: PUBLICADA` respondieron HTTP `400`.
+- [x] Metodo `GET` no permitido: HTTP `405` y encabezado `Allow: PATCH`.
+- [x] Evidencia grafica `10_PATCH_donacion_retirada_200.png`.
+- [x] Evidencia grafica `11_GET_mis_donaciones_retiradas_200.png`.
+- [x] Evidencia grafica `12_PATCH_retirada_donacion_ajena_404.png`.
+
 ## Fase 11 - Cierre Documental
 
 - [ ] Verificar que la implementacion coincida con `spec.md`.
@@ -325,7 +357,10 @@
 - [ ] Probar al propietario intentando editar una donacion `RESERVADA`.
 - [ ] Probar al propietario intentando editar una donacion `ENTREGADA`.
 - [ ] Probar al propietario intentando editar una donacion `RETIRADA`.
-- [ ] Implementar la retirada logica.
+- [ ] Probar la retirada de una donacion `RESERVADA`.
+- [ ] Probar la retirada de una donacion `ENTREGADA`.
+- [ ] Probar funcionalmente la cancelacion de solicitudes `PENDIENTE`.
+- [ ] Probar la concurrencia entre retirada y aceptacion de una solicitud.
 - [ ] Implementar la confirmacion de entrega.
 - [ ] Probar funcionalmente la coleccion vacia en publicaciones propias.
 - [ ] Probar la paginacion de publicaciones propias con una segunda pagina.
