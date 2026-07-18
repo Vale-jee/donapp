@@ -48,22 +48,27 @@
 ## Fase 4 - Validaciones Zod
 
 - [ ] Crear la validacion de identificadores.
-- [ ] Crear la validacion de creacion.
+- [x] Crear la validacion estricta de creacion con `titulo`, `descripcion`, `categoriaId` e `imagenes`.
 - [ ] Crear la validacion de actualizacion parcial.
 - [ ] Crear la validacion de retirada.
 - [ ] Crear la validacion de confirmacion de entrega.
 - [ ] Crear las validaciones de filtros y paginacion.
-- [ ] Normalizar y validar el titulo.
-- [ ] Normalizar y validar la descripcion.
-- [ ] Validar entre una y cinco referencias de imagenes.
-- [ ] Rechazar campos desconocidos y protegidos.
+- [x] Normalizar y validar el titulo entre 5 y 100 caracteres.
+- [x] Normalizar y validar la descripcion entre 20 y 1000 caracteres como texto plano.
+- [x] Rechazar HTML y Markdown claramente identificables en la descripcion.
+- [x] Validar `categoriaId` como entero positivo sin coercion.
+- [x] Validar un arreglo directo de entre una y cinco referencias de imagenes.
+- [x] Admitir referencias HTTP, HTTPS o rutas iniciadas en `/`.
+- [x] Rechazar referencias vacias, duplicadas o mayores a 500 caracteres.
+- [x] Rechazar campos desconocidos, administrativos y protegidos durante la creacion.
 - [ ] Rechazar cuerpos vacios cuando correspondan.
 
 ## Fase 5 - Servicios
 
-- [ ] Crear el servicio de publicacion.
-- [ ] Obtener propietario y ciudad desde el usuario autenticado.
-- [ ] Validar la categoria activa al crear o cambiar `categoriaId`.
+- [x] Crear el servicio de publicacion.
+- [x] Obtener propietario y ciudad desde el usuario autenticado al publicar.
+- [x] Validar que la categoria exista y este activa al crear.
+- [ ] Validar la categoria activa al cambiar `categoriaId`.
 - [ ] Crear el servicio de listado general.
 - [ ] Crear el servicio de publicaciones propias.
 - [ ] Crear el servicio de consulta individual.
@@ -78,13 +83,15 @@
 - [ ] Implementar atomicamente la segunda confirmacion y `ENTREGADA`.
 - [ ] Derivar al receptor mediante `solicitudAceptadaId -> Solicitud.solicitanteId`.
 - [ ] Implementar `RESERVADA -> RETIRADA` exclusivamente desde la resolucion administrativa de 010.
-- [ ] Seleccionar explicitamente los campos de todas las respuestas.
+- [x] Seleccionar explicitamente los campos seguros de la respuesta de creacion.
+- [ ] Seleccionar explicitamente los campos de las respuestas restantes.
 
 ## Fase 6 - Autenticacion y Autorizacion
 
-- [ ] Reutilizar la autenticacion Bearer de 002.
-- [ ] Comprobar que el usuario exista y permanezca activo.
-- [ ] Obtener la identidad exclusivamente desde el access token.
+- [x] Reutilizar `requireAuth` y la autenticacion Bearer de 002 para crear donaciones.
+- [x] Comprobar mediante `requireAuth` que el usuario exista y permanezca activo.
+- [x] Obtener la identidad y `propietarioId` exclusivamente desde el access token.
+- [x] Permitir la creacion a `USUARIO` y `ADMIN` autenticados sin `requireRole`.
 - [ ] Proteger actualizacion y retirada por propiedad.
 - [ ] Identificar al propietario o receptor durante la confirmacion.
 - [ ] Responder `404` cuando la donacion no sea visible.
@@ -92,11 +99,11 @@
 
 ## Fase 7 - Imagenes
 
-- [ ] Persistir referencias sin almacenar archivos binarios.
-- [ ] Asignar automaticamente el orden del arreglo.
-- [ ] Utilizar la primera imagen como principal.
-- [ ] Evitar el campo `esPrincipal`.
-- [ ] Garantizar entre una y cinco imagenes.
+- [x] Persistir referencias sin almacenar archivos binarios durante la creacion.
+- [x] Asignar automaticamente ordenes consecutivos desde `1` conservando el orden del arreglo.
+- [x] Utilizar la imagen de menor orden como principal.
+- [x] Evitar el campo `esPrincipal`.
+- [x] Garantizar mediante validacion entre una y cinco imagenes.
 - [ ] Reemplazar la coleccion completa dentro de una operacion consistente.
 - [ ] Impedir modificaciones de imagenes fuera de `PUBLICADA`.
 
@@ -116,13 +123,15 @@
 - [ ] Implementar `GET /api/donaciones`.
 - [ ] Implementar `GET /api/donaciones/mias`.
 - [ ] Implementar `GET /api/donaciones/{id}`.
-- [ ] Implementar `POST /api/donaciones`.
+- [x] Implementar `POST /api/donaciones`.
 - [ ] Implementar `PATCH /api/donaciones/{id}`.
 - [ ] Implementar `PATCH /api/donaciones/{id}/estado`.
 - [ ] Implementar `PATCH /api/donaciones/{id}/confirmacion-entrega`.
-- [ ] Rechazar metodos no permitidos con `405` y cabecera `Allow`.
+- [x] Rechazar metodos no permitidos en `/api/donaciones` con `405` y cabecera `Allow: POST` en esta etapa.
+- [ ] Rechazar metodos no permitidos en los endpoints restantes con `405` y cabecera `Allow`.
 - [ ] Confirmar que no existan endpoints `PUT` ni `DELETE`.
-- [ ] Aplicar el contrato uniforme de la feature 004.
+- [x] Aplicar al endpoint de creacion el contrato uniforme de la feature 004 y manejar `400`, `401`, `403`, `404`, `409`, `405` y `500`.
+- [ ] Aplicar el contrato uniforme de la feature 004 a los endpoints restantes.
 
 ## Dependencias Futuras
 
@@ -135,31 +144,67 @@
 
 ## Fase 10 - Pruebas y Verificacion
 
-- [ ] Probar la creacion y sus campos derivados.
-- [ ] Probar titulo, descripcion e imagenes.
-- [ ] Probar categorias activas, inactivas y desactivadas posteriormente.
+- [x] Probar la creacion correcta y sus campos derivados con HTTP `201`.
+- [x] Probar la creacion de dos imagenes ordenadas y relacionadas con la misma donacion.
+- [ ] Probar la creacion con cinco imagenes.
+- [ ] Probar el rechazo de cero y seis imagenes.
+- [x] Probar una categoria activa durante la creacion.
+- [x] Probar una categoria inexistente con HTTP `404`.
+- [ ] Probar una categoria inactiva con HTTP `409`.
+- [ ] Probar una categoria desactivada posteriormente.
+- [ ] Probar un usuario sin ciudad valida.
 - [ ] Probar el listado general y publicaciones propias.
 - [ ] Probar filtros, paginacion y orden.
 - [ ] Probar visibilidad por estado y participacion.
 - [ ] Probar el mismo `404` para inexistente y no visible.
-- [ ] Probar actualizacion parcial y campos protegidos.
+- [x] Probar el rechazo de `propietarioId` enviado por el cliente con HTTP `400`.
+- [ ] Probar actualizacion parcial y los campos protegidos restantes.
 - [ ] Probar retirada, idempotencia y estados incompatibles.
 - [ ] Probar ambas confirmaciones y su idempotencia.
 - [ ] Probar la segunda confirmacion atomica.
 - [ ] Probar la consistencia de `solicitudAceptadaId`.
 - [ ] Probar la resolucion administrativa y la conservacion de Solicitud, Chat, mensajes y confirmaciones.
-- [ ] Probar todos los codigos HTTP aprobados.
-- [ ] Probar el contrato uniforme y la privacidad.
+- [x] Probar HTTP `201`, `400`, `401`, `404` y `405` en la creacion.
+- [ ] Probar los codigos HTTP aprobados restantes.
+- [x] Probar la privacidad de la respuesta de creacion y la ausencia de propietario, sesiones, hashes y tokens.
+- [ ] Probar el contrato uniforme y la privacidad de los endpoints restantes.
 - [ ] Ejecutar pruebas con Postman o herramienta equivalente.
 - [ ] Ejecutar las pruebas automatizadas aprobadas.
-- [ ] Ejecutar lint.
-- [ ] Ejecutar build.
+- [x] Ejecutar lint exitosamente para la implementacion de creacion.
+- [x] Ejecutar build exitosamente para la implementacion de creacion.
+
+## Evidencia Funcional - POST `/api/donaciones`
+
+- [x] Creacion correcta: HTTP `201`, mensaje `"Donación creada correctamente."`, titulo `"Bicicleta infantil"`, categoria `Juguetes`, ciudad derivada `Quito Norte` y estado derivado `PUBLICADA`.
+- [x] Imagenes: se crearon dos `ImagenDonacion` para la misma donacion, con ordenes `1` y `2`, sin campo `esPrincipal`.
+- [x] PostgreSQL: se verifico una sola `Donacion`, correspondiente al usuario autenticado, con ciudad `Quito Norte`, estado `PUBLICADA`, categoria `Juguetes` y dos imagenes relacionadas.
+- [x] Consistencia transaccional: la primera operacion, rechazada por `ImagenDonacion_orden_check`, se revirtio por completo sin registros parciales; posteriormente se corrigio el orden para comenzar en `1`.
+- [x] Campo protegido: `propietarioId` enviado por el cliente fue rechazado con HTTP `400`.
+- [x] Solicitud sin autenticacion: HTTP `401` y mensaje `"Access token inválido."`.
+- [x] Categoria inexistente: HTTP `404` y mensaje `"Categoría no encontrada."`.
+- [x] Metodo `GET` no permitido en esta etapa: HTTP `405` y encabezado `Allow: POST`.
+- [x] Seguridad: la respuesta no expuso `propietarioId`, datos privados del propietario, sesiones, hashes ni tokens; ciudad, propietario y estado no pudieron ser definidos por el cliente.
 
 ## Fase 11 - Cierre Documental
 
 - [ ] Verificar que la implementacion coincida con `spec.md`.
 - [ ] Registrar los resultados de migracion, pruebas, lint y build.
 - [ ] Actualizar el estado solo cuando se cumplan todos los criterios de finalizacion.
+
+## Pendientes Inmediatos
+
+- [ ] Probar la creacion con cinco imagenes.
+- [ ] Probar el rechazo de cero y seis imagenes.
+- [ ] Probar una categoria inactiva con HTTP `409`.
+- [ ] Probar un usuario sin ciudad valida.
+- [ ] Implementar `GET /api/donaciones`.
+- [ ] Implementar `GET /api/donaciones/mias`.
+- [ ] Implementar `GET /api/donaciones/{id}`.
+- [ ] Implementar `PATCH /api/donaciones/{id}`.
+- [ ] Implementar la retirada logica.
+- [ ] Implementar la confirmacion de entrega.
+- [ ] Ejecutar las pruebas automatizadas aprobadas.
+- [ ] Completar y cerrar la feature.
 
 ## Criterios de Finalizacion
 
@@ -178,3 +223,7 @@ La feature solo podra marcarse como completada cuando:
 - [ ] La documentacion coincida con la implementacion.
 - [ ] `solicitudAceptadaId` identifique una Solicitud `ACEPTADA` de la misma donacion.
 - [ ] La transicion `RESERVADA -> RETIRADA` solo se origine administrativamente y conserve todo el historial.
+
+## Estado
+
+Pendiente.
