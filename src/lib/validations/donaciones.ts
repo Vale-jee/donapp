@@ -96,6 +96,15 @@ export const createDonationSchema = z.strictObject({
 
 export type CreateDonationInput = z.infer<typeof createDonationSchema>;
 
+export const updateDonationSchema = createDonationSchema
+  .partial()
+  .refine(
+    (input) => Object.keys(input).length > 0,
+    "Debe enviar al menos un campo modificable.",
+  );
+
+export type UpdateDonationInput = z.infer<typeof updateDonationSchema>;
+
 const canonicalPositiveIntegerSchema = z
   .string()
   .regex(

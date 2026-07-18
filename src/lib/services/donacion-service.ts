@@ -6,6 +6,7 @@ import type {
   DonationDetailQuery,
   ListAvailableDonationsQuery,
   ListOwnDonationsQuery,
+  UpdateDonationInput,
 } from "@/src/lib/validations/donaciones";
 
 const INVALID_ACCESS_TOKEN_MESSAGE = "Access token inválido.";
@@ -70,6 +71,10 @@ export type AvailableDonationsResult = OwnDonationsResult;
 export interface DonationDetailResult {
   donacion: CreatedDonation;
 }
+
+const DONATION_NOT_FOUND_MESSAGE = "Donación no encontrada.";
+const DONATION_NOT_UPDATABLE_MESSAGE =
+  "La donación no puede actualizarse en su estado actual.";
 
 export async function createDonation(
   userId: number,
@@ -401,4 +406,108 @@ export async function getDonationDetail(
       imagenes: donation.imagenes,
     },
   };
+}
+
+export async function updateDonation(
+  userId: number,
+  donationId: number,
+  input: UpdateDonationInput,
+): Promise<DonationDetailResult> {
+  return prisma.$transaction(async (transaction) => {
+    const donation = await transaction.donacion.findUnique({
+      where: { id: donationId },
+      select: { id: true, propietarioId: true, estado: true },
+    });
+
+    if (donation === null || donation.propietarioId !== userId) {
+      throw new ApiError(404, DONATION_NOT_FOUND_MESSAGE);
+    }
+
+    if (donation.estado !== EstadoDonacion.PUBLICADA) {
+      throw new ApiError(409, DONATION_NOT_UPDATABLE_MESSAGE);
+    }
+
+    if (input.categoriaId !== undefined) {
+      const category = await transaction.categoria.findUnique({
+        where: { id: input.categoriaId },
+        select: { id: true, activo: true },
+      });
+
+      if (category === null) {
+        throw new ApiError(404, CATEGORY_NOT_FOUND_MESSAGE);
+      }
+
+      if (!category.activo) {
+        throw new ApiError(409, INACTIVE_CATEGORY_MESSAGE);
+      }
+    }
+
+    const updateResult = await transaction.donacion.updateMany({
+      where: {
+        id: donation.id,
+        propietarioId: userId,
+        estado: EstadoDonacion.PUBLICADA,
+      },
+      data: {
+        ...(input.titulo === undefined ? {} : { titulo: input.titulo }),
+        ...(input.descripcion === undefined
+          ? {}
+          : { descripcion: input.descripcion }),
+        ...(input.categoriaId === undefined
+          ? {}
+          : { categoriaId: input.categoriaId }),
+      },
+    });
+
+    if (updateResult.count !== 1) {
+      const currentDonation = await transaction.donacion.findUnique({
+        where: { id: donation.id },
+        select: { propietarioId: true, estado: true },
+      });
+
+      if (currentDonation === null || currentDonation.propietarioId !== userId) {
+        throw new ApiError(404, DONATION_NOT_FOUND_MESSAGE);
+      }
+
+      throw new ApiError(409, DONATION_NOT_UPDATABLE_MESSAGE);
+    }
+
+    if (input.imagenes !== undefined) {
+      await transaction.imagenDonacion.deleteMany({
+        where: { donacionId: donation.id },
+      });
+
+      await transaction.imagenDonacion.createMany({
+        data: input.imagenes.map((referencia, index) => ({
+          donacionId: donation.id,
+          referencia,
+          orden: index + 1,
+        })),
+      });
+    }
+
+    const updatedDonation = await transaction.donacion.findUnique({
+      where: { id: donation.id },
+      select: {
+        id: true,
+        titulo: true,
+        descripcion: true,
+        ciudad: true,
+        estado: true,
+        createdAt: true,
+        updatedAt: true,
+        categoria: { select: { id: true, nombre: true } },
+        imagenes: {
+          select: { id: true, referencia: true, orden: true },
+          orderBy: { orden: "asc" },
+        },
+      },
+    });
+
+    if (updatedDonation === null) {
+      throw new ApiError(404, DONATION_NOT_FOUND_MESSAGE);
+    }
+
+    return { donacion: updatedDonation };
+  });
 }

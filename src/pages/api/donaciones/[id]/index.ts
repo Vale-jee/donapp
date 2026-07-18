@@ -7,17 +7,22 @@ import { requireAuth } from "@/src/lib/auth/authenticate";
 import {
   getDonationDetail,
   type DonationDetailResult,
+  updateDonation,
 } from "@/src/lib/services/donacion-service";
-import { donationDetailQuerySchema } from "@/src/lib/validations/donaciones";
+import {
+  donationDetailQuerySchema,
+  updateDonationSchema,
+} from "@/src/lib/validations/donaciones";
 
 const DONATION_RETRIEVED_MESSAGE = "Donación consultada correctamente.";
+const DONATION_UPDATED_MESSAGE = "Donación actualizada correctamente.";
 const INVALID_DATA_MESSAGE = "Datos inválidos.";
 
 export default async function handler(
   request: NextApiRequest,
   response: NextApiResponse<ApiResponse<DonationDetailResult>>,
 ): Promise<void> {
-  if (!validateHttpMethod(request, response, ["GET"])) {
+  if (!validateHttpMethod(request, response, ["GET", "PATCH"])) {
     return;
   }
 
@@ -29,9 +34,21 @@ export default async function handler(
       throw new ApiError(400, INVALID_DATA_MESSAGE);
     }
 
-    const result = await getDonationDetail(auth.userId, parsedQuery.data);
+    if (request.method === "GET") {
+      const result = await getDonationDetail(auth.userId, parsedQuery.data);
 
-    sendSuccess(response, 200, DONATION_RETRIEVED_MESSAGE, result);
+      sendSuccess(response, 200, DONATION_RETRIEVED_MESSAGE, result);
+      return;
+    }
+
+    const input = updateDonationSchema.parse(request.body);
+    const result = await updateDonation(
+      auth.userId,
+      parsedQuery.data.id,
+      input,
+    );
+
+    sendSuccess(response, 200, DONATION_UPDATED_MESSAGE, result);
   } catch (error: unknown) {
     handleApiError(error, response);
   }
