@@ -6,7 +6,7 @@ import { env } from "@/lib/config/env";
 import {
   ACCESS_TOKEN_AUDIENCE,
   ACCESS_TOKEN_ISSUER,
-  ACCESS_TOKEN_TTL_SECONDS,
+  ACCESS_TOKEN_TTL,
   AUTH_ROLES,
   type AccessTokenInput,
   type AccessTokenPayload,
@@ -48,7 +48,7 @@ export async function createAccessToken(
     .setIssuer(ACCESS_TOKEN_ISSUER)
     .setAudience(ACCESS_TOKEN_AUDIENCE)
     .setIssuedAt()
-    .setExpirationTime(`${ACCESS_TOKEN_TTL_SECONDS}s`)
+    .setExpirationTime(ACCESS_TOKEN_TTL)
     .sign(getAccessTokenSecret());
 }
 
