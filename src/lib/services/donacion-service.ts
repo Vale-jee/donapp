@@ -1,8 +1,9 @@
-import { EstadoDonacion } from "@/generated/prisma/client";
+import { EstadoDonacion, EstadoSolicitud } from "@/generated/prisma/client";
 import { prisma } from "@/database/client";
 import { ApiError } from "@/src/lib/api/errors";
 import type {
   CreateDonationInput,
+  DonationDetailQuery,
   ListAvailableDonationsQuery,
   ListOwnDonationsQuery,
 } from "@/src/lib/validations/donaciones";
@@ -65,6 +66,10 @@ export interface OwnDonationsResult {
 }
 
 export type AvailableDonationsResult = OwnDonationsResult;
+
+export interface DonationDetailResult {
+  donacion: CreatedDonation;
+}
 
 export async function createDonation(
   userId: number,
@@ -315,4 +320,85 @@ export async function listAvailableDonations(
       },
     };
   });
+}
+
+export async function getDonationDetail(
+  userId: number,
+  query: DonationDetailQuery,
+): Promise<DonationDetailResult> {
+  const [user, donation] = await prisma.$transaction([
+    prisma.usuario.findUnique({
+      where: { id: userId },
+      select: { id: true, ciudad: true },
+    }),
+    prisma.donacion.findUnique({
+      where: { id: query.id },
+      select: {
+        id: true,
+        titulo: true,
+        descripcion: true,
+        ciudad: true,
+        estado: true,
+        propietarioId: true,
+        createdAt: true,
+        updatedAt: true,
+        categoria: {
+          select: { id: true, nombre: true },
+        },
+        imagenes: {
+          select: { id: true, referencia: true, orden: true },
+          orderBy: { orden: "asc" },
+        },
+        solicitudAceptada: {
+          select: {
+            donacionId: true,
+            solicitanteId: true,
+            estado: true,
+          },
+        },
+      },
+    }),
+  ]);
+
+  if (user === null) {
+    throw new ApiError(401, INVALID_ACCESS_TOKEN_MESSAGE);
+  }
+
+  if (donation === null) {
+    throw new ApiError(404, "Donación no encontrada.");
+  }
+
+  const userCity = user.ciudad;
+  const acceptedRequest = donation.solicitudAceptada;
+  const isOwner = donation.propietarioId === user.id;
+  const isPublishedInSameCity =
+    donation.estado === EstadoDonacion.PUBLICADA &&
+    userCity !== undefined &&
+    userCity.trim().length > 0 &&
+    donation.ciudad === userCity;
+  const isSelectedRecipient =
+    (donation.estado === EstadoDonacion.RESERVADA ||
+      donation.estado === EstadoDonacion.ENTREGADA) &&
+    acceptedRequest !== null &&
+    acceptedRequest.donacionId === donation.id &&
+    acceptedRequest.estado === EstadoSolicitud.ACEPTADA &&
+    acceptedRequest.solicitanteId === user.id;
+
+  if (!isOwner && !isPublishedInSameCity && !isSelectedRecipient) {
+    throw new ApiError(404, "Donación no encontrada.");
+  }
+
+  return {
+    donacion: {
+      id: donation.id,
+      titulo: donation.titulo,
+      descripcion: donation.descripcion,
+      ciudad: donation.ciudad,
+      estado: donation.estado,
+      createdAt: donation.createdAt,
+      updatedAt: donation.updatedAt,
+      categoria: donation.categoria,
+      imagenes: donation.imagenes,
+    },
+  };
 }

@@ -130,3 +130,9 @@ export const listAvailableDonationsQuerySchema = z.strictObject({
 export type ListAvailableDonationsQuery = z.infer<
   typeof listAvailableDonationsQuerySchema
 >;
+
+export const donationDetailQuerySchema = z.strictObject({
+  id: canonicalPositiveIntegerSchema,
+});
+
+export type DonationDetailQuery = z.infer<typeof donationDetailQuerySchema>;
