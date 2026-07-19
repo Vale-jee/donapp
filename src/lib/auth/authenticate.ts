@@ -17,6 +17,7 @@ export interface AuthContext {
   userId: number;
   sessionId: string;
   role: Role;
+  city: string;
 }
 
 function invalidAccessToken(): ApiError {
@@ -82,6 +83,7 @@ export async function requireAuth(
         select: {
           id: true,
           activo: true,
+          ciudad: true,
           rol: {
             select: { codigo: true },
           },
@@ -107,6 +109,7 @@ export async function requireAuth(
     userId: session.usuario.id,
     sessionId: session.id,
     role: session.usuario.rol.codigo,
+    city: session.usuario.ciudad,
   };
 }
 

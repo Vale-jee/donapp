@@ -11,7 +11,10 @@
     "benchmark:n1:after": "tsx --env-file=.env scripts/benchmark-donaciones-n1.ts --strategy=after",
     "benchmark:n1:compare": "tsx --env-file=.env scripts/benchmark-donaciones-n1.ts --strategy=compare",
     "benchmark:worker:before": "tsx scripts/benchmark-worker-before.ts",
-    "worker:donations": "tsx --env-file=.env scripts/donation-worker.ts"
+    "worker:donations": "tsx --env-file=.env scripts/donation-worker.ts",
+    "benchmark:auth:before": "tsx --env-file=.env scripts/benchmark-auth-redundant-query.ts --strategy=before",
+    "benchmark:auth:after": "tsx --env-file=.env scripts/benchmark-auth-redundant-query.ts --strategy=after",
+    "benchmark:auth:compare": "tsx --env-file=.env scripts/benchmark-auth-redundant-query.ts --strategy=compare"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",

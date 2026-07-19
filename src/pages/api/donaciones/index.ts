@@ -54,6 +54,7 @@ export default async function handler(
 
       const result = await listAvailableDonations(
         auth.userId,
+        auth.city,
         parsedQuery.data,
       );
 

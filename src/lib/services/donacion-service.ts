@@ -248,40 +248,27 @@ export async function listOwnDonations(
 
 export async function listAvailableDonations(
   userId: number,
+  userCity: string,
   query: ListAvailableDonationsQuery,
 ): Promise<AvailableDonationsResult> {
   const { page, limit, categoriaId } = query;
+  const city = userCity.trim();
 
-  return prisma.$transaction(async (transaction) => {
-    const user = await transaction.usuario.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        ciudad: true,
-      },
-    });
+  if (city.length === 0) {
+    throw new ApiError(409, INVALID_CITY_FOR_LIST_MESSAGE);
+  }
 
-    if (user === null) {
-      throw new ApiError(401, INVALID_ACCESS_TOKEN_MESSAGE);
-    }
+  const where = {
+    estado: EstadoDonacion.PUBLICADA,
+    ciudad: city,
+    propietarioId: {
+      not: userId,
+    },
+    ...(categoriaId === undefined ? {} : { categoriaId }),
+  };
 
-    const city = user.ciudad?.trim();
-
-    if (city === undefined || city.length === 0) {
-      throw new ApiError(409, INVALID_CITY_FOR_LIST_MESSAGE);
-    }
-
-    const where = {
-      estado: EstadoDonacion.PUBLICADA,
-      ciudad: city,
-      propietarioId: {
-        not: user.id,
-      },
-      ...(categoriaId === undefined ? {} : { categoriaId }),
-    };
-
-    const [donations, total] = await Promise.all([
-      transaction.donacion.findMany({
+  const [donations, total] = await prisma.$transaction([
+    prisma.donacion.findMany({
         where,
         skip: (page - 1) * limit,
         take: limit,
@@ -316,12 +303,12 @@ export async function listAvailableDonations(
             },
           },
         },
-      }),
-      transaction.donacion.count({ where }),
-    ]);
+    }),
+    prisma.donacion.count({ where }),
+  ]);
 
-    return {
-      donaciones: donations.map((donation) => ({
+  return {
+    donaciones: donations.map((donation) => ({
         id: donation.id,
         titulo: donation.titulo,
         ciudad: donation.ciudad,
@@ -331,15 +318,14 @@ export async function listAvailableDonations(
         categoria: donation.categoria,
         imagenPrincipal: donation.imagenes[0] ?? null,
         cantidadImagenes: donation._count.imagenes,
-      })),
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-      },
-    };
-  });
+    })),
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 }
 
 export async function getDonationDetail(
