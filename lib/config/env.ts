@@ -32,10 +32,16 @@ const accessTokenTtlSchema = z
   }, "AUTH_ACCESS_TOKEN_TTL no puede superar 24 horas.")
   .default("15m");
 
+const redisUrlSchema = z.url().refine((value) => {
+  const protocol = new URL(value).protocol;
+  return protocol === "redis:" || protocol === "rediss:";
+}, "REDIS_URL debe utilizar el protocolo redis o rediss.");
+
 const serverEnvSchema = z.object({
   DATABASE_URL: z.string().trim().min(1),
   AUTH_ACCESS_TOKEN_SECRET: z.string().trim().min(32),
   AUTH_ACCESS_TOKEN_TTL: accessTokenTtlSchema,
+  REDIS_URL: redisUrlSchema,
 });
 
 const parsedEnv = serverEnvSchema.safeParse(process.env);
