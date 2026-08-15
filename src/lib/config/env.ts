@@ -48,9 +48,7 @@ const parsedEnv = serverEnvSchema.safeParse(process.env);
 
 if (!parsedEnv.success) {
   const invalidVariables = [
-    ...new Set(
-      parsedEnv.error.issues.map((issue) => String(issue.path[0])),
-    ),
+    ...new Set(parsedEnv.error.issues.map((issue) => String(issue.path[0]))),
   ];
 
   throw new Error(

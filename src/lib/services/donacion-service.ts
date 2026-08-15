@@ -5,6 +5,11 @@ import {
   Prisma,
 } from "@/generated/prisma/client";
 import { prisma } from "@/database/client";
+import {
+  findAvailableDonationsPage,
+  findDonationDetailContext,
+  findOwnDonationsPage,
+} from "@/database/donaciones";
 import { ApiError } from "@/src/lib/api/errors";
 import type {
   CreateDonationInput,
@@ -180,50 +185,12 @@ export async function listOwnDonations(
   query: ListOwnDonationsQuery,
 ): Promise<OwnDonationsResult> {
   const { page, limit, estado } = query;
-  const where = {
-    propietarioId: userId,
-    ...(estado === undefined ? {} : { estado }),
-  };
-
-  const [donations, total] = await prisma.$transaction([
-    prisma.donacion.findMany({
-      where,
-      skip: (page - 1) * limit,
-      take: limit,
-      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-      select: {
-        id: true,
-        titulo: true,
-        ciudad: true,
-        estado: true,
-        createdAt: true,
-        updatedAt: true,
-        categoria: {
-          select: {
-            id: true,
-            nombre: true,
-          },
-        },
-        imagenes: {
-          select: {
-            id: true,
-            referencia: true,
-            orden: true,
-          },
-          orderBy: {
-            orden: "asc",
-          },
-          take: 1,
-        },
-        _count: {
-          select: {
-            imagenes: true,
-          },
-        },
-      },
-    }),
-    prisma.donacion.count({ where }),
-  ]);
+  const [donations, total] = await findOwnDonationsPage({
+    userId,
+    page,
+    limit,
+    estado,
+  });
 
   return {
     donaciones: donations.map((donation) => ({
@@ -258,54 +225,13 @@ export async function listAvailableDonations(
     throw new ApiError(409, INVALID_CITY_FOR_LIST_MESSAGE);
   }
 
-  const where = {
-    estado: EstadoDonacion.PUBLICADA,
-    ciudad: city,
-    propietarioId: {
-      not: userId,
-    },
-    ...(categoriaId === undefined ? {} : { categoriaId }),
-  };
-
-  const [donations, total] = await prisma.$transaction([
-    prisma.donacion.findMany({
-        where,
-        skip: (page - 1) * limit,
-        take: limit,
-        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-        select: {
-          id: true,
-          titulo: true,
-          ciudad: true,
-          estado: true,
-          createdAt: true,
-          updatedAt: true,
-          categoria: {
-            select: {
-              id: true,
-              nombre: true,
-            },
-          },
-          imagenes: {
-            select: {
-              id: true,
-              referencia: true,
-              orden: true,
-            },
-            orderBy: {
-              orden: "asc",
-            },
-            take: 1,
-          },
-          _count: {
-            select: {
-              imagenes: true,
-            },
-          },
-        },
-    }),
-    prisma.donacion.count({ where }),
-  ]);
+  const [donations, total] = await findAvailableDonationsPage({
+    userId,
+    city,
+    page,
+    limit,
+    categoriaId,
+  });
 
   return {
     donaciones: donations.map((donation) => ({
@@ -332,39 +258,7 @@ export async function getDonationDetail(
   userId: number,
   query: DonationDetailQuery,
 ): Promise<DonationDetailResult> {
-  const [user, donation] = await prisma.$transaction([
-    prisma.usuario.findUnique({
-      where: { id: userId },
-      select: { id: true, ciudad: true },
-    }),
-    prisma.donacion.findUnique({
-      where: { id: query.id },
-      select: {
-        id: true,
-        titulo: true,
-        descripcion: true,
-        ciudad: true,
-        estado: true,
-        propietarioId: true,
-        createdAt: true,
-        updatedAt: true,
-        categoria: {
-          select: { id: true, nombre: true },
-        },
-        imagenes: {
-          select: { id: true, referencia: true, orden: true },
-          orderBy: { orden: "asc" },
-        },
-        solicitudAceptada: {
-          select: {
-            donacionId: true,
-            solicitanteId: true,
-            estado: true,
-          },
-        },
-      },
-    }),
-  ]);
+  const [user, donation] = await findDonationDetailContext(userId, query.id);
 
   if (user === null) {
     throw new ApiError(401, INVALID_ACCESS_TOKEN_MESSAGE);

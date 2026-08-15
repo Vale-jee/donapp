@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { ApiError, handleApiError } from "@/src/lib/api/errors";
 import { validateHttpMethod } from "@/src/lib/api/methods";
 import { sendSuccess, type ApiResponse } from "@/src/lib/api/responses";
-import { requireAuth } from "@/src/lib/auth/authenticate";
+import { requireAuth } from "@/src/middleware/auth";
 import {
   withdrawDonation,
   type WithdrawDonationResult,

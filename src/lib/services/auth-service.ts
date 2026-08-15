@@ -1,5 +1,12 @@
-import { Prisma, RolCodigo } from "@/generated/prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/database/client";
+import {
+  createRegisteredUser,
+  findDefaultUserRole,
+  findRegistrationConflict,
+  findUserForLogin,
+  revokeActiveSessionByRefreshTokenHash,
+} from "@/database/auth";
 import { ApiError } from "@/src/lib/api/errors";
 import { createAccessToken } from "@/src/lib/auth/access-token";
 import { hashPassword, verifyPassword } from "@/src/lib/auth/password";
@@ -77,24 +84,16 @@ function translateUniqueConflict(error: unknown): never {
 }
 
 export async function registerUser(input: RegisterInput): Promise<void> {
-  const role = await prisma.rol.findUnique({
-    where: { codigo: RolCodigo.USUARIO },
-    select: { id: true },
-  });
+  const role = await findDefaultUserRole();
 
   if (role === null) {
     throw new Error("El rol USUARIO requerido no existe.");
   }
 
-  const conflict = await prisma.usuario.findFirst({
-    where: {
-      OR: [{ email: input.email }, { nombreVisible: input.nombreVisible }],
-    },
-    select: {
-      email: true,
-      nombreVisible: true,
-    },
-  });
+  const conflict = await findRegistrationConflict(
+    input.email,
+    input.nombreVisible,
+  );
 
   if (conflict?.email === input.email) {
     throw new ApiError(409, EMAIL_CONFLICT_MESSAGE);
@@ -107,18 +106,15 @@ export async function registerUser(input: RegisterInput): Promise<void> {
   const passwordHash = await hashPassword(input.password);
 
   try {
-    await prisma.usuario.create({
-      data: {
-        nombreCompleto: input.nombreCompleto,
-        nombreVisible: input.nombreVisible,
-        email: input.email,
-        passwordHash,
-        ciudad: input.ciudad,
-        telefono: input.telefono,
-        fotoPerfil: input.fotoPerfil,
-        rolId: role.id,
-      },
-      select: { id: true },
+    await createRegisteredUser({
+      nombreCompleto: input.nombreCompleto,
+      nombreVisible: input.nombreVisible,
+      email: input.email,
+      passwordHash,
+      ciudad: input.ciudad,
+      telefono: input.telefono,
+      fotoPerfil: input.fotoPerfil,
+      rolId: role.id,
     });
   } catch (error: unknown) {
     translateUniqueConflict(error);
@@ -126,22 +122,7 @@ export async function registerUser(input: RegisterInput): Promise<void> {
 }
 
 export async function loginUser(input: LoginInput): Promise<LoginResult> {
-  const user = await prisma.usuario.findUnique({
-    where: { email: input.email },
-    select: {
-      id: true,
-      nombreVisible: true,
-      fotoPerfil: true,
-      passwordHash: true,
-      activo: true,
-      rol: {
-        select: {
-          codigo: true,
-          nombre: true,
-        },
-      },
-    },
-  });
+  const user = await findUserForLogin(input.email);
 
   if (user === null) {
     throw new ApiError(401, INVALID_CREDENTIALS_MESSAGE);
@@ -278,16 +259,10 @@ export async function logoutUser(input: LogoutInput): Promise<void> {
   const refreshTokenHash = hashRefreshToken(input.refreshToken);
   const now = new Date();
 
-  const revocation = await prisma.sesion.updateMany({
-    where: {
-      refreshTokenHash,
-      revokedAt: null,
-      expiresAt: { gt: now },
-    },
-    data: {
-      revokedAt: now,
-    },
-  });
+  const revocation = await revokeActiveSessionByRefreshTokenHash(
+    refreshTokenHash,
+    now,
+  );
 
   if (revocation.count !== 1) {
     throw new ApiError(401, INVALID_REFRESH_TOKEN_MESSAGE);

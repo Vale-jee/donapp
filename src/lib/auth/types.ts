@@ -1,4 +1,4 @@
-import { env } from "@/lib/config/env";
+import { env } from "@/src/lib/config/env";
 
 export const AUTH_ROLES = ["ADMIN", "USUARIO"] as const;
 

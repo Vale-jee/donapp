@@ -4,9 +4,9 @@
 
 Este documento describe decisiones técnicas transversales. Las decisiones específicas de una feature permanecen en sus archivos `spec.md`, `plan.md` y `tasks.md`.
 
-- **Implementado actualmente:** proyecto base de Next.js con React y TypeScript, Pages Router, PostgreSQL y Prisma configurados parcialmente, cliente Prisma oficial y una migración inicial.
-- **Aprobado y pendiente de implementación:** autenticación, sesiones, validaciones, contratos uniformes y los modelos funcionales definidos por las diez features.
-- **Futuro:** cliente Flutter, tecnologías concretas de caché y cola, observabilidad avanzada y despliegue productivo.
+- **Implementado actualmente:** backend Next.js con React y TypeScript, Pages Router, PostgreSQL, Prisma, autenticación y sesiones, validaciones Zod, contratos uniformes, caché de categorías, cola de donaciones y un cliente Flutter inicial conectado a la API.
+- **Implementado parcialmente:** las features funcionales disponen de modelos y código en distintos grados de avance; su estado verificable permanece detallado en cada `tasks.md` y en el README principal.
+- **Futuro:** observabilidad avanzada, despliegue productivo y las funcionalidades que cada feature mantenga expresamente pendientes.
 
 Las versiones exactas instaladas están determinadas por `yarn.lock`; este documento registra las versiones aprobadas del proyecto.
 
@@ -21,7 +21,7 @@ Cliente móvil Flutter y Dart
 
 ## Cliente Móvil
 
-Flutter y Dart están aprobados para el cliente móvil futuro. Todavía no forman parte de la implementación del backend actual.
+El cliente móvil inicial está implementado en `app_flutter/` con Flutter y Dart. Actualmente comprueba la conexión con la API mediante el catálogo de categorías; no representa todavía la aplicación móvil completa.
 
 ## Backend
 
@@ -78,7 +78,7 @@ La autenticación aprobada utiliza email y contraseña:
 - Revocación inmediata de los access tokens asociados a una Sesión revocada.
 - Reactivación de cuenta sin restaurar sesiones anteriores.
 
-Zod, bcryptjs y jose están aprobadas, pero todavía no están instaladas.
+Zod, bcryptjs y jose están instaladas y se utilizan en la implementación actual.
 
 ## Roles y Autorización
 
@@ -224,7 +224,7 @@ Las decisiones académicas iniciales son:
 - Validar Sesión, Usuario y Rol sin consultas redundantes.
 - Comparar consultas, duración y resultado antes y después de optimizar.
 
-Las tecnologías específicas de caché y cola permanecen pendientes de aprobación.
+La implementación actual utiliza una caché local para categorías activas y BullMQ con Redis para el procesamiento asíncrono asociado a la creación de donaciones. Las ampliaciones de estas capacidades continúan sujetas al alcance aprobado de cada feature.
 
 ## Variables de Entorno
 
@@ -239,8 +239,8 @@ El despliegue productivo está pendiente. Durante la fase final se documentarán
 
 ## Elementos Futuros
 
-- Cliente Flutter y Dart.
-- Tecnología concreta de caché y cola.
+- Ampliación del cliente Flutter más allá de la comprobación inicial de conexión.
+- Ampliación de los casos de uso de caché y procesamiento asíncrono.
 - Notificaciones completas.
 - Recuperación de contraseña.
 - Observabilidad avanzada.

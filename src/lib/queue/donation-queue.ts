@@ -1,7 +1,7 @@
 import { Queue } from "bullmq";
 import Redis from "ioredis";
 
-import { env } from "@/lib/config/env";
+import { env } from "@/src/lib/config/env";
 
 export const DONATION_QUEUE_NAME = "donation-notifications";
 export const DONATION_CREATED_JOB_NAME = "donation-created";

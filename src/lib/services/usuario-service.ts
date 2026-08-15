@@ -1,5 +1,10 @@
 import { Prisma } from "@/generated/prisma/client";
-import { prisma } from "@/database/client";
+import {
+  findProfileConflict,
+  findProfileUpdateContext,
+  findSafeProfileById,
+  updateProfile,
+} from "@/database/usuarios";
 import { ApiError } from "@/src/lib/api/errors";
 import { verifyPassword } from "@/src/lib/auth/password";
 import type { Role } from "@/src/lib/auth/types";
@@ -11,25 +16,6 @@ const INVALID_CURRENT_PASSWORD_MESSAGE =
 const EMAIL_CONFLICT_MESSAGE = "El correo electrónico ya está registrado.";
 const USERNAME_CONFLICT_MESSAGE = "El nombre visible ya está en uso.";
 const GENERIC_CONFLICT_MESSAGE = "Ya existe un usuario con esos datos.";
-
-const SAFE_PROFILE_SELECT = {
-  id: true,
-  nombreCompleto: true,
-  nombreVisible: true,
-  email: true,
-  ciudad: true,
-  telefono: true,
-  fotoPerfil: true,
-  activo: true,
-  createdAt: true,
-  updatedAt: true,
-  rol: {
-    select: {
-      codigo: true,
-      nombre: true,
-    },
-  },
-} satisfies Prisma.UsuarioSelect;
 
 export interface AuthenticatedUserProfile {
   id: number;
@@ -51,10 +37,7 @@ export interface AuthenticatedUserProfile {
 export async function getAuthenticatedUserProfile(
   userId: number,
 ): Promise<AuthenticatedUserProfile> {
-  const usuario = await prisma.usuario.findUnique({
-    where: { id: userId },
-    select: SAFE_PROFILE_SELECT,
-  });
+  const usuario = await findSafeProfileById(userId);
 
   if (usuario === null) {
     throw new ApiError(401, INVALID_ACCESS_TOKEN_MESSAGE);
@@ -98,14 +81,10 @@ export async function updateAuthenticatedUserProfile(
   userId: number,
   input: UpdateProfileInput,
 ): Promise<AuthenticatedUserProfile> {
-  const currentUser = await prisma.usuario.findUnique({
-    where: { id: userId },
-    select: {
-      email: true,
-      nombreVisible: true,
-      ...(input.email === undefined ? {} : { passwordHash: true }),
-    },
-  });
+  const currentUser = await findProfileUpdateContext(
+    userId,
+    input.email !== undefined,
+  );
 
   if (currentUser === null) {
     throw new ApiError(401, INVALID_ACCESS_TOKEN_MESSAGE);
@@ -136,19 +115,11 @@ export async function updateAuthenticatedUserProfile(
     input.nombreVisible !== currentUser.nombreVisible;
 
   if (emailChanged || usernameChanged) {
-    const conflict = await prisma.usuario.findFirst({
-      where: {
-        id: { not: userId },
-        OR: [
-          ...(emailChanged ? [{ email: input.email }] : []),
-          ...(usernameChanged ? [{ nombreVisible: input.nombreVisible }] : []),
-        ],
-      },
-      select: {
-        email: true,
-        nombreVisible: true,
-      },
-    });
+    const conflict = await findProfileConflict(
+      userId,
+      emailChanged ? input.email : undefined,
+      usernameChanged ? input.nombreVisible : undefined,
+    );
 
     if (emailChanged && conflict?.email === input.email) {
       throw new ApiError(409, EMAIL_CONFLICT_MESSAGE);
@@ -163,26 +134,7 @@ export async function updateAuthenticatedUserProfile(
   }
 
   try {
-    return await prisma.usuario.update({
-      where: { id: userId },
-      data: {
-        ...(input.nombreCompleto === undefined
-          ? {}
-          : { nombreCompleto: input.nombreCompleto }),
-        ...(input.nombreVisible === undefined
-          ? {}
-          : { nombreVisible: input.nombreVisible }),
-        ...(input.email === undefined ? {} : { email: input.email }),
-        ...(input.ciudad === undefined ? {} : { ciudad: input.ciudad }),
-        ...(input.telefono === undefined
-          ? {}
-          : { telefono: input.telefono }),
-        ...(input.fotoPerfil === undefined
-          ? {}
-          : { fotoPerfil: input.fotoPerfil }),
-      },
-      select: SAFE_PROFILE_SELECT,
-    });
+    return await updateProfile(userId, input);
   } catch (error: unknown) {
     translateProfileUpdateError(error);
   }

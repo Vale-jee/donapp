@@ -1,5 +1,6 @@
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/database/client";
+import { findActiveCategories } from "@/database/categorias";
 import { ApiError } from "@/src/lib/api/errors";
 import {
   getActiveCategoriesCache,
@@ -48,19 +49,7 @@ export async function listActiveCategories(): Promise<ActiveCategoriesResult> {
     };
   }
 
-  const categories = await prisma.categoria.findMany({
-    where: {
-      activo: true,
-    },
-    select: {
-      id: true,
-      nombre: true,
-      descripcion: true,
-    },
-    orderBy: {
-      nombre: "asc",
-    },
-  });
+  const categories = await findActiveCategories();
 
   setActiveCategoriesCache(categories);
 

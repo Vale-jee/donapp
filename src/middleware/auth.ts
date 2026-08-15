@@ -2,11 +2,10 @@ import type { NextApiRequest } from "next";
 import { errors as joseErrors } from "jose";
 import { ZodError } from "zod";
 
-import { prisma } from "@/database/client";
+import { findAuthenticatedSession } from "@/database/auth";
 import { ApiError } from "@/src/lib/api/errors";
-
-import { verifyAccessToken } from "./access-token";
-import type { AccessTokenPayload, Role } from "./types";
+import { verifyAccessToken } from "@/src/lib/auth/access-token";
+import type { AccessTokenPayload, Role } from "@/src/lib/auth/types";
 
 const INVALID_ACCESS_TOKEN_MESSAGE = "Access token inválido.";
 const INACTIVE_ACCOUNT_MESSAGE = "La cuenta se encuentra inactiva.";
@@ -72,25 +71,7 @@ export async function requireAuth(
   const token = extractBearerToken(request);
   const payload = await verifyAccessTokenSafely(token);
   const now = new Date();
-
-  const session = await prisma.sesion.findUnique({
-    where: { id: payload.sid },
-    select: {
-      id: true,
-      expiresAt: true,
-      revokedAt: true,
-      usuario: {
-        select: {
-          id: true,
-          activo: true,
-          ciudad: true,
-          rol: {
-            select: { codigo: true },
-          },
-        },
-      },
-    },
-  });
+  const session = await findAuthenticatedSession(payload.sid);
 
   if (
     session === null ||

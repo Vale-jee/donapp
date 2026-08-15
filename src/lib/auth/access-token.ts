@@ -1,7 +1,7 @@
 import { jwtVerify, SignJWT } from "jose";
 import { z } from "zod";
 
-import { env } from "@/lib/config/env";
+import { env } from "@/src/lib/config/env";
 
 import {
   ACCESS_TOKEN_AUDIENCE,

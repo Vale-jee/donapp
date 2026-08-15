@@ -3,7 +3,7 @@
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 
-import { env } from "@/lib/config/env";
+import { env } from "@/src/lib/config/env";
 
 const globalForPrisma = globalThis as typeof globalThis & {
   prisma?: PrismaClient;

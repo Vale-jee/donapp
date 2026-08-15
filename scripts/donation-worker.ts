@@ -1,7 +1,7 @@
 import { Worker } from "bullmq";
 import Redis from "ioredis";
 
-import { env } from "@/lib/config/env";
+import { env } from "@/src/lib/config/env";
 import {
   DONATION_CREATED_JOB_NAME,
   DONATION_QUEUE_NAME,
