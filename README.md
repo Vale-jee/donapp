@@ -1,6 +1,8 @@
-# DonApp
+# DonApp Backend
 
-DonApp facilita la publicación y consulta de donaciones entre personas de una misma ciudad. El repositorio reúne una API REST, persistencia en PostgreSQL, procesamiento asíncrono con Redis y un cliente móvil Flutter inicial.
+DonApp facilita la publicación y consulta de donaciones entre personas de una misma ciudad. Este repositorio contiene exclusivamente el backend: una API REST, persistencia en PostgreSQL y procesamiento asíncrono con Redis y BullMQ.
+
+El cliente móvil Flutter se mantiene en el repositorio independiente [Vale-jee/donapp-frontend](https://github.com/Vale-jee/donapp-frontend).
 
 ## Estado actual
 
@@ -11,7 +13,7 @@ Actualmente el proyecto cuenta con:
 - gestión implementada de categorías y donaciones dentro del alcance descrito más adelante;
 - optimizaciones mediante selección explícita de campos, eager loading, caché y eliminación de consultas redundantes;
 - procesamiento asíncrono de la notificación asociada a la creación de una donación;
-- un cliente Flutter base que realiza una conexión real con la API.
+- integración disponible para el cliente Flutter independiente mediante la API REST.
 
 ## Tecnologías
 
@@ -27,12 +29,9 @@ Actualmente el proyecto cuenta con:
 - BullMQ 5.80.x e ioredis 5.11.x.
 - Redis.
 
-### Cliente móvil
+### Cliente relacionado
 
-- Flutter 3.47.0, canal `stable`.
-- Dart 3.13.0.
-- `package:http` 1.6.0.
-- Android.
+El cliente Android utiliza Flutter y Dart, pero sus dependencias, configuración y comandos se documentan en su [repositorio independiente](https://github.com/Vale-jee/donapp-frontend), no en este backend.
 
 ## Arquitectura y base del backend
 
@@ -94,7 +93,6 @@ En el estado actual, el trabajo representa el procesamiento asíncrono de una no
 
 ```text
 donapp/
-├── app_flutter/       # Cliente móvil Flutter y configuración Android
 ├── prisma/            # Esquema, migraciones y seed de PostgreSQL
 ├── scripts/           # Worker y herramientas reproducibles de benchmark
 ├── spec/              # Especificaciones, planes y evolución técnica
@@ -136,68 +134,23 @@ yarn worker:donations
 
 El backend, Redis y el worker deben permanecer activos para procesar el trabajo asíncrono creado por `POST /api/donaciones`.
 
-## Cliente móvil Flutter
+## Cliente móvil independiente
 
-### Estado actual del cliente
+El frontend Flutter de DonApp se desarrolla, configura y ejecuta desde un repositorio separado:
 
-El cliente móvil no representa todavía una aplicación completa. Actualmente ofrece una pantalla funcional para consultar las categorías del backend y mostrar el resultado de la conexión.
+- [https://github.com/Vale-jee/donapp-frontend](https://github.com/Vale-jee/donapp-frontend)
 
-### Entorno utilizado
+La relación entre los componentes es:
 
-El entorno móvil verificado utiliza Flutter 3.47.0 en el canal `stable`, Dart 3.13.0, Visual Studio Code con la extensión Flutter/Dart, Android Studio Quail 3 | 2026.1.3, Android SDK y un dispositivo Android físico con Android 16 / API 36.
-
-### Verificación del entorno
-
-Verifique las herramientas:
-
-```powershell
-flutter doctor -v
-flutter devices
+```text
+Frontend Flutter
+  -> API REST
+  -> Backend DonApp
+  -> Prisma
+  -> PostgreSQL
 ```
 
-El resultado esperado de `flutter doctor -v` es `No issues found`, y `flutter devices` debe mostrar el dispositivo disponible.
-
-### Dispositivo físico
-
-El cliente se ha ejecutado en un dispositivo Android físico. Conecte el dispositivo por USB y habilite las Opciones de desarrollador y la Depuración USB.
-
-### Proyecto base y hot reload
-
-El cliente vive en `app_flutter/` y corresponde a la base Flutter de DonApp.
-
-### Configuración de API_BASE_URL
-
-La URL del backend se proporciona mediante la variable de compilación `API_BASE_URL`.
-
-### ADB reverse y conexión local
-
-Reenvíe el puerto 3000. Esta variante funciona aunque `adb` no esté agregado a `PATH`:
-
-```powershell
-& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" reverse tcp:3000 tcp:3000
-& "$env:LOCALAPPDATA\Android\Sdk\platform-tools\adb.exe" reverse --list
-```
-
-`adb reverse` reenvía el puerto del dispositivo al backend del equipo; por eso la aplicación utiliza `http://localhost:3000`.
-
-### Seguridad de red Android
-
-Durante el desarrollo por USB, Android permite HTTP sin cifrar únicamente hacia `localhost` mediante `network_security_config.xml`; el resto del tráfico HTTP permanece denegado por defecto.
-
-La excepción de Android en `android/app/src/main/res/xml/network_security_config.xml` no debe ampliarse a cualquier dominio ni utilizarse como configuración general de producción.
-
-### Conexión con la API
-
-La pantalla de comprobación consume `GET /api/categorias`, muestra la cantidad y los nombres recibidos, e informa errores de configuración o conexión.
-
-### Ejecución del cliente Flutter
-
-Desde `app_flutter/`:
-
-```powershell
-flutter pub get
-flutter run --dart-define=API_BASE_URL=http://localhost:3000
-```
+Este repositorio no contiene el proyecto Flutter ni sus instrucciones de instalación. El README del frontend documenta su configuración, ejecución en Android y conexión con esta API.
 
 ## Seguridad
 
@@ -205,7 +158,6 @@ flutter run --dart-define=API_BASE_URL=http://localhost:3000
 - Los access tokens JWT se vinculan a sesiones persistentes y los refresh tokens se almacenan mediante hash.
 - Las rutas protegidas verifican sesión, estado activo del usuario y, cuando corresponde, rol.
 - Los secretos y direcciones de infraestructura se gestionan mediante variables de entorno.
-- La excepción HTTP para `localhost` está acotada al desarrollo móvil con ADB reverse.
 
 Estas medidas reducen riesgos concretos, pero no constituyen una garantía absoluta de seguridad ni reemplazan una revisión antes de desplegar.
 

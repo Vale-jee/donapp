@@ -4,7 +4,7 @@
 
 Este documento describe decisiones técnicas transversales. Las decisiones específicas de una feature permanecen en sus archivos `spec.md`, `plan.md` y `tasks.md`.
 
-- **Implementado actualmente:** backend Next.js con React y TypeScript, Pages Router, PostgreSQL, Prisma, autenticación y sesiones, validaciones Zod, contratos uniformes, caché de categorías, cola de donaciones y un cliente Flutter inicial conectado a la API.
+- **Implementado actualmente:** este repositorio contiene el backend Next.js con React y TypeScript, Pages Router, PostgreSQL, Prisma, autenticación y sesiones, validaciones Zod, contratos uniformes, caché de categorías y cola de donaciones. El cliente Flutter existe y se mantiene en un repositorio independiente.
 - **Implementado parcialmente:** las features funcionales disponen de modelos y código en distintos grados de avance; su estado verificable permanece detallado en cada `tasks.md` y en el README principal.
 - **Futuro:** observabilidad avanzada, despliegue productivo y las funcionalidades que cada feature mantenga expresamente pendientes.
 
@@ -21,7 +21,7 @@ Cliente móvil Flutter y Dart
 
 ## Cliente Móvil
 
-El cliente móvil inicial está implementado en `app_flutter/` con Flutter y Dart. Actualmente comprueba la conexión con la API mediante el catálogo de categorías; no representa todavía la aplicación móvil completa.
+El cliente móvil está implementado con Flutter y Dart y se mantiene en el repositorio independiente [Vale-jee/donapp-frontend](https://github.com/Vale-jee/donapp-frontend). Este repositorio contiene únicamente el backend y expone la API REST consumida por el cliente.
 
 ## Backend
 
