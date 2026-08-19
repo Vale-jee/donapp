@@ -149,3 +149,5 @@ export type DonationDetailQuery = z.infer<typeof donationDetailQuerySchema>;
 export const withdrawDonationSchema = z.strictObject({
   estado: z.literal(EstadoDonacion.RETIRADA),
 });
+
+export const confirmDeliverySchema = z.strictObject({});

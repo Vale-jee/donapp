@@ -1,4 +1,4 @@
-import { EstadoDonacion } from "@/generated/prisma/client";
+import { EstadoDonacion, Prisma } from "@/generated/prisma/client";
 
 import { prisma } from "@/database/client";
 
@@ -95,4 +95,33 @@ export function findDonationDetailContext(userId: number, donationId: number) {
       },
     }),
   ]);
+}
+
+export const deliveryConfirmationSelect = {
+  id: true,
+  titulo: true,
+  estado: true,
+  propietarioId: true,
+  donanteConfirmoAt: true,
+  receptorConfirmoAt: true,
+  entregadaAt: true,
+  updatedAt: true,
+  solicitudAceptada: {
+    select: {
+      id: true,
+      donacionId: true,
+      solicitanteId: true,
+      estado: true,
+    },
+  },
+} satisfies Prisma.DonacionSelect;
+
+export function findDeliveryConfirmationContext(
+  transaction: Prisma.TransactionClient,
+  donationId: number,
+) {
+  return transaction.donacion.findUnique({
+    where: { id: donationId },
+    select: deliveryConfirmationSelect,
+  });
 }

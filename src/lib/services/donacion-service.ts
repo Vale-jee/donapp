@@ -7,6 +7,7 @@ import {
 import { prisma } from "@/database/client";
 import {
   findAvailableDonationsPage,
+  findDeliveryConfirmationContext,
   findDonationDetailContext,
   findOwnDonationsPage,
 } from "@/database/donaciones";
@@ -87,6 +88,13 @@ const DONATION_NOT_UPDATABLE_MESSAGE =
   "La donación no puede actualizarse en su estado actual.";
 const DONATION_NOT_WITHDRAWABLE_MESSAGE =
   "La donación no puede retirarse en su estado actual.";
+const DONATION_NOT_CONFIRMABLE_MESSAGE =
+  "La donación no puede confirmarse en su estado actual.";
+const DELIVERY_CONFIRMATION_CONFLICT_MESSAGE =
+  "La confirmación cambió mientras se procesaba la operación.";
+const DELIVERY_CONFIRMATION_MAX_ATTEMPTS = 3;
+
+class DeliveryConfirmationRetryError extends Error {}
 
 export interface WithdrawnDonation extends CreatedDonation {
   retiradaAt: Date;
@@ -94,6 +102,18 @@ export interface WithdrawnDonation extends CreatedDonation {
 
 export interface WithdrawDonationResult {
   donacion: WithdrawnDonation;
+}
+
+export interface DeliveryConfirmationResult {
+  donacion: {
+    id: number;
+    titulo: string;
+    estado: EstadoDonacion;
+    donanteConfirmoAt: Date | null;
+    receptorConfirmoAt: Date | null;
+    entregadaAt: Date | null;
+    updatedAt: Date;
+  };
 }
 
 export async function createDonation(
@@ -519,4 +539,165 @@ export async function withdrawDonation(
       isolationLevel: Prisma.TransactionIsolationLevel.Serializable,
     },
   );
+}
+
+function isSerializableConflict(error: unknown): boolean {
+  return (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === "P2034"
+  );
+}
+
+function isDeliveryConfirmationRetryable(error: unknown): boolean {
+  return (
+    error instanceof DeliveryConfirmationRetryError ||
+    isSerializableConflict(error)
+  );
+}
+
+export async function confirmDonationDelivery(
+  userId: number,
+  donationId: number,
+): Promise<DeliveryConfirmationResult> {
+  for (
+    let attempt = 1;
+    attempt <= DELIVERY_CONFIRMATION_MAX_ATTEMPTS;
+    attempt += 1
+  ) {
+    try {
+      return await prisma.$transaction(
+        async (transaction) => {
+          const donation = await findDeliveryConfirmationContext(
+            transaction,
+            donationId,
+          );
+          const acceptedRequest = donation?.solicitudAceptada ?? null;
+          const isOwner = donation?.propietarioId === userId;
+          const isSelectedRecipient =
+            acceptedRequest !== null &&
+            acceptedRequest.donacionId === donation?.id &&
+            acceptedRequest.estado === EstadoSolicitud.ACEPTADA &&
+            acceptedRequest.solicitanteId === userId;
+
+          if (donation === null || (!isOwner && !isSelectedRecipient)) {
+            throw new ApiError(404, DONATION_NOT_FOUND_MESSAGE);
+          }
+
+          if (
+            acceptedRequest === null ||
+            acceptedRequest.donacionId !== donation.id ||
+            acceptedRequest.estado !== EstadoSolicitud.ACEPTADA
+          ) {
+            throw new ApiError(409, DONATION_NOT_CONFIRMABLE_MESSAGE);
+          }
+
+          if (donation.estado === EstadoDonacion.ENTREGADA) {
+            if (
+              donation.donanteConfirmoAt === null ||
+              donation.receptorConfirmoAt === null ||
+              donation.entregadaAt === null
+            ) {
+              throw new ApiError(409, DONATION_NOT_CONFIRMABLE_MESSAGE);
+            }
+
+            const { propietarioId, solicitudAceptada, ...safeDonation } =
+              donation;
+            void propietarioId;
+            void solicitudAceptada;
+            return { donacion: safeDonation };
+          }
+
+          if (donation.estado !== EstadoDonacion.RESERVADA) {
+            throw new ApiError(409, DONATION_NOT_CONFIRMABLE_MESSAGE);
+          }
+
+          const actorAlreadyConfirmed = isOwner
+            ? donation.donanteConfirmoAt !== null
+            : donation.receptorConfirmoAt !== null;
+
+          if (!actorAlreadyConfirmed) {
+            const confirmationResult = await transaction.donacion.updateMany({
+              where: {
+                id: donation.id,
+                estado: EstadoDonacion.RESERVADA,
+                ...(isOwner
+                  ? { donanteConfirmoAt: null }
+                  : { receptorConfirmoAt: null }),
+              },
+              data: isOwner
+                ? { donanteConfirmoAt: new Date() }
+                : { receptorConfirmoAt: new Date() },
+            });
+
+            if (confirmationResult.count !== 1) {
+              throw new DeliveryConfirmationRetryError();
+            }
+          }
+
+          const confirmedDonation = await findDeliveryConfirmationContext(
+            transaction,
+            donation.id,
+          );
+
+          if (confirmedDonation === null) {
+            throw new ApiError(404, DONATION_NOT_FOUND_MESSAGE);
+          }
+
+          if (
+            confirmedDonation.donanteConfirmoAt !== null &&
+            confirmedDonation.receptorConfirmoAt !== null &&
+            confirmedDonation.estado === EstadoDonacion.RESERVADA
+          ) {
+            const deliveryResult = await transaction.donacion.updateMany({
+              where: {
+                id: confirmedDonation.id,
+                estado: EstadoDonacion.RESERVADA,
+                entregadaAt: null,
+                donanteConfirmoAt: { not: null },
+                receptorConfirmoAt: { not: null },
+              },
+              data: {
+                estado: EstadoDonacion.ENTREGADA,
+                entregadaAt: new Date(),
+              },
+            });
+
+            if (deliveryResult.count !== 1) {
+              throw new DeliveryConfirmationRetryError();
+            }
+          }
+
+          const result = await findDeliveryConfirmationContext(
+            transaction,
+            donation.id,
+          );
+
+          if (result === null) {
+            throw new ApiError(404, DONATION_NOT_FOUND_MESSAGE);
+          }
+
+          const { propietarioId, solicitudAceptada, ...safeDonation } = result;
+          void propietarioId;
+          void solicitudAceptada;
+          return { donacion: safeDonation };
+        },
+        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+      );
+    } catch (error: unknown) {
+      if (
+        isDeliveryConfirmationRetryable(error) &&
+        attempt < DELIVERY_CONFIRMATION_MAX_ATTEMPTS
+      ) {
+        continue;
+      }
+
+      if (isDeliveryConfirmationRetryable(error)) {
+        throw new ApiError(409, DELIVERY_CONFIRMATION_CONFLICT_MESSAGE);
+      }
+
+      throw error;
+    }
+  }
+
+  throw new ApiError(409, DELIVERY_CONFIRMATION_CONFLICT_MESSAGE);
 }
