@@ -2,7 +2,7 @@ import type { NextApiResponse } from "next";
 
 export type SuccessStatus = 200 | 201;
 
-export type ErrorStatus = 400 | 401 | 403 | 404 | 405 | 409 | 500;
+export type ErrorStatus = 400 | 401 | 403 | 404 | 405 | 409 | 429 | 500;
 
 export interface ValidationErrorDetail {
   field: string;

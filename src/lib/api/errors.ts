@@ -11,13 +11,33 @@ import {
 const INTERNAL_ERROR_MESSAGE = "Error interno del servidor";
 const VALIDATION_ERROR_MESSAGE = "Datos inválidos";
 
+export type ApiErrorCategory =
+  | "validation"
+  | "authentication"
+  | "authorization"
+  | "business_rule"
+  | "rate_limit"
+  | "internal";
+
+export interface HandledApiError {
+  status: ErrorStatus;
+  category: ApiErrorCategory;
+  message: string;
+}
+
 export class ApiError extends Error {
   readonly status: ErrorStatus;
+  readonly category: ApiErrorCategory;
 
-  constructor(status: ErrorStatus, message: string) {
+  constructor(
+    status: ErrorStatus,
+    message: string,
+    category: ApiErrorCategory = "business_rule",
+  ) {
     super(message);
     this.name = "ApiError";
     this.status = status;
+    this.category = category;
   }
 }
 
@@ -31,10 +51,14 @@ export function formatZodError(error: ZodError): ValidationErrorDetail[] {
 export function handleApiError<T = never>(
   error: unknown,
   response: NextApiResponse<ApiResponse<T>>,
-): void {
+): HandledApiError {
   if (error instanceof ApiError) {
     sendError(response, error.status, error.message);
-    return;
+    return {
+      status: error.status,
+      category: error.category,
+      message: error.message,
+    };
   }
 
   if (error instanceof ZodError) {
@@ -44,9 +68,17 @@ export function handleApiError<T = never>(
       VALIDATION_ERROR_MESSAGE,
       formatZodError(error),
     );
-    return;
+    return {
+      status: 400,
+      category: "validation",
+      message: VALIDATION_ERROR_MESSAGE,
+    };
   }
 
-  console.error("Unhandled API error", error);
   sendError(response, 500, INTERNAL_ERROR_MESSAGE);
+  return {
+    status: 500,
+    category: "internal",
+    message: INTERNAL_ERROR_MESSAGE,
+  };
 }

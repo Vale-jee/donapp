@@ -125,7 +125,7 @@ export async function loginUser(input: LoginInput): Promise<LoginResult> {
   const user = await findUserForLogin(input.email);
 
   if (user === null) {
-    throw new ApiError(401, INVALID_CREDENTIALS_MESSAGE);
+    throw new ApiError(401, INVALID_CREDENTIALS_MESSAGE, "authentication");
   }
 
   const passwordIsValid = await verifyPassword(
@@ -134,11 +134,11 @@ export async function loginUser(input: LoginInput): Promise<LoginResult> {
   );
 
   if (!passwordIsValid) {
-    throw new ApiError(401, INVALID_CREDENTIALS_MESSAGE);
+    throw new ApiError(401, INVALID_CREDENTIALS_MESSAGE, "authentication");
   }
 
   if (!user.activo) {
-    throw new ApiError(403, INACTIVE_ACCOUNT_MESSAGE);
+    throw new ApiError(403, INACTIVE_ACCOUNT_MESSAGE, "authorization");
   }
 
   const refreshToken = generateRefreshToken();
@@ -211,11 +211,11 @@ export async function refreshTokens(
       session.revokedAt !== null ||
       session.expiresAt <= now
     ) {
-      throw new ApiError(401, INVALID_REFRESH_TOKEN_MESSAGE);
+      throw new ApiError(401, INVALID_REFRESH_TOKEN_MESSAGE, "authentication");
     }
 
     if (!session.usuario.activo) {
-      throw new ApiError(403, INACTIVE_ACCOUNT_MESSAGE);
+      throw new ApiError(403, INACTIVE_ACCOUNT_MESSAGE, "authorization");
     }
 
     const refreshToken = generateRefreshToken();
@@ -237,7 +237,7 @@ export async function refreshTokens(
     });
 
     if (rotation.count !== 1) {
-      throw new ApiError(401, INVALID_REFRESH_TOKEN_MESSAGE);
+      throw new ApiError(401, INVALID_REFRESH_TOKEN_MESSAGE, "authentication");
     }
 
     const accessToken = await createAccessToken({
@@ -265,6 +265,6 @@ export async function logoutUser(input: LogoutInput): Promise<void> {
   );
 
   if (revocation.count !== 1) {
-    throw new ApiError(401, INVALID_REFRESH_TOKEN_MESSAGE);
+    throw new ApiError(401, INVALID_REFRESH_TOKEN_MESSAGE, "authentication");
   }
 }
