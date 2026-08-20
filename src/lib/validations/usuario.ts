@@ -29,6 +29,46 @@ const profilePictureSchema = z
     }
   }, "La foto de perfil debe ser una URL HTTP/HTTPS o una ruta relativa.");
 
+const currentPasswordSchema = z
+  .string("La contraseña actual debe ser una cadena de texto.")
+  .min(1, "La contraseña actual es obligatoria.")
+  .refine(
+    (password) => !truncates(password),
+    "La contraseña actual no puede superar los 72 bytes permitidos por bcrypt.",
+  );
+
+const newPasswordSchema = z
+  .string("La nueva contraseña debe ser una cadena de texto.")
+  .min(8, "La nueva contraseña debe tener al menos 8 caracteres.")
+  .regex(/\p{L}/u, "La nueva contraseña debe incluir al menos una letra.")
+  .regex(/\p{N}/u, "La nueva contraseña debe incluir al menos un número.")
+  .refine(
+    (password) => !truncates(password),
+    "La nueva contraseña no puede superar los 72 bytes permitidos por bcrypt.",
+  );
+
+const canonicalPositiveIntegerSchema = z
+  .string()
+  .regex(/^[1-9]\d*$/u, "El identificador debe ser un entero positivo.")
+  .transform(Number)
+  .refine(Number.isSafeInteger, "El identificador debe ser un entero positivo.");
+
+export const publicProfileQuerySchema = z.strictObject({
+  id: canonicalPositiveIntegerSchema,
+});
+
+export const changePasswordSchema = z.strictObject({
+  passwordActual: currentPasswordSchema,
+  passwordNueva: newPasswordSchema,
+});
+
+export const deactivateAccountSchema = z.strictObject({
+  passwordActual: currentPasswordSchema,
+});
+
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
+export type DeactivateAccountInput = z.infer<typeof deactivateAccountSchema>;
+
 export const updateProfileSchema = z
   .strictObject({
     nombreCompleto: z
@@ -59,14 +99,7 @@ export const updateProfileSchema = z
       .max(254, "El correo electrónico no puede superar 254 caracteres.")
       .email("El correo electrónico no es válido.")
       .optional(),
-    passwordActual: z
-      .string("La contraseña actual debe ser una cadena de texto.")
-      .min(1, "La contraseña actual es obligatoria.")
-      .refine(
-        (password) => !truncates(password),
-        "La contraseña actual no puede superar los 72 bytes permitidos por bcrypt.",
-      )
-      .optional(),
+    passwordActual: currentPasswordSchema.optional(),
     ciudad: z
       .string("La ciudad debe ser una cadena de texto.")
       .transform(collapseSpaces)
