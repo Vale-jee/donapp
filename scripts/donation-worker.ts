@@ -26,8 +26,7 @@ const worker = new Worker<
   DONATION_QUEUE_NAME,
   async (job) => {
     console.info(
-      `[donation-worker] Trabajo recibido: ${job.name} (${job.id ?? "sin-id"})`,
-      job.data,
+      `[donation-worker] Trabajo recibido: ${job.name} (${job.id ?? "sin-id"}), donationId=${job.data.donationId}, intento=${job.attemptsMade + 1}.`,
     );
 
     await wait(PROCESSING_DELAY_MILLISECONDS);
@@ -51,9 +50,17 @@ worker.on("error", () => {
   );
 });
 
+worker.on("completed", (job) => {
+  console.info(
+    `[donation-worker] Trabajo completado: ${job.name} (${job.id ?? "sin-id"}), donationId=${job.data.donationId}.`,
+  );
+});
+
 worker.on("failed", (job) => {
+  const attempts = job?.opts.attempts ?? 1;
+  const attemptsMade = job?.attemptsMade ?? attempts;
   console.error(
-    `[donation-worker] Falló el trabajo ${job?.id ?? "sin-id"}.`,
+    `[donation-worker] Falló el trabajo ${job?.id ?? "sin-id"}, donationId=${job?.data.donationId ?? "desconocido"}, intento=${attemptsMade}/${attempts}, reintento=${attemptsMade < attempts}.`,
   );
 });
 
