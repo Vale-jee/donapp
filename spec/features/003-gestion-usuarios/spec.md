@@ -397,11 +397,11 @@ No requiere dependencias adicionales a las aprobadas para Autenticacion Core.
 
 ## Estado
 
-Pendiente.
+Implementada. Los endpoints de perfil, seguridad y consulta publica estan disponibles; los listados administrativos pertenecen a 010-administracion.
 
 ## Observaciones
 
-El endpoint provisional `GET /api/usuarios` se retirara al implementar esta feature. Los listados y operaciones administrativas perteneceran a 010-administracion.
+El endpoint provisional `GET /api/usuarios` fue retirado. Los listados y operaciones administrativas pertenecen a 010-administracion.
 
 Las calificaciones y el total de donaciones entregadas se incorporaran al perfil publico desde sus respectivas features.
 

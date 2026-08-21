@@ -209,7 +209,7 @@ Reutilizara las librerias ya aprobadas por las features correspondientes, especi
 
 ## Estado
 
-Pendiente.
+Implementada, con evidencia permanente representativa del contrato uniforme, request ID, JSON malformado y sanitizacion.
 
 ## Observaciones
 

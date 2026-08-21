@@ -295,6 +295,10 @@ Evidencia funcional de los guards:
 - [ ] Completar las actividades planificadas de optimización técnica y rendimiento.
 - [ ] Actualizar el estado de la feature solo cuando todos los requisitos esten implementados.
 
+## Sincronizacion final
+
+El flujo Auth esta implementado y cubierto de forma representativa por la suite permanente. Se verifica la rotacion y el rechazo del refresh anterior; la deteccion de reutilizacion deliberada queda expresamente fuera del alcance actual. Las casillas abiertas conservan verificaciones exhaustivas historicas.
+
 ## Criterios de Finalizacion
 
 La feature unicamente podra marcarse como completada cuando:

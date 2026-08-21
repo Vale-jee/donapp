@@ -9,7 +9,7 @@ yarn.cmd test:unit
 yarn.cmd test:integration
 ```
 
-Las unitarias cubren normalización y validaciones críticas, errores y respuestas uniformes, sanitización de fallos, propagación de request ID y JSON malformado.
+Las unitarias cubren normalización y validaciones críticas, errores y respuestas uniformes, sanitización de fallos, propagación de request ID, JSON malformado y la configuración e idempotencia de la cola de donaciones.
 
 Para integración:
 
@@ -21,7 +21,9 @@ Para integración:
 
 La suite se niega a ejecutar si falta `DONAPP_INTEGRATION_TESTS=true`, si API/PostgreSQL/Redis no son locales, si la base PostgreSQL no contiene `test`, o si Redis usa la base lógica `0`. No ejecuta truncates. Cada corrida crea correos, nombres y una categoría con un prefijo único; al finalizar elimina únicamente las sesiones, usuarios y recursos relacionados con ese prefijo.
 
-La integración cubre login válido e inválido, sesión inválida, refresh y rechazo del token anterior, logout, cuenta inactiva, límite básico por correo, JSON malformado, flujo publicación–solicitud–aceptación–reserva–chat–mensaje–doble confirmación–entrega–calificación, dos aceptaciones simultáneas y autorización ADMIN/USUARIO.
+La integración cubre login válido e inválido, sesión inválida, refresh y rechazo del token anterior, logout, cuenta inactiva, límite básico por correo, JSON malformado, flujo publicación–solicitud–aceptación–reserva–chat–mensaje–doble confirmación–entrega–calificación, dos aceptaciones simultáneas, autorización ADMIN/USUARIO y robustez BullMQ con Redis disponible, indisponible y recuperado.
+
+La última verificación completa registró 10 pruebas unitarias y 6 de integración aprobadas (16/16). El conteo describe esa ejecución y puede cambiar cuando evolucione la suite.
 
 ## Postman
 
@@ -29,4 +31,4 @@ Importe `docs/postman/DonApp.postman_collection.json` y `docs/postman/DonApp.loc
 
 ## Pendiente
 
-No se automatizan todavía todos los casos negativos, los 16 endpoints administrativos, privacidad exhaustiva, rendimiento, BullMQ ni detección de reutilización de refresh tokens. La prueba solo verifica que el refresh anterior rotado sea rechazado; no implementa detección adicional.
+No se automatizan todavía todos los casos negativos, la cobertura exhaustiva de cada endpoint administrativo, privacidad exhaustiva ni rendimiento. La suite verifica que el refresh anterior rotado sea rechazado, pero no implementa detección de reutilización de refresh tokens. BullMQ sí cuenta con cobertura permanente de sus garantías documentadas.

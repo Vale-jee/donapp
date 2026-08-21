@@ -109,6 +109,10 @@
 - Estas integraciones no forman parte de la implementacion de la feature 007.
 
 
+## Sincronizacion final
+
+Solicitudes esta implementada y el flujo permanente verifica creacion, aceptacion, reserva coherente y concurrencia con una respuesta 200 y otra 409. Las comprobaciones exhaustivas historicas permanecen abiertas.
+
 ## Criterios de Finalizacion
 
 La feature solo podra marcarse como completada cuando:

@@ -187,6 +187,10 @@
 - [ ] Verificar que la documentación coincida con la implementación.
 
 
+## Sincronización final
+
+La administración está implementada y la suite permanente verifica autorización representativa (`ADMIN` 200 y `USUARIO` 403). La cobertura exhaustiva de cada endpoint administrativo continúa identificada como pendiente.
+
 ## Criterios de Finalización
 
 La feature solo podrá marcarse como completada cuando:

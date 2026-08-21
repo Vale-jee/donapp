@@ -184,7 +184,7 @@ Con la claim `sid`:
 - Revocar una sesión no afectará otras sesiones del mismo usuario.
 - Revocar todas las sesiones invalidará todos sus access tokens asociados.
 
-La documentación de `002-autenticacion-core` ya está alineada con esta decisión; su implementación continúa pendiente.
+La implementación de `002-autenticacion-core` aplica esta decisión.
 
 
 ## Requisitos Funcionales
@@ -400,7 +400,7 @@ El chat quedará en modo solo lectura. Si ambos participantes están activos, re
 
 Después de la resolución, la Solicitud conservará su estado final y la donación dejará de considerarse un caso `RESERVADA` bloqueado.
 
-La documentación de la feature 006 ya incorpora `RESERVADA -> RETIRADA` como transición exclusivamente administrativa originada por la feature 010; su implementación continúa pendiente.
+La feature 006 incorpora `RESERVADA -> RETIRADA` como transición exclusivamente administrativa originada por la feature 010.
 
 
 ## Administración de Solicitudes
@@ -731,11 +731,11 @@ Quedan fuera de esta versión:
 
 Esta feature depende de:
 
-- `002-autenticacion-core` para autenticación, roles, sesiones y claim `sid`; documentación alineada e implementación pendiente.
+- `002-autenticacion-core` para autenticación, roles, sesiones y claim `sid`.
 - `003-gestion-usuarios` para cuentas, perfiles y desactivación.
 - `004-manejo-errores` para el contrato uniforme.
 - `005-categorias` como única responsable de administrar Categorías.
-- `006-donaciones` para estados, participantes, confirmaciones y transición administrativa `RESERVADA -> RETIRADA`; documentación alineada e implementación pendiente.
+- `006-donaciones` para estados, participantes, confirmaciones y transición administrativa `RESERVADA -> RETIRADA`.
 - `007-solicitudes` para estados, causas y solicitud aceptada.
 - `008-chat` para metadatos y reglas de solo lectura.
 - `009-calificaciones` para calificaciones y pendientes derivados.
@@ -750,16 +750,16 @@ Esta feature depende de:
 - `008-chat` conserva Chat y mensajes después de una resolución administrativa, aplica modo solo lectura y limita a `ADMIN` a metadatos sin contenido.
 - `009-calificaciones` excluye de pendientes las donaciones con `ExencionCalificacion` y no considera la exención como puntuación ni la incluye en promedios o totales.
 
-Las sincronizaciones documentales están completadas. La implementación en código, Prisma, migraciones, servicios y pruebas continúa pendiente. Estas decisiones no son contradicciones abiertas.
+Las sincronizaciones documentales y la implementación correspondiente están completadas. Estas decisiones no son contradicciones abiertas.
 
 
 ## Estado
 
-Pendiente.
+Implementada. La suite permanente verifica de forma representativa autorización `ADMIN` 200 y `USUARIO` 403; no pretende cubrir exhaustivamente cada endpoint administrativo.
 
 
 ## Observaciones
 
 Las resoluciones administrativas serán específicas, auditables e inmutables. Ningún endpoint otorgará poderes generales para reescribir estados o actuar como otro usuario.
 
-La claim `sid`, la transición administrativa `RESERVADA -> RETIRADA` y `ExencionCalificacion` están aprobadas. La documentación transversal ya está sincronizada; todavía no existe implementación en código, Prisma, migraciones, servicios ni pruebas.
+La claim `sid`, la transición administrativa `RESERVADA -> RETIRADA` y `ExencionCalificacion` están implementadas y sincronizadas con la documentación transversal.

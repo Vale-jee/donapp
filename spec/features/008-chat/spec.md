@@ -622,7 +622,7 @@ Las integraciones futuras serán `009-calificaciones`, `010-administracion` y lo
 
 ## Estado
 
-Pendiente.
+Implementada, con evidencia permanente de creación del chat, mensajería y cierre en el flujo de entrega.
 
 
 ## Observaciones

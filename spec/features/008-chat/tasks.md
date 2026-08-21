@@ -127,6 +127,10 @@
 - Estas integraciones no forman parte de la implementación de la feature 008.
 
 
+## Sincronización final
+
+Chat y mensajería están implementados y forman parte del flujo permanente hasta la entrega. Las casillas abiertas conservan escenarios exhaustivos sin evidencia específica en este cierre.
+
 ## Criterios de Finalización
 
 La feature solo podrá marcarse como completada cuando:

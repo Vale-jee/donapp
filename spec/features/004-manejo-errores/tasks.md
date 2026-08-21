@@ -104,6 +104,10 @@
 - [ ] Registrar los resultados de pruebas, lint y build.
 - [ ] Actualizar el estado solo cuando se cumplan todos los criterios de finalizacion.
 
+## Sincronizacion final
+
+El contrato uniforme, el request ID, el manejo de JSON malformado y la sanitizacion de errores cuentan con evidencia permanente. Las traducciones tecnicas y escenarios exhaustivos que siguen sin marcar no se declaran verificados por este cierre.
+
 ## Criterios de Finalizacion
 
 La feature solo podra marcarse como completada cuando:

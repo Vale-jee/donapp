@@ -422,7 +422,7 @@ Se reutilizaran Next.js, TypeScript, Prisma ORM y Zod. No se requieren dependenc
 
 ## Estado
 
-Pendiente.
+Implementada. La API expone los cinco metodos documentados y utiliza cache local con TTL de 60 segundos.
 
 
 ## Observaciones

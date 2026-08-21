@@ -87,7 +87,7 @@
 - [x] Responder la actualizacion exitosa con HTTP `200`, `"Perfil actualizado correctamente."` y `data.usuario`.
 - [x] Aplicar respuestas uniformes con `data` en `GET` y `PATCH /api/usuarios/perfil`.
 - [ ] Aplicar respuestas uniformes con `data` en los demas endpoints.
-- [ ] Retirar de forma segura el endpoint provisional `GET /api/usuarios`.
+- [x] Retirar de forma segura el endpoint provisional `GET /api/usuarios`.
 
 ## Fase 7 - Manejo de Errores
 
@@ -154,7 +154,7 @@ Evidencia funcional de `PATCH /api/usuarios/perfil`:
 ## Fase 9 - Cierre Documental
 
 - [ ] Verificar que la implementacion coincida con `spec.md`.
-- [ ] Confirmar que el endpoint provisional inseguro fue retirado.
+- [x] Confirmar que el endpoint provisional inseguro fue retirado.
 - [ ] Registrar los resultados de pruebas, lint y build.
 - [ ] Actualizar el estado solo cuando todos los criterios se cumplan.
 
@@ -164,8 +164,12 @@ La feature solo podra marcarse como completada cuando:
 
 - [ ] Todos los requisitos funcionales esten implementados.
 - [ ] Se respeten todas las reglas de privacidad.
-- [ ] Los cinco endpoints funcionen correctamente.
+- [x] Los cinco endpoints funcionen correctamente.
 - [ ] Todas las pruebas pasen.
 - [x] Lint y build finalicen correctamente.
-- [ ] El endpoint provisional inseguro haya sido retirado.
-- [ ] La documentacion coincida con la implementacion.
+- [x] El endpoint provisional inseguro haya sido retirado.
+- [x] La documentacion coincida con la implementacion.
+
+## Sincronizacion final
+
+Los endpoints de usuarios documentados existen y el endpoint provisional inseguro ya no forma parte del arbol de rutas. Se mantienen abiertas las comprobaciones exhaustivas que no cuentan con evidencia especifica en la suite permanente.

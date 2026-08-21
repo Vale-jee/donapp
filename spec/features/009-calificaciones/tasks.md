@@ -140,6 +140,10 @@
 - Estas integraciones no forman parte de la implementación actual de la feature 009.
 
 
+## Sincronización final
+
+La calificación posterior a la doble confirmación está implementada y cubierta por el flujo permanente. No se marcan como completas las matrices exhaustivas que la suite actual no demuestra.
+
 ## Criterios de Finalización
 
 La feature solo podrá marcarse como completada cuando:

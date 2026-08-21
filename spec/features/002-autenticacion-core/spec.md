@@ -389,10 +389,10 @@ No se instalaran dependencias adicionales sin aprobacion.
 
 ## Estado
 
-Pendiente.
+Implementada. La suite permanente verifica los flujos representativos de autenticacion; la deteccion de reutilizacion deliberada de refresh tokens no forma parte del alcance actual.
 
 ## Observaciones
 
-Esta feature se completara antes de implementar la gestion de usuarios, donaciones, solicitudes y cualquier funcionalidad que requiera identificar al usuario autenticado.
+Esta feature constituye la base implementada para usuarios, donaciones, solicitudes y cualquier funcionalidad que requiera identificar al usuario autenticado.
 
 El cierre de todas las sesiones y la recuperacion de contrasena quedan para versiones futuras.

@@ -622,7 +622,7 @@ Las dependencias futuras seran:
 
 ## Estado
 
-Pendiente.
+Implementada, con evidencia permanente del flujo principal y de dos aceptaciones simultaneas.
 
 
 ## Observaciones

@@ -1,168 +1,128 @@
 # DonApp Backend
 
-DonApp facilita la publicación y consulta de donaciones entre personas de una misma ciudad. Este repositorio contiene exclusivamente el backend: una API REST, persistencia en PostgreSQL y procesamiento asíncrono con Redis y BullMQ.
+Backend REST para publicar donaciones, gestionar solicitudes, coordinar entregas y conservar reputación e historial administrativo. El cliente Flutter vive en un repositorio separado.
 
-El cliente móvil Flutter se mantiene en el repositorio independiente [Vale-jee/donapp-frontend](https://github.com/Vale-jee/donapp-frontend).
+## Stack y arquitectura
 
-## Estado actual
-
-Actualmente el proyecto cuenta con:
-
-- un backend funcional construido con Next.js Pages Router y TypeScript;
-- autenticación, sesiones, control de los roles `ADMIN` y `USUARIO`, y rutas protegidas;
-- gestión implementada de categorías y donaciones dentro del alcance descrito más adelante;
-- optimizaciones mediante selección explícita de campos, eager loading, caché y eliminación de consultas redundantes;
-- procesamiento asíncrono de la notificación asociada a la creación de una donación;
-- integración disponible para el cliente Flutter independiente mediante la API REST.
-
-## Tecnologías
-
-### Backend
-
-- Next.js 16.2.10 y React 19.2.4.
-- TypeScript 5.x.
-- Prisma ORM y Prisma Client 7.8.x.
-- PostgreSQL.
-- Zod 4.4.x.
-- JWT mediante `jose` 6.2.x.
-- Hash de contraseñas mediante `bcryptjs` 3.0.x.
-- BullMQ 5.80.x e ioredis 5.11.x.
-- Redis.
-
-### Cliente relacionado
-
-El cliente Android utiliza Flutter y Dart, pero sus dependencias, configuración y comandos se documentan en su [repositorio independiente](https://github.com/Vale-jee/donapp-frontend), no en este backend.
-
-## Arquitectura y base del backend
-
-El backend funcional utiliza Next.js Pages Router y TypeScript para exponer la API REST, Prisma ORM para el acceso a datos y PostgreSQL para la persistencia.
-
-Las rutas REST se encuentran en `src/pages/api/`. La autenticación, los servicios, la caché, la cola y las validaciones se organizan en `src/lib/`, con selección explícita de campos y respuestas uniformes.
-
-## Autenticación y usuarios
-
-- Registro de usuarios con asignación automática del rol `USUARIO`.
-- Login por correo y contraseña.
-- Emisión y validación de access tokens JWT.
-- Refresh tokens aleatorios almacenados mediante hash, con rotación al renovarlos.
-- Sesiones persistentes y logout de la sesión asociada al refresh token.
-- Comprobación de sesión, usuario activo y rol actual en las rutas protegidas.
-- Control de acceso para los roles `ADMIN` y `USUARIO`.
-- Consulta y actualización protegidas del perfil propio.
-
-Las rutas disponibles son `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/refresh`, `POST /api/auth/logout` y `GET|PATCH /api/usuarios/perfil`.
-
-## Categorías
-
-- `GET /api/categorias`: listado público de categorías activas.
-- `POST /api/categorias`: creación protegida para usuarios con rol `ADMIN`.
-- Selección exclusiva de los campos públicos en el listado.
-- Caché local cache-aside con TTL de 60 segundos.
-- Invalidación explícita de la caché después de crear una categoría.
-
-## Donaciones
-
-- Creación de donaciones con categoría e imágenes mediante `POST /api/donaciones`.
-- Listado paginado de donaciones disponibles mediante `GET /api/donaciones`.
-- Listado paginado de publicaciones propias mediante `GET /api/donaciones/mias`.
-- Detalle mediante `GET /api/donaciones/{id}`.
-- Actualización parcial por el propietario mediante `PATCH /api/donaciones/{id}`.
-- Retiro lógico e idempotente mediante `PATCH /api/donaciones/{id}/estado`.
-- Filtros de visibilidad, ciudad, propiedad, categoría y estado según la operación.
-- Carga optimizada de categoría, imágenes y conteos mediante relaciones y selecciones explícitas.
-
-No se presentan como implementadas las operaciones de solicitudes, chat, calificaciones, administración ni la confirmación de entrega, aunque existan modelos o decisiones documentales relacionadas.
-
-## Optimización del backend
-
-- `scripts/benchmark-donaciones-n1.ts` reproduce una estrategia con riesgo N+1 y la compara con eager loading, conteos y selección de campos.
-- El servicio de donaciones utiliza consultas relacionales para evitar consultas repetidas por cada publicación.
-- La autenticación carga sesión, usuario, ciudad y rol mediante una sola consulta relacional y campos seleccionados.
-- `scripts/benchmark-auth-redundant-query.ts` compara la consulta redundante del usuario autenticado con la estrategia consolidada.
-- `scripts/benchmark-worker-before.ts` ofrece una línea base síncrona para comparar el trabajo procesado fuera de la solicitud.
-
-Los scripts informan sus propias métricas al ejecutarse; este documento no fija resultados numéricos dependientes del entorno.
-
-## Procesamiento asíncrono
-
-La creación de una donación agrega mediante BullMQ el trabajo `donation-created` a la cola `donation-notifications`. Redis actúa como infraestructura de la cola y `scripts/donation-worker.ts` ejecuta el worker.
-
-En el estado actual, el trabajo representa el procesamiento asíncrono de una notificación de donación creada. No constituye todavía un sistema completo de entrega de notificaciones al usuario.
-
-## Estructura del repositorio
+- Next.js 16 Pages Router, React 19 y TypeScript.
+- PostgreSQL 16 con Prisma ORM 7.8.
+- Zod, `jose` y `bcryptjs`.
+- Redis para rate limiting y BullMQ; la caché de categorías es local.
+- Vitest y Postman para evidencia reproducible.
 
 ```text
-donapp/
-├── prisma/            # Esquema, migraciones y seed de PostgreSQL
-├── scripts/           # Worker y herramientas reproducibles de benchmark
-├── spec/              # Especificaciones, planes y evolución técnica
-├── src/
-│   ├── lib/           # Autenticación, servicios, caché, cola y validaciones
-│   └── pages/api/     # Rutas REST de Next.js Pages Router
-├── package.json       # Dependencias y comandos del backend
-└── README.md          # Documentación principal
+Flutter -> API route -> validación/middleware -> servicio -> acceso a datos -> Prisma -> PostgreSQL
+                                                \-> Redis/BullMQ -> worker simulado
 ```
 
-## Configuración y ejecución del backend
+Las rutas están en `src/pages/api`, validaciones y servicios en `src/lib`, guards en `src/middleware`, acceso Prisma en `database` y procesos en `scripts`.
 
-Instale las dependencias desde la raíz:
+## Módulos implementados
+
+- Auth: registro, login, rotación, sesiones y logout.
+- Usuarios: perfil propio/público, contraseña, desactivación y reputación.
+- Categorías: listado, creación, detalle, edición y estado.
+- Donaciones: publicación, consultas, edición, retirada y entrega bilateral.
+- Solicitudes: creación, consultas, aceptación atómica, rechazo y cancelación.
+- Chat y mensajes privados.
+- Calificaciones, reputación, pendientes y exenciones.
+- Administración de usuarios, sesiones, donaciones, solicitudes, chats, calificaciones y auditorías.
+- Rate limiting, protección básica por email, request ID, pruebas, Postman y BullMQ robustecido.
+
+## Endpoints
+
+### Auth y usuarios
+
+- `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/refresh`, `POST /api/auth/logout`
+- `GET|PATCH /api/usuarios/perfil`
+- `GET /api/usuarios/{id}/publico`
+- `PUT /api/usuarios/password`, `PUT /api/usuarios/desactivar`
+- `GET /api/usuarios/{id}/calificaciones`
+
+### Categorías y donaciones
+
+- `GET|POST /api/categorias`
+- `GET|PATCH /api/categorias/{id}`
+- `PATCH /api/categorias/{id}/estado`
+- `GET|POST /api/donaciones`
+- `GET /api/donaciones/mias`
+- `GET|PATCH /api/donaciones/{id}`
+- `PATCH /api/donaciones/{id}/estado`
+- `GET /api/donaciones/{id}/solicitudes`
+- `PATCH /api/donaciones/{id}/confirmacion-entrega`
+- `GET|POST /api/donaciones/{id}/calificacion`
+
+### Solicitudes, chats y pendientes
+
+- `POST /api/solicitudes`
+- `GET /api/solicitudes/enviadas`, `GET /api/solicitudes/recibidas`
+- `GET /api/solicitudes/{id}`
+- `PATCH /api/solicitudes/{id}/aceptar`
+- `PATCH /api/solicitudes/{id}/rechazar`
+- `PATCH /api/solicitudes/{id}/cancelar`
+- `POST /api/solicitudes/{id}/chat`
+- `GET /api/chats`, `GET /api/chats/{id}`
+- `GET|POST /api/chats/{id}/mensajes`
+- `GET /api/calificaciones/pendientes`
+
+### Administración
+
+- `GET /api/admin/usuarios`, `GET /api/admin/usuarios/{id}`
+- `PATCH /api/admin/usuarios/{id}/estado`
+- `POST /api/admin/usuarios/{id}/revocar-sesiones`
+- `GET /api/admin/donaciones`, `GET /api/admin/donaciones/{id}`
+- `POST /api/admin/donaciones/{id}/resolver`
+- `GET /api/admin/solicitudes`, `GET /api/admin/solicitudes/{id}`
+- `GET /api/admin/chats`, `GET /api/admin/chats/{id}`
+- `GET /api/admin/calificaciones`, `GET /api/admin/calificaciones/{id}`
+- `POST /api/admin/calificaciones/pendientes/{donacionId}/eximir`
+- `GET /api/admin/auditorias`, `GET /api/admin/auditorias/{id}`
+
+## Configuración y ejecución
+
+Copie `.env.example` como `.env` y configure `DATABASE_URL`, `AUTH_ACCESS_TOKEN_SECRET`, `AUTH_ACCESS_TOKEN_TTL` y `REDIS_URL`. No versione `.env`.
 
 ```powershell
 yarn install
+yarn.cmd prisma migrate deploy
+yarn.cmd prisma db seed
+yarn.cmd dev
 ```
 
-Copie `.env.example` como `.env` y configure valores locales seguros para estas variables:
-
-- `DATABASE_URL`
-- `AUTH_ACCESS_TOKEN_SECRET`
-- `AUTH_ACCESS_TOKEN_TTL`
-- `REDIS_URL`
-
-No versione `.env` ni publique sus valores. Con PostgreSQL disponible y la configuración correspondiente aplicada, inicie la API:
+Comandos principales:
 
 ```powershell
-yarn dev
+yarn.cmd lint
+yarn.cmd build
+yarn.cmd test
+yarn.cmd test:unit
+yarn.cmd test:integration
+yarn.cmd worker:donations
+yarn.cmd queue:reconcile:donations --donation-id=123
 ```
 
-El servidor de desarrollo queda disponible normalmente en `http://localhost:3000`.
+El worker procesa de forma simulada `donation-created`; no envía notificaciones reales. Consulte [docs/bullmq-robustness.md](docs/bullmq-robustness.md).
 
-Mantenga una instancia de Redis accesible mediante `REDIS_URL`. En otra terminal, desde la raíz, inicie el worker:
+## Pruebas y Postman
 
-```powershell
-yarn worker:donations
-```
+La última verificación registró 10 pruebas unitarias y 6 de integración aprobadas (16/16): Auth, rate limiting, flujo completo, concurrencia, ADMIN y BullMQ. El conteo corresponde a esa ejecución, no es una promesa inmutable.
 
-El backend, Redis y el worker deben permanecer activos para procesar el trabajo asíncrono creado por `POST /api/donaciones`.
+La integración exige servicios aislados según `.env.test.example`; consulte [docs/testing.md](docs/testing.md). Postman se importa desde:
 
-## Cliente móvil independiente
+- `docs/postman/DonApp.postman_collection.json`
+- `docs/postman/DonApp.local.postman_environment.json`
 
-El frontend Flutter de DonApp se desarrolla, configura y ejecuta desde un repositorio separado:
-
-- [https://github.com/Vale-jee/donapp-frontend](https://github.com/Vale-jee/donapp-frontend)
-
-La relación entre los componentes es:
-
-```text
-Frontend Flutter
-  -> API REST
-  -> Backend DonApp
-  -> Prisma
-  -> PostgreSQL
-```
-
-Este repositorio no contiene el proyecto Flutter ni sus instrucciones de instalación. El README del frontend documenta su configuración, ejecución en Android y conexión con esta API.
+Los valores versionados son ficticios o vacíos; nunca guarde secretos reales.
 
 ## Seguridad
 
-- Las contraseñas se almacenan mediante hash con bcrypt; no se conservan en texto plano.
-- Los access tokens JWT se vinculan a sesiones persistentes y los refresh tokens se almacenan mediante hash.
-- Las rutas protegidas verifican sesión, estado activo del usuario y, cuando corresponde, rol.
-- Los secretos y direcciones de infraestructura se gestionan mediante variables de entorno.
+Están implementados bcrypt, JWT, hash del refresh token, rotación, sesiones persistentes, rol actual desde PostgreSQL, ownership, rate limiting, protección básica de login, request ID y logging estructurado principalmente en Auth. El rate limiter falla cerrado si Redis no está disponible.
 
-Estas medidas reducen riesgos concretos, pero no constituyen una garantía absoluta de seguridad ni reemplazan una revisión antes de desplegar.
+## Limitaciones conocidas
 
-## Documentación técnica
-
-Las decisiones funcionales y técnicas de cada módulo se encuentran en `spec/features/`. Cada feature contiene su especificación, plan y registro de tareas. `spec/constitution/roadmap.md` conserva la planificación y evolución global del proyecto.
-
-Estos documentos pueden incluir trabajo previsto, estados históricos o funcionalidades pendientes; la existencia de una decisión documental no implica por sí sola que esté implementada en el código actual.
+- No existe detección real de reutilización de refresh tokens por familia/historial.
+- El worker no envía notificaciones reales.
+- No existe Outbox transaccional PostgreSQL/Redis.
+- La caché de categorías es local en memoria, con TTL de 60 segundos.
+- HTTPS y proxy confiable dependen del despliegue.
+- El logging estructurado completo está centrado principalmente en Auth.

@@ -189,7 +189,11 @@ La feature solo podra marcarse como completada cuando:
 - [ ] Exista el modelo `Categoria`.
 - [ ] La migracion este aplicada.
 - [x] El seed sea idempotente.
-- [ ] Los cinco endpoints funcionen.
+- [x] Los cinco endpoints funcionen.
+
+## Sincronizacion final
+
+La implementacion actual expone los cinco metodos documentados y usa cache local con TTL de 60 segundos. Permanecen abiertas las verificaciones exhaustivas sin evidencia automatizada especifica.
 - [ ] Las operaciones administrativas esten protegidas por `ADMIN`.
 - [ ] La feature documente claramente su dependencia futura con `006-donaciones` sin implementar responsabilidades de Donaciones.
 - [ ] Todas las respuestas respeten el contrato de la feature 004.

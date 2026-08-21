@@ -690,7 +690,7 @@ No depende de la existencia ni actividad de Chat.
 
 ## Estado
 
-Pendiente.
+Implementada, con evidencia permanente de calificación posterior a la entrega.
 
 
 ## Observaciones

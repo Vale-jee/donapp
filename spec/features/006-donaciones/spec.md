@@ -492,9 +492,9 @@ Donaciones no implementara todavia los modelos completos de `Solicitud`, `Chat` 
 
 ## Estado
 
-Pendiente.
+Implementada, con evidencia permanente del flujo principal y de la robustez del enqueue BullMQ.
 
 
 ## Observaciones
 
-La retirada y la aceptacion de solicitudes deberan coordinarse para impedir transiciones concurrentes incompatibles. La relacion definitiva con `Solicitud` y la identificacion persistente del receptor se documentaran e implementaran junto con `007-solicitudes`.
+La retirada y la aceptacion de solicitudes se coordinan para impedir transiciones concurrentes incompatibles. La relacion con `Solicitud` y la identificacion persistente del receptor estan integradas con `007-solicitudes`.

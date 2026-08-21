@@ -58,6 +58,10 @@
 - [x] `yarn dev` inicia Next.js sin errores.
 - [x] Una consulta mediante Prisma responde correctamente desde PostgreSQL.
 - [x] `yarn lint` finaliza sin errores.
-- [ ] Existe `.env.example` sin secretos.
+- [x] Existe `.env.example` sin secretos.
 - [x] Ningun archivo de aplicacion utiliza `src/generated/prisma`.
-- [ ] La documentacion coincide con el proyecto real despues de completar las tareas pendientes.
+- [x] La documentacion coincide con el proyecto real despues de completar las tareas pendientes.
+
+## Sincronizacion final
+
+El entorno actual esta implementado y fue verificado con pruebas, lint y build. Las casillas historicas que siguen abiertas conservan comprobaciones puntuales que no se volvieron a ejecutar de forma exhaustiva en este cierre documental.
