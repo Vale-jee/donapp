@@ -1,0 +1,59 @@
+{
+  "info": {
+    "_postman_id": "8f43784c-03d4-4bc7-a993-donapp-tests",
+    "name": "DonApp API",
+    "description": "Colección oficial reproducible. Ejecute las carpetas en orden y use únicamente datos de prueba.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": { "type": "bearer", "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }] },
+  "event": [{
+    "listen": "test",
+    "script": { "type": "text/javascript", "exec": [
+      "pm.test('Respuesta JSON con contrato DonApp', function () {",
+      "  const json = pm.response.json();",
+      "  pm.expect(json).to.have.property('success');",
+      "  pm.expect(json).to.have.property('message');",
+      "  pm.expect(json).to.have.property('data');",
+      "  if (!json.success) pm.expect(json.status).to.eql(pm.response.code);",
+      "});"
+    ]}
+  }],
+  "variable": [
+    { "key": "baseUrl", "value": "http://127.0.0.1:3000" }, { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" }, { "key": "userId", "value": "" },
+    { "key": "publicUserId", "value": "" }, { "key": "categoryId", "value": "" },
+    { "key": "donationId", "value": "" }, { "key": "requestId", "value": "" },
+    { "key": "chatId", "value": "" }, { "key": "adminUserId", "value": "" }
+  ],
+  "item": [
+    { "name": "Auth", "item": [
+      { "name": "Registrar", "request": { "auth": { "type": "noauth" }, "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"nombreCompleto\": \"Usuario Postman\",\n  \"nombreVisible\": \"postman_{{$timestamp}}\",\n  \"email\": \"postman.{{$timestamp}}@donapp.test\",\n  \"password\": \"{{password}}\",\n  \"ciudad\": \"Bogotá\"\n}" }, "url": "{{baseUrl}}/api/auth/register" }, "event": [{ "listen": "test", "script": { "exec": ["pm.test('201', () => pm.response.to.have.status(201));"] } }] },
+      { "name": "Login", "request": { "auth": { "type": "noauth" }, "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}" }, "url": "{{baseUrl}}/api/auth/login" }, "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));", "const d=pm.response.json().data; pm.collectionVariables.set('accessToken',d.accessToken); pm.collectionVariables.set('refreshToken',d.refreshToken); pm.collectionVariables.set('userId',d.usuario.id);"] } }] },
+      { "name": "Refresh", "request": { "auth": { "type": "noauth" }, "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\"refreshToken\":\"{{refreshToken}}\"}" }, "url": "{{baseUrl}}/api/auth/refresh" }, "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));", "const d=pm.response.json().data; pm.collectionVariables.set('accessToken',d.accessToken); pm.collectionVariables.set('refreshToken',d.refreshToken);"] } }] },
+      { "name": "Logout", "request": { "auth": { "type": "noauth" }, "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\"refreshToken\":\"{{refreshToken}}\"}" }, "url": "{{baseUrl}}/api/auth/logout" }, "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));"] } }] }
+    ]},
+    { "name": "Usuarios", "item": [
+      { "name": "Mi perfil", "request": { "method": "GET", "url": "{{baseUrl}}/api/usuarios/perfil" }, "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));"] } }] },
+      { "name": "Perfil público", "request": { "method": "GET", "url": "{{baseUrl}}/api/usuarios/{{publicUserId}}/publico" } },
+      { "name": "Cambiar contraseña", "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\"passwordActual\":\"{{password}}\",\"passwordNueva\":\"{{newPassword}}\"}" }, "url": "{{baseUrl}}/api/usuarios/password" } },
+      { "name": "Desactivar cuenta", "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{}" }, "url": "{{baseUrl}}/api/usuarios/desactivar" } }
+    ]},
+    { "name": "Categorías", "item": [{ "name": "Listar activas", "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/api/categorias" }, "event": [{ "listen": "test", "script": { "exec": ["pm.test('200', () => pm.response.to.have.status(200));", "const xs=pm.response.json().data.categorias; if(xs.length) pm.collectionVariables.set('categoryId',xs[0].id);"] } }] }] },
+    { "name": "Donaciones", "item": [
+      { "name": "Publicar", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\"titulo\":\"Mesa para donar\",\"descripcion\":\"Mesa de madera en buen estado para donar.\",\"categoriaId\":{{categoryId}},\"imagenes\":[\"/postman/mesa.jpg\"]}" }, "url": "{{baseUrl}}/api/donaciones" }, "event": [{ "listen": "test", "script": { "exec": ["pm.test('201', () => pm.response.to.have.status(201));", "pm.collectionVariables.set('donationId',pm.response.json().data.donacion.id);"] } }] },
+      { "name": "Listar disponibles", "request": { "method": "GET", "url": "{{baseUrl}}/api/donaciones" } },
+      { "name": "Mis donaciones", "request": { "method": "GET", "url": "{{baseUrl}}/api/donaciones/mias" } }
+    ]},
+    { "name": "Solicitudes", "item": [
+      { "name": "Crear", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\"donacionId\":{{donationId}}}" }, "url": "{{baseUrl}}/api/solicitudes" }, "event": [{ "listen": "test", "script": { "exec": ["pm.test('201', () => pm.response.to.have.status(201));", "pm.collectionVariables.set('requestId',pm.response.json().data.solicitud.id);"] } }] },
+      { "name": "Aceptar", "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{}" }, "url": "{{baseUrl}}/api/solicitudes/{{requestId}}/aceptar" } }
+    ]},
+    { "name": "Chat", "item": [
+      { "name": "Crear o consultar", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{}" }, "url": "{{baseUrl}}/api/solicitudes/{{requestId}}/chat" }, "event": [{ "listen": "test", "script": { "exec": ["pm.test('200/201', () => pm.expect(pm.response.code).to.be.oneOf([200,201]));", "pm.collectionVariables.set('chatId',pm.response.json().data.chat.id);"] } }] },
+      { "name": "Enviar mensaje", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\"contenido\":\"Coordino la entrega por este medio.\"}" }, "url": "{{baseUrl}}/api/chats/{{chatId}}/mensajes" } }
+    ]},
+    { "name": "Entrega", "item": [{ "name": "Confirmar", "request": { "method": "PATCH", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{}" }, "url": "{{baseUrl}}/api/donaciones/{{donationId}}/confirmacion-entrega" } }] },
+    { "name": "Calificaciones", "item": [{ "name": "Calificar", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\"puntuacion\":5}" }, "url": "{{baseUrl}}/api/donaciones/{{donationId}}/calificacion" } }] },
+    { "name": "Administración", "item": [{ "name": "Listar usuarios", "request": { "method": "GET", "url": "{{baseUrl}}/api/admin/usuarios" }, "event": [{ "listen": "test", "script": { "exec": ["pm.test('ADMIN 200 o USUARIO 403', () => pm.expect(pm.response.code).to.be.oneOf([200,403]));"] } }] }] }
+  ]
+}

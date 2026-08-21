@@ -7,6 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "vitest run tests/unit",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
     "benchmark:n1:before": "tsx --env-file=.env scripts/benchmark-donaciones-n1.ts --strategy=before",
     "benchmark:n1:after": "tsx --env-file=.env scripts/benchmark-donaciones-n1.ts --strategy=after",
     "benchmark:n1:compare": "tsx --env-file=.env scripts/benchmark-donaciones-n1.ts --strategy=compare",
@@ -38,6 +41,7 @@
     "prisma": "^7.8.0",
     "tailwindcss": "^4",
     "tsx": "^4.23.1",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.11"
   }
 }
