@@ -212,6 +212,12 @@ export const AUTH_RATE_LIMIT_POLICIES = {
   refresh: { name: "auth-refresh-ip", limit: 60, windowMs: 15 * 60 * 1000 },
 } as const satisfies Record<string, RateLimitPolicy>;
 
+export const IMAGE_RATE_LIMIT_POLICY = {
+  name: "image-upload-signature-ip",
+  limit: 30,
+  windowMs: 15 * 60 * 1000,
+} as const satisfies RateLimitPolicy;
+
 const LOGIN_FAILURE_POLICY = {
   name: "auth-login-email-failure",
   limit: 5,
