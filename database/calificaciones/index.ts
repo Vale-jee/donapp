@@ -112,15 +112,7 @@ export function findPendingRatingsPage(input: {
   page: number;
   limit: number;
 }) {
-  const where = {
-    estado: EstadoDonacion.ENTREGADA,
-    solicitudAceptada: {
-      estado: EstadoSolicitud.ACEPTADA,
-      solicitanteId: input.userId,
-    },
-    calificacion: null,
-    exencionCalificacion: null,
-  } satisfies Prisma.DonacionWhereInput;
+  const where = pendingRatingWhere(input.userId);
 
   return prisma.$transaction([
     prisma.donacion.findMany({
@@ -133,3 +125,14 @@ export function findPendingRatingsPage(input: {
     prisma.donacion.count({ where }),
   ]);
 }
+
+export const pendingRatingWhere = (userId: number) =>
+  ({
+    estado: EstadoDonacion.ENTREGADA,
+    solicitudAceptada: {
+      estado: EstadoSolicitud.ACEPTADA,
+      solicitanteId: userId,
+    },
+    calificacion: null,
+    exencionCalificacion: null,
+  }) satisfies Prisma.DonacionWhereInput;

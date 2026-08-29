@@ -1,6 +1,12 @@
-import { EstadoSolicitud } from "@/generated/prisma/client";
+import { EstadoSolicitud, Prisma } from "@/generated/prisma/client";
 
 import { prisma } from "@/database/client";
+
+export const activeRequestWhere = (userId: number, donationId: number) => ({
+  donacionId: donationId,
+  solicitanteId: userId,
+  estado: { in: [EstadoSolicitud.PENDIENTE, EstadoSolicitud.ACEPTADA] },
+}) satisfies Prisma.SolicitudWhereInput;
 
 export const requestDonationSelect = {
   id: true,

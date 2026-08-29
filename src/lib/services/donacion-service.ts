@@ -12,6 +12,7 @@ import {
   findOwnDonationsPage,
 } from "@/database/donaciones";
 import { ApiError } from "@/src/lib/api/errors";
+import { canRequestDonation } from "@/src/lib/services/request-eligibility";
 import type {
   CreateDonationInput,
   DonationDetailQuery,
@@ -80,6 +81,10 @@ export interface OwnDonationsResult {
 export type AvailableDonationsResult = OwnDonationsResult;
 
 export interface DonationDetailResult {
+  donacion: CreatedDonation & { puedeSolicitar: boolean };
+}
+
+export interface DonationMutationResult {
   donacion: CreatedDonation;
 }
 
@@ -278,7 +283,10 @@ export async function getDonationDetail(
   userId: number,
   query: DonationDetailQuery,
 ): Promise<DonationDetailResult> {
-  const [user, donation] = await findDonationDetailContext(userId, query.id);
+  const [user, donation, pendingRating] = await findDonationDetailContext(
+    userId,
+    query.id,
+  );
 
   if (user === null) {
     throw new ApiError(401, INVALID_ACCESS_TOKEN_MESSAGE);
@@ -295,7 +303,7 @@ export async function getDonationDetail(
     donation.estado === EstadoDonacion.PUBLICADA &&
     userCity !== undefined &&
     userCity.trim().length > 0 &&
-    donation.ciudad === userCity;
+    donation.ciudad === userCity.trim();
   const isSelectedRecipient =
     (donation.estado === EstadoDonacion.RESERVADA ||
       donation.estado === EstadoDonacion.ENTREGADA) &&
@@ -319,6 +327,14 @@ export async function getDonationDetail(
       updatedAt: donation.updatedAt,
       categoria: donation.categoria,
       imagenes: donation.imagenes,
+      puedeSolicitar: canRequestDonation({
+        donationStatus: donation.estado,
+        donationCity: donation.ciudad,
+        userCity,
+        isOwner,
+        hasActiveRequest: donation.solicitudes.length > 0,
+        hasPendingRating: pendingRating !== null,
+      }),
     },
   };
 }
@@ -327,7 +343,7 @@ export async function updateDonation(
   userId: number,
   donationId: number,
   input: UpdateDonationInput,
-): Promise<DonationDetailResult> {
+): Promise<DonationMutationResult> {
   return prisma.$transaction(async (transaction) => {
     const donation = await transaction.donacion.findUnique({
       where: { id: donationId },

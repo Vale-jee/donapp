@@ -7,6 +7,7 @@ import {
 
 import { prisma } from "@/database/client";
 import {
+  activeRequestWhere,
   findDonationRequestsPage,
   findReceivedRequestsPage,
   findRequestDetail,
@@ -15,6 +16,7 @@ import {
   requestBaseSelect,
   requestDonationSelect,
 } from "@/database/solicitudes";
+import { pendingRatingWhere } from "@/database/calificaciones";
 import { ApiError } from "@/src/lib/api/errors";
 import type {
   CreateRequestInput,
@@ -178,15 +180,7 @@ export async function createRequest(
         }
 
         const pendingRating = await transaction.donacion.findFirst({
-          where: {
-            estado: EstadoDonacion.ENTREGADA,
-            solicitudAceptada: {
-              estado: EstadoSolicitud.ACEPTADA,
-              solicitanteId: userId,
-            },
-            calificacion: null,
-            exencionCalificacion: null,
-          },
+          where: pendingRatingWhere(userId),
           select: { id: true },
         });
 
@@ -195,11 +189,7 @@ export async function createRequest(
         }
 
         const duplicate = await transaction.solicitud.findFirst({
-          where: {
-            donacionId: donation.id,
-            solicitanteId: userId,
-            estado: { in: [EstadoSolicitud.PENDIENTE, EstadoSolicitud.ACEPTADA] },
-          },
+          where: activeRequestWhere(userId, donation.id),
           select: { id: true },
         });
 

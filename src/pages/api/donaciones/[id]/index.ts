@@ -7,6 +7,7 @@ import { requireAuth } from "@/src/middleware/auth";
 import {
   getDonationDetail,
   type DonationDetailResult,
+  type DonationMutationResult,
   updateDonation,
 } from "@/src/lib/services/donacion-service";
 import {
@@ -20,7 +21,9 @@ const INVALID_DATA_MESSAGE = "Datos inválidos.";
 
 export default async function handler(
   request: NextApiRequest,
-  response: NextApiResponse<ApiResponse<DonationDetailResult>>,
+  response: NextApiResponse<
+    ApiResponse<DonationDetailResult | DonationMutationResult>
+  >,
 ): Promise<void> {
   if (!validateHttpMethod(request, response, ["GET", "PATCH"])) {
     return;

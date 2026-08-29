@@ -1,6 +1,8 @@
 import { EstadoDonacion, Prisma } from "@/generated/prisma/client";
 
 import { prisma } from "@/database/client";
+import { pendingRatingWhere } from "@/database/calificaciones";
+import { activeRequestWhere } from "@/database/solicitudes";
 
 const donationListSelect = {
   id: true,
@@ -92,7 +94,16 @@ export function findDonationDetailContext(userId: number, donationId: number) {
         solicitudAceptada: {
           select: { donacionId: true, solicitanteId: true, estado: true },
         },
+        solicitudes: {
+          where: activeRequestWhere(userId, donationId),
+          select: { id: true },
+          take: 1,
+        },
       },
+    }),
+    prisma.donacion.findFirst({
+      where: pendingRatingWhere(userId),
+      select: { id: true },
     }),
   ]);
 }
