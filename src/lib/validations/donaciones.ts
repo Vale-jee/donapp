@@ -51,6 +51,7 @@ const imageReferenceSchema = z
   .refine(isValidImageReference, "La referencia de imagen no es válida.");
 
 export const createDonationSchema = z.strictObject({
+  clientId: z.uuid("El identificador del cliente no es válido.").optional(),
   titulo: z
     .string()
     .transform(normalizeTitle)

@@ -103,6 +103,7 @@ model Categoria {
 
 model Donacion {
   id                   Int                   @id @default(autoincrement())
+  clientId             String?               @db.Uuid
   titulo               String                @db.VarChar(100)
   descripcion          String                @db.VarChar(1000)
   ciudad               String
@@ -127,6 +128,7 @@ model Donacion {
   @@index([estado, ciudad, createdAt(sort: Desc), id(sort: Desc)])
   @@index([propietarioId, estado, createdAt(sort: Desc), id(sort: Desc)])
   @@index([categoriaId, estado, ciudad, createdAt(sort: Desc), id(sort: Desc)])
+  @@unique([propietarioId, clientId])
 }
 
 model ImagenDonacion {

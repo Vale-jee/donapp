@@ -1399,6 +1399,7 @@ export type CategoriaScalarFieldEnum = (typeof CategoriaScalarFieldEnum)[keyof t
 
 export const DonacionScalarFieldEnum = {
   id: 'id',
+  clientId: 'clientId',
   titulo: 'titulo',
   descripcion: 'descripcion',
   ciudad: 'ciudad',

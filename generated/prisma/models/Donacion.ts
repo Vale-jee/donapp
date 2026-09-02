@@ -42,6 +42,7 @@ export type DonacionSumAggregateOutputType = {
 
 export type DonacionMinAggregateOutputType = {
   id: number | null
+  clientId: string | null
   titulo: string | null
   descripcion: string | null
   ciudad: string | null
@@ -59,6 +60,7 @@ export type DonacionMinAggregateOutputType = {
 
 export type DonacionMaxAggregateOutputType = {
   id: number | null
+  clientId: string | null
   titulo: string | null
   descripcion: string | null
   ciudad: string | null
@@ -76,6 +78,7 @@ export type DonacionMaxAggregateOutputType = {
 
 export type DonacionCountAggregateOutputType = {
   id: number
+  clientId: number
   titulo: number
   descripcion: number
   ciudad: number
@@ -109,6 +112,7 @@ export type DonacionSumAggregateInputType = {
 
 export type DonacionMinAggregateInputType = {
   id?: true
+  clientId?: true
   titulo?: true
   descripcion?: true
   ciudad?: true
@@ -126,6 +130,7 @@ export type DonacionMinAggregateInputType = {
 
 export type DonacionMaxAggregateInputType = {
   id?: true
+  clientId?: true
   titulo?: true
   descripcion?: true
   ciudad?: true
@@ -143,6 +148,7 @@ export type DonacionMaxAggregateInputType = {
 
 export type DonacionCountAggregateInputType = {
   id?: true
+  clientId?: true
   titulo?: true
   descripcion?: true
   ciudad?: true
@@ -247,6 +253,7 @@ export type DonacionGroupByArgs<ExtArgs extends runtime.Types.Extensions.Interna
 
 export type DonacionGroupByOutputType = {
   id: number
+  clientId: string | null
   titulo: string
   descripcion: string
   ciudad: string
@@ -287,6 +294,7 @@ export type DonacionWhereInput = {
   OR?: Prisma.DonacionWhereInput[]
   NOT?: Prisma.DonacionWhereInput | Prisma.DonacionWhereInput[]
   id?: Prisma.IntFilter<"Donacion"> | number
+  clientId?: Prisma.UuidNullableFilter<"Donacion"> | string | null
   titulo?: Prisma.StringFilter<"Donacion"> | string
   descripcion?: Prisma.StringFilter<"Donacion"> | string
   ciudad?: Prisma.StringFilter<"Donacion"> | string
@@ -311,6 +319,7 @@ export type DonacionWhereInput = {
 
 export type DonacionOrderByWithRelationInput = {
   id?: Prisma.SortOrder
+  clientId?: Prisma.SortOrderInput | Prisma.SortOrder
   titulo?: Prisma.SortOrder
   descripcion?: Prisma.SortOrder
   ciudad?: Prisma.SortOrder
@@ -336,9 +345,11 @@ export type DonacionOrderByWithRelationInput = {
 export type DonacionWhereUniqueInput = Prisma.AtLeast<{
   id?: number
   solicitudAceptadaId?: number
+  propietarioId_clientId?: Prisma.DonacionPropietarioIdClientIdCompoundUniqueInput
   AND?: Prisma.DonacionWhereInput | Prisma.DonacionWhereInput[]
   OR?: Prisma.DonacionWhereInput[]
   NOT?: Prisma.DonacionWhereInput | Prisma.DonacionWhereInput[]
+  clientId?: Prisma.UuidNullableFilter<"Donacion"> | string | null
   titulo?: Prisma.StringFilter<"Donacion"> | string
   descripcion?: Prisma.StringFilter<"Donacion"> | string
   ciudad?: Prisma.StringFilter<"Donacion"> | string
@@ -358,10 +369,11 @@ export type DonacionWhereUniqueInput = Prisma.AtLeast<{
   solicitudAceptada?: Prisma.XOR<Prisma.SolicitudNullableScalarRelationFilter, Prisma.SolicitudWhereInput> | null
   calificacion?: Prisma.XOR<Prisma.CalificacionNullableScalarRelationFilter, Prisma.CalificacionWhereInput> | null
   exencionCalificacion?: Prisma.XOR<Prisma.ExencionCalificacionNullableScalarRelationFilter, Prisma.ExencionCalificacionWhereInput> | null
-}, "id" | "solicitudAceptadaId">
+}, "id" | "solicitudAceptadaId" | "propietarioId_clientId">
 
 export type DonacionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
+  clientId?: Prisma.SortOrderInput | Prisma.SortOrder
   titulo?: Prisma.SortOrder
   descripcion?: Prisma.SortOrder
   ciudad?: Prisma.SortOrder
@@ -387,6 +399,7 @@ export type DonacionScalarWhereWithAggregatesInput = {
   OR?: Prisma.DonacionScalarWhereWithAggregatesInput[]
   NOT?: Prisma.DonacionScalarWhereWithAggregatesInput | Prisma.DonacionScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"Donacion"> | number
+  clientId?: Prisma.UuidNullableWithAggregatesFilter<"Donacion"> | string | null
   titulo?: Prisma.StringWithAggregatesFilter<"Donacion"> | string
   descripcion?: Prisma.StringWithAggregatesFilter<"Donacion"> | string
   ciudad?: Prisma.StringWithAggregatesFilter<"Donacion"> | string
@@ -403,6 +416,7 @@ export type DonacionScalarWhereWithAggregatesInput = {
 }
 
 export type DonacionCreateInput = {
+  clientId?: string | null
   titulo: string
   descripcion: string
   ciudad: string
@@ -424,6 +438,7 @@ export type DonacionCreateInput = {
 
 export type DonacionUncheckedCreateInput = {
   id?: number
+  clientId?: string | null
   titulo: string
   descripcion: string
   ciudad: string
@@ -444,6 +459,7 @@ export type DonacionUncheckedCreateInput = {
 }
 
 export type DonacionUpdateInput = {
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titulo?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.StringFieldUpdateOperationsInput | string
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
@@ -465,6 +481,7 @@ export type DonacionUpdateInput = {
 
 export type DonacionUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titulo?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.StringFieldUpdateOperationsInput | string
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
@@ -486,6 +503,7 @@ export type DonacionUncheckedUpdateInput = {
 
 export type DonacionCreateManyInput = {
   id?: number
+  clientId?: string | null
   titulo: string
   descripcion: string
   ciudad: string
@@ -502,6 +520,7 @@ export type DonacionCreateManyInput = {
 }
 
 export type DonacionUpdateManyMutationInput = {
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titulo?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.StringFieldUpdateOperationsInput | string
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
@@ -516,6 +535,7 @@ export type DonacionUpdateManyMutationInput = {
 
 export type DonacionUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titulo?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.StringFieldUpdateOperationsInput | string
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
@@ -541,8 +561,14 @@ export type DonacionOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type DonacionPropietarioIdClientIdCompoundUniqueInput = {
+  propietarioId: number
+  clientId: string
+}
+
 export type DonacionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  clientId?: Prisma.SortOrder
   titulo?: Prisma.SortOrder
   descripcion?: Prisma.SortOrder
   ciudad?: Prisma.SortOrder
@@ -567,6 +593,7 @@ export type DonacionAvgOrderByAggregateInput = {
 
 export type DonacionMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  clientId?: Prisma.SortOrder
   titulo?: Prisma.SortOrder
   descripcion?: Prisma.SortOrder
   ciudad?: Prisma.SortOrder
@@ -584,6 +611,7 @@ export type DonacionMaxOrderByAggregateInput = {
 
 export type DonacionMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  clientId?: Prisma.SortOrder
   titulo?: Prisma.SortOrder
   descripcion?: Prisma.SortOrder
   ciudad?: Prisma.SortOrder
@@ -801,6 +829,7 @@ export type DonacionUpdateOneRequiredWithoutExencionCalificacionNestedInput = {
 }
 
 export type DonacionCreateWithoutPropietarioInput = {
+  clientId?: string | null
   titulo: string
   descripcion: string
   ciudad: string
@@ -821,6 +850,7 @@ export type DonacionCreateWithoutPropietarioInput = {
 
 export type DonacionUncheckedCreateWithoutPropietarioInput = {
   id?: number
+  clientId?: string | null
   titulo: string
   descripcion: string
   ciudad: string
@@ -870,6 +900,7 @@ export type DonacionScalarWhereInput = {
   OR?: Prisma.DonacionScalarWhereInput[]
   NOT?: Prisma.DonacionScalarWhereInput | Prisma.DonacionScalarWhereInput[]
   id?: Prisma.IntFilter<"Donacion"> | number
+  clientId?: Prisma.UuidNullableFilter<"Donacion"> | string | null
   titulo?: Prisma.StringFilter<"Donacion"> | string
   descripcion?: Prisma.StringFilter<"Donacion"> | string
   ciudad?: Prisma.StringFilter<"Donacion"> | string
@@ -886,6 +917,7 @@ export type DonacionScalarWhereInput = {
 }
 
 export type DonacionCreateWithoutCategoriaInput = {
+  clientId?: string | null
   titulo: string
   descripcion: string
   ciudad: string
@@ -906,6 +938,7 @@ export type DonacionCreateWithoutCategoriaInput = {
 
 export type DonacionUncheckedCreateWithoutCategoriaInput = {
   id?: number
+  clientId?: string | null
   titulo: string
   descripcion: string
   ciudad: string
@@ -951,6 +984,7 @@ export type DonacionUpdateManyWithWhereWithoutCategoriaInput = {
 }
 
 export type DonacionCreateWithoutImagenesInput = {
+  clientId?: string | null
   titulo: string
   descripcion: string
   ciudad: string
@@ -971,6 +1005,7 @@ export type DonacionCreateWithoutImagenesInput = {
 
 export type DonacionUncheckedCreateWithoutImagenesInput = {
   id?: number
+  clientId?: string | null
   titulo: string
   descripcion: string
   ciudad: string
@@ -1006,6 +1041,7 @@ export type DonacionUpdateToOneWithWhereWithoutImagenesInput = {
 }
 
 export type DonacionUpdateWithoutImagenesInput = {
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titulo?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.StringFieldUpdateOperationsInput | string
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1026,6 +1062,7 @@ export type DonacionUpdateWithoutImagenesInput = {
 
 export type DonacionUncheckedUpdateWithoutImagenesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titulo?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.StringFieldUpdateOperationsInput | string
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1045,6 +1082,7 @@ export type DonacionUncheckedUpdateWithoutImagenesInput = {
 }
 
 export type DonacionCreateWithoutSolicitudesInput = {
+  clientId?: string | null
   titulo: string
   descripcion: string
   ciudad: string
@@ -1065,6 +1103,7 @@ export type DonacionCreateWithoutSolicitudesInput = {
 
 export type DonacionUncheckedCreateWithoutSolicitudesInput = {
   id?: number
+  clientId?: string | null
   titulo: string
   descripcion: string
   ciudad: string
@@ -1089,6 +1128,7 @@ export type DonacionCreateOrConnectWithoutSolicitudesInput = {
 }
 
 export type DonacionCreateWithoutSolicitudAceptadaInput = {
+  clientId?: string | null
   titulo: string
   descripcion: string
   ciudad: string
@@ -1109,6 +1149,7 @@ export type DonacionCreateWithoutSolicitudAceptadaInput = {
 
 export type DonacionUncheckedCreateWithoutSolicitudAceptadaInput = {
   id?: number
+  clientId?: string | null
   titulo: string
   descripcion: string
   ciudad: string
@@ -1144,6 +1185,7 @@ export type DonacionUpdateToOneWithWhereWithoutSolicitudesInput = {
 }
 
 export type DonacionUpdateWithoutSolicitudesInput = {
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titulo?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.StringFieldUpdateOperationsInput | string
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1164,6 +1206,7 @@ export type DonacionUpdateWithoutSolicitudesInput = {
 
 export type DonacionUncheckedUpdateWithoutSolicitudesInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titulo?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.StringFieldUpdateOperationsInput | string
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1194,6 +1237,7 @@ export type DonacionUpdateToOneWithWhereWithoutSolicitudAceptadaInput = {
 }
 
 export type DonacionUpdateWithoutSolicitudAceptadaInput = {
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titulo?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.StringFieldUpdateOperationsInput | string
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1214,6 +1258,7 @@ export type DonacionUpdateWithoutSolicitudAceptadaInput = {
 
 export type DonacionUncheckedUpdateWithoutSolicitudAceptadaInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titulo?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.StringFieldUpdateOperationsInput | string
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1233,6 +1278,7 @@ export type DonacionUncheckedUpdateWithoutSolicitudAceptadaInput = {
 }
 
 export type DonacionCreateWithoutCalificacionInput = {
+  clientId?: string | null
   titulo: string
   descripcion: string
   ciudad: string
@@ -1253,6 +1299,7 @@ export type DonacionCreateWithoutCalificacionInput = {
 
 export type DonacionUncheckedCreateWithoutCalificacionInput = {
   id?: number
+  clientId?: string | null
   titulo: string
   descripcion: string
   ciudad: string
@@ -1288,6 +1335,7 @@ export type DonacionUpdateToOneWithWhereWithoutCalificacionInput = {
 }
 
 export type DonacionUpdateWithoutCalificacionInput = {
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titulo?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.StringFieldUpdateOperationsInput | string
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1308,6 +1356,7 @@ export type DonacionUpdateWithoutCalificacionInput = {
 
 export type DonacionUncheckedUpdateWithoutCalificacionInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titulo?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.StringFieldUpdateOperationsInput | string
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1327,6 +1376,7 @@ export type DonacionUncheckedUpdateWithoutCalificacionInput = {
 }
 
 export type DonacionCreateWithoutExencionCalificacionInput = {
+  clientId?: string | null
   titulo: string
   descripcion: string
   ciudad: string
@@ -1347,6 +1397,7 @@ export type DonacionCreateWithoutExencionCalificacionInput = {
 
 export type DonacionUncheckedCreateWithoutExencionCalificacionInput = {
   id?: number
+  clientId?: string | null
   titulo: string
   descripcion: string
   ciudad: string
@@ -1382,6 +1433,7 @@ export type DonacionUpdateToOneWithWhereWithoutExencionCalificacionInput = {
 }
 
 export type DonacionUpdateWithoutExencionCalificacionInput = {
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titulo?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.StringFieldUpdateOperationsInput | string
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1402,6 +1454,7 @@ export type DonacionUpdateWithoutExencionCalificacionInput = {
 
 export type DonacionUncheckedUpdateWithoutExencionCalificacionInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titulo?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.StringFieldUpdateOperationsInput | string
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1422,6 +1475,7 @@ export type DonacionUncheckedUpdateWithoutExencionCalificacionInput = {
 
 export type DonacionCreateManyPropietarioInput = {
   id?: number
+  clientId?: string | null
   titulo: string
   descripcion: string
   ciudad: string
@@ -1437,6 +1491,7 @@ export type DonacionCreateManyPropietarioInput = {
 }
 
 export type DonacionUpdateWithoutPropietarioInput = {
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titulo?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.StringFieldUpdateOperationsInput | string
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1457,6 +1512,7 @@ export type DonacionUpdateWithoutPropietarioInput = {
 
 export type DonacionUncheckedUpdateWithoutPropietarioInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titulo?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.StringFieldUpdateOperationsInput | string
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1477,6 +1533,7 @@ export type DonacionUncheckedUpdateWithoutPropietarioInput = {
 
 export type DonacionUncheckedUpdateManyWithoutPropietarioInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titulo?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.StringFieldUpdateOperationsInput | string
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1493,6 +1550,7 @@ export type DonacionUncheckedUpdateManyWithoutPropietarioInput = {
 
 export type DonacionCreateManyCategoriaInput = {
   id?: number
+  clientId?: string | null
   titulo: string
   descripcion: string
   ciudad: string
@@ -1508,6 +1566,7 @@ export type DonacionCreateManyCategoriaInput = {
 }
 
 export type DonacionUpdateWithoutCategoriaInput = {
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titulo?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.StringFieldUpdateOperationsInput | string
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1528,6 +1587,7 @@ export type DonacionUpdateWithoutCategoriaInput = {
 
 export type DonacionUncheckedUpdateWithoutCategoriaInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titulo?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.StringFieldUpdateOperationsInput | string
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1548,6 +1608,7 @@ export type DonacionUncheckedUpdateWithoutCategoriaInput = {
 
 export type DonacionUncheckedUpdateManyWithoutCategoriaInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   titulo?: Prisma.StringFieldUpdateOperationsInput | string
   descripcion?: Prisma.StringFieldUpdateOperationsInput | string
   ciudad?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1604,6 +1665,7 @@ export type DonacionCountOutputTypeCountSolicitudesArgs<ExtArgs extends runtime.
 
 export type DonacionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  clientId?: boolean
   titulo?: boolean
   descripcion?: boolean
   ciudad?: boolean
@@ -1629,6 +1691,7 @@ export type DonacionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
 
 export type DonacionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  clientId?: boolean
   titulo?: boolean
   descripcion?: boolean
   ciudad?: boolean
@@ -1649,6 +1712,7 @@ export type DonacionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
 
 export type DonacionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
+  clientId?: boolean
   titulo?: boolean
   descripcion?: boolean
   ciudad?: boolean
@@ -1669,6 +1733,7 @@ export type DonacionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
 
 export type DonacionSelectScalar = {
   id?: boolean
+  clientId?: boolean
   titulo?: boolean
   descripcion?: boolean
   ciudad?: boolean
@@ -1684,7 +1749,7 @@ export type DonacionSelectScalar = {
   updatedAt?: boolean
 }
 
-export type DonacionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "titulo" | "descripcion" | "ciudad" | "estado" | "propietarioId" | "categoriaId" | "solicitudAceptadaId" | "donanteConfirmoAt" | "receptorConfirmoAt" | "entregadaAt" | "retiradaAt" | "createdAt" | "updatedAt", ExtArgs["result"]["donacion"]>
+export type DonacionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "clientId" | "titulo" | "descripcion" | "ciudad" | "estado" | "propietarioId" | "categoriaId" | "solicitudAceptadaId" | "donanteConfirmoAt" | "receptorConfirmoAt" | "entregadaAt" | "retiradaAt" | "createdAt" | "updatedAt", ExtArgs["result"]["donacion"]>
 export type DonacionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   propietario?: boolean | Prisma.UsuarioDefaultArgs<ExtArgs>
   categoria?: boolean | Prisma.CategoriaDefaultArgs<ExtArgs>
@@ -1719,6 +1784,7 @@ export type $DonacionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
+    clientId: string | null
     titulo: string
     descripcion: string
     ciudad: string
@@ -2163,6 +2229,7 @@ export interface Prisma__DonacionClient<T, Null = never, ExtArgs extends runtime
  */
 export interface DonacionFieldRefs {
   readonly id: Prisma.FieldRef<"Donacion", 'Int'>
+  readonly clientId: Prisma.FieldRef<"Donacion", 'String'>
   readonly titulo: Prisma.FieldRef<"Donacion", 'String'>
   readonly descripcion: Prisma.FieldRef<"Donacion", 'String'>
   readonly ciudad: Prisma.FieldRef<"Donacion", 'String'>

@@ -28,11 +28,13 @@ describe("validaciones críticas", () => {
 
   it("normaliza títulos y bloquea contenido enriquecido e imágenes repetidas", () => {
     const valid = createDonationSchema.parse({
+      clientId: "550e8400-e29b-41d4-a716-446655440000",
       titulo: "  Mesa   auxiliar ", descripcion: "Descripción suficientemente larga y segura.",
       categoriaId: 1, imagenes: ["/tests/mesa.jpg"],
     });
     expect(valid.titulo).toBe("Mesa auxiliar");
     expect(createDonationSchema.safeParse({ ...valid, descripcion: "Descripción con <script>alert(1)</script>" }).success).toBe(false);
     expect(createDonationSchema.safeParse({ ...valid, imagenes: ["/a.jpg", "/a.jpg"] }).success).toBe(false);
+    expect(createDonationSchema.safeParse({ ...valid, clientId: "not-a-uuid" }).success).toBe(false);
   });
 });

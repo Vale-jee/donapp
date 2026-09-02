@@ -75,6 +75,7 @@ describe("robustez de la cola de donaciones", () => {
       method: "POST",
       query: {},
       body: {
+        clientId: "550e8400-e29b-41d4-a716-446655440000",
         titulo: "Mesa para donar",
         descripcion: "Mesa de madera en buen estado para donar.",
         categoriaId: 1,
@@ -87,6 +88,13 @@ describe("robustez de la cola de donaciones", () => {
     await handler(request, response as unknown as NextApiResponse);
 
     expect(response.statusCode).toBe(201);
+    const { createDonation } = await import("@/src/lib/services/donacion-service");
+    expect(createDonation).toHaveBeenCalledWith(
+      7,
+      expect.objectContaining({
+        clientId: "550e8400-e29b-41d4-a716-446655440000",
+      }),
+    );
     expect(response.body).toMatchObject({
       success: true,
       data: { procesamientoAsincrono: { estado: "PENDING_RECONCILIATION" } },

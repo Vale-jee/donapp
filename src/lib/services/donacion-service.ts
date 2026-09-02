@@ -32,6 +32,7 @@ const INACTIVE_CATEGORY_MESSAGE =
 
 export interface CreatedDonation {
   id: number;
+  clientId?: string | null;
   titulo: string;
   descripcion: string;
   ciudad: string;
@@ -125,7 +126,37 @@ export async function createDonation(
   userId: number,
   input: CreateDonationInput,
 ): Promise<CreatedDonation> {
-  return prisma.$transaction(async (transaction) => {
+  const select = {
+    id: true,
+    clientId: true,
+    titulo: true,
+    descripcion: true,
+    ciudad: true,
+    estado: true,
+    createdAt: true,
+    updatedAt: true,
+    categoria: { select: { id: true, nombre: true } },
+    imagenes: {
+      select: { id: true, referencia: true, orden: true },
+      orderBy: { orden: "asc" as const },
+    },
+  } satisfies Prisma.DonacionSelect;
+
+  try {
+    return await prisma.$transaction(async (transaction) => {
+      if (input.clientId !== undefined) {
+        const existing = await transaction.donacion.findUnique({
+          where: {
+            propietarioId_clientId: {
+              propietarioId: userId,
+              clientId: input.clientId,
+            },
+          },
+          select,
+        });
+        if (existing !== null) return existing;
+      }
+
     const [user, category] = await Promise.all([
       transaction.usuario.findUnique({
         where: { id: userId },
@@ -163,6 +194,7 @@ export async function createDonation(
 
     return transaction.donacion.create({
       data: {
+        clientId: input.clientId,
         titulo: input.titulo,
         descripcion: input.descripcion,
         ciudad: city,
@@ -176,33 +208,28 @@ export async function createDonation(
           })),
         },
       },
-      select: {
-        id: true,
-        titulo: true,
-        descripcion: true,
-        ciudad: true,
-        estado: true,
-        createdAt: true,
-        updatedAt: true,
-        categoria: {
-          select: {
-            id: true,
-            nombre: true,
-          },
-        },
-        imagenes: {
-          select: {
-            id: true,
-            referencia: true,
-            orden: true,
-          },
-          orderBy: {
-            orden: "asc",
-          },
-        },
-      },
+      select,
     });
-  });
+    });
+  } catch (error: unknown) {
+    if (
+      input.clientId !== undefined &&
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      const existing = await prisma.donacion.findUnique({
+        where: {
+          propietarioId_clientId: {
+            propietarioId: userId,
+            clientId: input.clientId,
+          },
+        },
+        select,
+      });
+      if (existing !== null) return existing;
+    }
+    throw error;
+  }
 }
 
 export async function listOwnDonations(
