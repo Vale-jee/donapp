@@ -125,7 +125,7 @@ Se agregara el enum de estado con:
 - `ENTREGADA`.
 - `RETIRADA`.
 
-Se agregara `Donacion` con los campos conceptuales aprobados y sus relaciones con `Usuario`, `Categoria`, `ImagenDonacion` y la referencia nullable `solicitudAceptadaId`.
+Se agregara `Donacion` con los campos conceptuales aprobados y sus relaciones con `Usuario`, `Categoria`, `ImagenDonacion` y la referencia nullable `solicitudAceptadaId`. `clientId` sera UUID nullable y tendra unicidad compuesta con `propietarioId` para que los reintentos de creacion sean idempotentes.
 
 Se agregara `ImagenDonacion` con `id`, `donacionId`, `referencia` y `orden`.
 
@@ -148,6 +148,8 @@ Antes de aplicarla se revisaran:
 - Consistencia de `solicitudAceptadaId` con una Solicitud `ACEPTADA` de la misma donacion.
 
 Despues se aplicara la migracion y se regenerara el cliente oficial en `generated/prisma`.
+
+La migracion incremental `20260902133000_donation_client_id_idempotency` agrega `clientId UUID` nullable y el indice unico compuesto con propietario. No elimina ni reescribe datos existentes y mantiene compatibles las donaciones historicas sin identificador de cliente.
 
 ## Estrategia de Estados
 

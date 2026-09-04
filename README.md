@@ -103,6 +103,12 @@ yarn.cmd queue:reconcile:donations --donation-id=123
 
 El worker procesa de forma simulada `donation-created`; no envía notificaciones reales. Consulte [docs/bullmq-robustness.md](docs/bullmq-robustness.md).
 
+## Creación idempotente de donaciones
+
+`POST /api/donaciones` acepta `clientId` UUID opcional junto con `titulo`, `descripcion`, `categoriaId` e `imagenes`. El identificador representa de forma estable una creación del cliente y no reemplaza el ID del servidor, el `operationId` de la cola local ni el request ID HTTP.
+
+La restricción `UNIQUE(propietarioId, clientId)` impide duplicados para un mismo propietario. El servicio devuelve la fila existente tanto en un reintento detectado previamente como tras una carrera resuelta por PostgreSQL. La columna es nullable para conservar las donaciones históricas; `createdAt` y `updatedAt` son timestamps asignados por el servidor. Consulte el [contrato de Donaciones](spec/features/006-donaciones/spec.md).
+
 ## Pruebas y Postman
 
 La última verificación registró 10 pruebas unitarias y 6 de integración aprobadas (16/16): Auth, rate limiting, flujo completo, concurrencia, ADMIN y BullMQ. El conteo corresponde a esa ejecución, no es una promesa inmutable.

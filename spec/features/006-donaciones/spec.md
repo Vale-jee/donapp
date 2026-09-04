@@ -193,6 +193,7 @@ No existiran endpoints `PUT` ni `DELETE`. DonApp utilizara retirada logica para 
 | Campo | Tipo conceptual | Reglas |
 |---|---|---|
 | `id` | Int | Clave primaria |
+| `clientId` | UUID? | Identidad estable de creacion aportada por el cliente; nullable para registros historicos |
 | `titulo` | String | Obligatorio |
 | `descripcion` | String | Obligatoria |
 | `ciudad` | String | Copia historica del perfil al publicar |
@@ -200,8 +201,8 @@ No existiran endpoints `PUT` ni `DELETE`. DonApp utilizara retirada logica para 
 | `propietarioId` | Int | Propietario de la publicacion |
 | `categoriaId` | Int | Categoria asociada |
 | `solicitudAceptadaId` | Int? | Solicitud seleccionada; opcional y nullable |
-| `createdAt` | DateTime | Fecha de creacion |
-| `updatedAt` | DateTime | Fecha de ultima actualizacion |
+| `createdAt` | DateTime | Fecha de creacion asignada por el servidor |
+| `updatedAt` | DateTime | Fecha de ultima actualizacion asignada por el servidor |
 | `donanteConfirmoAt` | DateTime? | Confirmacion del donante |
 | `receptorConfirmoAt` | DateTime? | Confirmacion del receptor |
 | `entregadaAt` | DateTime? | Fecha de la segunda confirmacion |
@@ -271,6 +272,7 @@ No se agrega todavia una relacion Prisma definitiva con `Solicitud`. La seleccio
 ### Identificadores, Filtros y Cuerpos
 
 - Todo identificador debera ser un entero positivo.
+- `clientId`, cuando se envie al crear, debera ser un UUID valido.
 - Se rechazaran campos desconocidos.
 - Se rechazaran cuerpos vacios cuando la operacion requiera datos.
 - `page` y `limit` deberan cumplir las reglas de paginacion.
@@ -324,6 +326,7 @@ Entrada:
 
 ```json
 {
+  "clientId": "550e8400-e29b-41d4-a716-446655440000",
   "titulo": "Bicicleta infantil",
   "descripcion": "Bicicleta infantil en buen estado y lista para usar.",
   "categoriaId": 4,
@@ -334,7 +337,9 @@ Entrada:
 }
 ```
 
-El cliente no enviara propietario, ciudad, estado, confirmaciones ni fechas. Una creacion exitosa respondera `201 Created`.
+El cliente no enviara propietario, ciudad, estado, confirmaciones ni fechas. `clientId` es opcional por compatibilidad, no reemplaza el ID numerico del servidor y se conserva entre reintentos de una misma creacion. Una creacion exitosa respondera `201 Created`.
+
+La combinacion `(propietarioId, clientId)` es unica. Si el mismo propietario repite el UUID, no se crea otra donacion y el servicio devuelve la fila existente. Ante solicitudes concurrentes, PostgreSQL resuelve la carrera mediante la restriccion unica y el servicio recupera esa misma fila. `operationId` pertenece a la cola del cliente y el request ID identifica una peticion HTTP; ninguno sustituye a `clientId`.
 
 ### PATCH `/api/donaciones/{id}`
 

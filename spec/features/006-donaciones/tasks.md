@@ -33,6 +33,7 @@
 - [ ] Garantizar que la solicitud referenciada pertenezca a la donacion y este `ACEPTADA`.
 - [x] Configurar la relacion y orden de ImagenDonacion.
 - [x] Crear los indices necesarios para listados y filtros.
+- [x] Agregar `clientId` UUID nullable y unicidad compuesta con propietario.
 - [ ] Confirmar que no se agreguen modelos completos de Solicitud, Chat o Calificacion.
 - [x] Validar el schema Prisma.
 
@@ -49,7 +50,7 @@
 
 - [x] Crear la validacion estricta del identificador para el detalle de donaciones.
 - [ ] Crear la validacion de identificadores para las operaciones restantes.
-- [x] Crear la validacion estricta de creacion con `titulo`, `descripcion`, `categoriaId` e `imagenes`.
+- [x] Crear la validacion estricta de creacion con `clientId` UUID opcional, `titulo`, `descripcion`, `categoriaId` e `imagenes`.
 - [x] Crear la validacion estricta de actualizacion parcial con `titulo`, `descripcion`, `categoriaId` e `imagenes` opcionales.
 - [x] Crear la validacion estricta de retirada con el literal `estado: RETIRADA`.
 - [ ] Crear la validacion de confirmacion de entrega.
@@ -76,6 +77,7 @@
 
 - [x] Crear el servicio de publicacion.
 - [x] Obtener propietario y ciudad desde el usuario autenticado al publicar.
+- [x] Resolver reintentos y carreras de creacion devolviendo la donacion existente para el mismo `clientId`.
 - [x] Validar que la categoria exista y este activa al crear.
 - [x] Validar que la categoria exista y este activa al cambiar `categoriaId`.
 - [x] Crear el servicio de listado general de donaciones disponibles.
@@ -189,6 +191,7 @@
 
 - [x] Probar la creacion correcta y sus campos derivados con HTTP `201`.
 - [x] Probar la creacion de dos imagenes ordenadas y relacionadas con la misma donacion.
+- [x] Probar idempotencia secuencial y concurrente por propietario y `clientId`.
 - [ ] Probar la creacion con cinco imagenes.
 - [ ] Probar el rechazo de cero y seis imagenes.
 - [x] Probar una categoria activa durante la creacion.
