@@ -6,6 +6,7 @@ import { sendSuccess, type ApiResponse } from "@/src/lib/api/responses";
 import { requireAuth } from "@/src/middleware/auth";
 import {
   getDonationDetail,
+  deleteDonation,
   type DonationDetailResult,
   type DonationMutationResult,
   updateDonation,
@@ -22,10 +23,10 @@ const INVALID_DATA_MESSAGE = "Datos inválidos.";
 export default async function handler(
   request: NextApiRequest,
   response: NextApiResponse<
-    ApiResponse<DonationDetailResult | DonationMutationResult>
+    ApiResponse<DonationDetailResult | DonationMutationResult | { id: number }>
   >,
 ): Promise<void> {
-  if (!validateHttpMethod(request, response, ["GET", "PATCH"])) {
+  if (!validateHttpMethod(request, response, ["GET", "PATCH", "DELETE"])) {
     return;
   }
 
@@ -41,6 +42,12 @@ export default async function handler(
       const result = await getDonationDetail(auth.userId, parsedQuery.data);
 
       sendSuccess(response, 200, DONATION_RETRIEVED_MESSAGE, result);
+      return;
+    }
+
+    if (request.method === "DELETE") {
+      const result = await deleteDonation(auth.userId, parsedQuery.data.id);
+      sendSuccess(response, 200, "Donación eliminada correctamente.", result);
       return;
     }
 

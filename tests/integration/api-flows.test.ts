@@ -81,6 +81,82 @@ describe("API de DonApp", () => {
     expect((await api(`/api/donaciones/${donationId}/calificacion`, { method: "POST", headers: auth(winner.session.accessToken), body: JSON.stringify({ puntuacion: 5 }) })).response.status).toBe(201);
   });
 
+  it("DELETE elimina únicamente la publicación elegible y sus imágenes en PostgreSQL", async () => {
+    const session = sessions.get(owner.email)!;
+    const created = await api("/api/donaciones", {
+      method: "POST", headers: auth(session.accessToken), body: JSON.stringify({
+        titulo: "Mesa para eliminar", descripcion: "Mesa de prueba para eliminación física.",
+        categoriaId: categoryId, imagenes: ["/tests/delete-1.jpg", "/tests/delete-2.jpg"],
+      }),
+    });
+    expect(created.response.status).toBe(201);
+    const id = created.body.data.donacion.id as number;
+    expect(await prisma.imagenDonacion.count({ where: { donacionId: id } })).toBe(2);
+    const result = await api(`/api/donaciones/${id}`, { method: "DELETE", headers: auth(session.accessToken) });
+    expect(result.response.status).toBe(200);
+    expect(result.body.data).toEqual({ id });
+    expect(await prisma.donacion.findUnique({ where: { id } })).toBeNull();
+    expect(await prisma.imagenDonacion.count({ where: { donacionId: id } })).toBe(0);
+    expect((await api(`/api/donaciones/${id}`, { method: "DELETE", headers: auth(session.accessToken) })).response.status).toBe(404);
+  });
+
+  it("DELETE rechaza autenticación, propiedad, estado e historial sin modificar relaciones", async () => {
+    const session = sessions.get(owner.email)!;
+    const other = sessions.get(receiverA.email)!;
+    async function publication() {
+      return prisma.donacion.create({ data: {
+        titulo: "Publicación protegida", descripcion: "Fixture para verificar conservación de historial.",
+        ciudad: "Bogotá", propietarioId: session.usuario.id, categoriaId: categoryId,
+        imagenes: { create: { referencia: "/tests/protected.jpg", orden: 1 } },
+      }, select: { id: true } });
+    }
+    async function snapshot(id: number) {
+      return prisma.donacion.findUnique({ where: { id }, include: {
+        imagenes: true, solicitudes: { include: { chat: { include: { mensajes: true } } } },
+        calificacion: true, exencionCalificacion: true,
+      } });
+    }
+    const plain = await publication();
+    const original = await snapshot(plain.id);
+    expect((await api(`/api/donaciones/${plain.id}`, { method: "DELETE" })).response.status).toBe(401);
+    expect((await api(`/api/donaciones/${plain.id}`, { method: "DELETE", headers: auth(other.accessToken) })).response.status).toBe(404);
+    expect(await snapshot(plain.id)).toEqual(original);
+    expect((await api("/api/donaciones/0", { method: "DELETE", headers: auth(session.accessToken) })).response.status).toBe(400);
+
+    for (const estado of ["RESERVADA", "ENTREGADA", "RETIRADA"] as const) {
+      await prisma.donacion.update({ where: { id: plain.id }, data: { estado } });
+      const before = await snapshot(plain.id);
+      expect((await api(`/api/donaciones/${plain.id}`, { method: "DELETE", headers: auth(session.accessToken) })).response.status).toBe(409);
+      expect(await snapshot(plain.id)).toEqual(before);
+    }
+    for (const estado of ["PENDIENTE", "ACEPTADA", "RECHAZADA", "CANCELADA"] as const) {
+      const donation = await publication();
+      await prisma.solicitud.create({ data: {
+        donacionId: donation.id, solicitanteId: other.usuario.id, estado,
+        chat: { create: { mensajes: { create: { remitenteId: other.usuario.id, contenido: "Historial que se conserva." } } } },
+      } });
+      const before = await snapshot(donation.id);
+      const result = await api(`/api/donaciones/${donation.id}`, { method: "DELETE", headers: auth(session.accessToken) });
+      expect(result.response.status).toBe(409);
+      expect(result.body.message).toBe("Esta donación no se puede eliminar porque ya tiene solicitudes asociadas.");
+      expect(await snapshot(donation.id)).toEqual(before);
+    }
+    // These states are not created by the business services, but the schema permits them.
+    for (const relation of ["calificacion", "exencion"] as const) {
+      const donation = await publication();
+      if (relation === "calificacion") {
+        await prisma.calificacion.create({ data: { donacionId: donation.id, puntuacion: 5 } });
+      } else {
+        await prisma.exencionCalificacion.create({ data: {
+          donacionId: donation.id, administradorId: session.usuario.id, motivo: "Historial de prueba que debe conservarse.",
+        } });
+      }
+      const before = await snapshot(donation.id);
+      expect((await api(`/api/donaciones/${donation.id}`, { method: "DELETE", headers: auth(session.accessToken) })).response.status).toBe(409);
+      expect(await snapshot(donation.id)).toEqual(before);
+    }
+  });
+
   it("permite ADMIN y rechaza USUARIO con 403", async () => {
     const adminSession = await registerAndLogin(admin);
     const role = await prisma.rol.findUniqueOrThrow({ where: { codigo: "ADMIN" }, select: { id: true } });

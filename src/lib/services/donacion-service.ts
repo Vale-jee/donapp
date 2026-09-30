@@ -90,6 +90,64 @@ export interface DonationMutationResult {
 }
 
 const DONATION_NOT_FOUND_MESSAGE = "Donación no encontrada.";
+const DONATION_HAS_REQUESTS_MESSAGE =
+  "Esta donación no se puede eliminar porque ya tiene solicitudes asociadas.";
+const DONATION_HAS_HISTORY_MESSAGE =
+  "Esta donación no se puede eliminar porque tiene historial asociado que debe conservarse.";
+
+export async function deleteDonation(userId: number, id: number): Promise<{ id: number }> {
+  if (!Number.isInteger(id) || id <= 0 || id > 2147483647) {
+    throw new ApiError(400, "Datos inválidos.");
+  }
+  try {
+    return await prisma.$transaction(async (transaction) => {
+      // Serialize state changes and FK inserts before checking eligibility.
+      // PostgreSQL's FK key-share locks conflict with this FOR UPDATE lock.
+      await transaction.$queryRaw`SELECT "id" FROM "Donacion" WHERE "id" = ${id} FOR UPDATE`;
+      const donation = await transaction.donacion.findUnique({
+        where: { id },
+        select: {
+          propietarioId: true, estado: true, solicitudAceptadaId: true,
+          solicitudes: { take: 1, select: { id: true } },
+          calificacion: { select: { id: true } },
+          exencionCalificacion: { select: { id: true } },
+        },
+      });
+      // Preserve the existing mutation policy: do not disclose other owners' resources.
+      if (donation === null || donation.propietarioId !== userId) {
+        throw new ApiError(404, DONATION_NOT_FOUND_MESSAGE);
+      }
+      if (donation.estado !== EstadoDonacion.PUBLICADA) {
+        throw new ApiError(409, "Solo se pueden eliminar donaciones en estado PUBLICADA.");
+      }
+      if (donation.solicitudes.length > 0) {
+        throw new ApiError(409, DONATION_HAS_REQUESTS_MESSAGE);
+      }
+      if (donation.solicitudAceptadaId !== null || donation.calificacion !== null ||
+          donation.exencionCalificacion !== null) {
+        throw new ApiError(409, DONATION_HAS_HISTORY_MESSAGE);
+      }
+      const audit = await transaction.auditoriaAdministrativa.findFirst({
+        where: { entidad: "DONACION", entidadId: String(id) }, select: { id: true },
+      });
+      if (audit !== null) throw new ApiError(409, DONATION_HAS_HISTORY_MESSAGE);
+
+      // Only publication-owned image references may be removed. No Cloudinary deletion.
+      await transaction.imagenDonacion.deleteMany({ where: { donacionId: id } });
+      return transaction.donacion.delete({ where: { id }, select: { id: true } });
+    });
+  } catch (error: unknown) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2003") throw new ApiError(409, DONATION_HAS_HISTORY_MESSAGE);
+      if (error.code === "P2025") throw new ApiError(404, DONATION_NOT_FOUND_MESSAGE);
+      if (error.code === "P2034") {
+        throw new ApiError(409, "La donación cambió mientras se procesaba la operación. Intenta nuevamente.");
+      }
+    }
+    throw error;
+  }
+}
+
 const DONATION_NOT_UPDATABLE_MESSAGE =
   "La donación no puede actualizarse en su estado actual.";
 const DONATION_NOT_WITHDRAWABLE_MESSAGE =
