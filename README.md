@@ -1,134 +1,110 @@
-# DonApp Backend
+# DonApp — backend REST
 
-Backend REST para publicar donaciones, gestionar solicitudes, coordinar entregas y conservar reputación e historial administrativo. El cliente Flutter vive en un repositorio separado.
+DonApp permite publicar artículos para donar, solicitar donaciones de la misma ciudad y coordinar intercambios. Este repositorio contiene la API; el cliente Flutter está en el repositorio separado `donapp-frontend`.
 
-## Stack y arquitectura
+## Tecnologías y arquitectura
 
-- Next.js 16 Pages Router, React 19 y TypeScript.
-- PostgreSQL 16 con Prisma ORM 7.8.
-- Zod, `jose` y `bcryptjs`.
-- Redis para rate limiting y BullMQ; la caché de categorías es local.
-- Vitest y Postman para evidencia reproducible.
+Next.js 16.2.10 **Pages Router**, React 19, TypeScript 5, Prisma 7.8 con adaptador PostgreSQL, Zod 4, `jose`, `bcryptjs`, Redis/ioredis, BullMQ 5 y Vitest 4. PostgreSQL 16 es el entorno documentado; el proveedor Prisma `postgresql` no fija su versión instalada. Versiones declaradas/resueltas: `package.json` y `yarn.lock`.
 
 ```text
-Flutter -> API route -> validación/middleware -> servicio -> acceso a datos -> Prisma -> PostgreSQL
-                                                \-> Redis/BullMQ -> worker simulado
+Flutter → src/pages/api → middleware/validaciones → servicios → database → Prisma → PostgreSQL
+                                                            → Redis/BullMQ → worker simulado
 ```
 
-Las rutas están en `src/pages/api`, validaciones y servicios en `src/lib`, guards en `src/middleware`, acceso Prisma en `database` y procesos en `scripts`.
+| Carpeta | Responsabilidad |
+| --- | --- |
+| `src/pages/api/` | Adaptadores HTTP bajo `/api` |
+| `src/middleware/` | Autenticación y guard ADMIN |
+| `src/lib/` | Servicios, Zod, auth, errores, Cloudinary, caché y cola |
+| `database/` | Consultas y selección explícita de campos |
+| `prisma/` | Esquema, migraciones y seed |
+| `generated/prisma/` | Cliente generado |
+| `scripts/` | Worker, reconciliación y benchmarks |
+| `tests/` | Unitarias e integración |
+| `docs/`, `spec/` | Contratos, ejecución, diseño y evidencia |
 
-## Módulos implementados
+## Funciones y relación con Flutter
 
-- Auth: registro, login, rotación, sesiones y logout.
-- Usuarios: perfil propio/público, contraseña, desactivación y reputación.
-- Categorías: listado, creación, detalle, edición y estado.
-- Donaciones: publicación, consultas, edición, retirada y entrega bilateral.
-- Solicitudes: creación, consultas, aceptación atómica, rechazo y cancelación.
-- Chat y mensajes privados.
-- Calificaciones, reputación, pendientes y exenciones.
-- Administración de usuarios, sesiones, donaciones, solicitudes, chats, calificaciones y auditorías.
-- Rate limiting, protección básica por email, request ID, pruebas, Postman y BullMQ robustecido.
+La API implementa autenticación/sesiones, perfiles propios/públicos, cambio de contraseña, desactivación, categorías, donaciones, firma de imágenes, solicitudes, chat/mensajes, entrega bilateral, calificaciones/reputación, exenciones y administración auditada.
 
-## Endpoints
+Flutter consume registro/login/refresh/logout, perfil editable, categorías, CRUD de donaciones, solicitudes y chat HTTP con ubicación como texto. Tiene caché de Explorar y outbox de creación; el backend no convierte todas las pantallas en offline. Entrega, calificaciones y administración no son flujos móviles terminados. Cambiar contraseña en Flutter muestra “próximamente” y no tiene un flujo móvil implementado.
 
-### Auth y usuarios
+## Requisitos e instalación
 
-- `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/refresh`, `POST /api/auth/logout`
-- `GET|PATCH /api/usuarios/perfil`
-- `GET /api/usuarios/{id}/publico`
-- `PUT /api/usuarios/password`, `PUT /api/usuarios/desactivar`
-- `GET /api/usuarios/{id}/calificaciones`
+Node.js 24 y Yarn 1 son el entorno documentado; PostgreSQL, Redis y cuenta Cloudinary para publicar imágenes desde Flutter. Docker Desktop es opcional si los servicios se ejecutan de otra manera.
 
-### Categorías y donaciones
+Copie `.env.example` a `.env` y configure localmente:
 
-- `GET|POST /api/categorias`
-- `GET|PATCH /api/categorias/{id}`
-- `PATCH /api/categorias/{id}/estado`
-- `GET|POST /api/donaciones`
-- `GET /api/donaciones/mias`
-- `GET|PATCH /api/donaciones/{id}`
-- `PATCH /api/donaciones/{id}/estado`
-- `GET /api/donaciones/{id}/solicitudes`
-- `PATCH /api/donaciones/{id}/confirmacion-entrega`
-- `GET|POST /api/donaciones/{id}/calificacion`
-
-### Solicitudes, chats y pendientes
-
-- `POST /api/solicitudes`
-- `GET /api/solicitudes/enviadas`, `GET /api/solicitudes/recibidas`
-- `GET /api/solicitudes/{id}`
-- `PATCH /api/solicitudes/{id}/aceptar`
-- `PATCH /api/solicitudes/{id}/rechazar`
-- `PATCH /api/solicitudes/{id}/cancelar`
-- `POST /api/solicitudes/{id}/chat`
-- `GET /api/chats`, `GET /api/chats/{id}`
-- `GET|POST /api/chats/{id}/mensajes`
-- `GET /api/calificaciones/pendientes`
-
-### Administración
-
-- `GET /api/admin/usuarios`, `GET /api/admin/usuarios/{id}`
-- `PATCH /api/admin/usuarios/{id}/estado`
-- `POST /api/admin/usuarios/{id}/revocar-sesiones`
-- `GET /api/admin/donaciones`, `GET /api/admin/donaciones/{id}`
-- `POST /api/admin/donaciones/{id}/resolver`
-- `GET /api/admin/solicitudes`, `GET /api/admin/solicitudes/{id}`
-- `GET /api/admin/chats`, `GET /api/admin/chats/{id}`
-- `GET /api/admin/calificaciones`, `GET /api/admin/calificaciones/{id}`
-- `POST /api/admin/calificaciones/pendientes/{donacionId}/eximir`
-- `GET /api/admin/auditorias`, `GET /api/admin/auditorias/{id}`
-
-## Configuración y ejecución
-
-Copie `.env.example` como `.env` y configure `DATABASE_URL`, `AUTH_ACCESS_TOKEN_SECRET`, `AUTH_ACCESS_TOKEN_TTL` y `REDIS_URL`. No versione `.env`.
+| Variable | Uso |
+| --- | --- |
+| `DATABASE_URL` | Conexión PostgreSQL |
+| `AUTH_ACCESS_TOKEN_SECRET` | Secreto JWT, mínimo 32 caracteres |
+| `AUTH_ACCESS_TOKEN_TTL` | Por defecto `15m`; entero positivo con `s/m/h/d`, máximo 24 h |
+| `REDIS_URL` | Rate limiting/BullMQ, protocolo `redis:` o `rediss:` |
+| `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` | Requeridas al solicitar firma de imágenes |
 
 ```powershell
 yarn install
+yarn.cmd prisma generate
 yarn.cmd prisma migrate deploy
 yarn.cmd prisma db seed
 yarn.cmd dev
 ```
 
-Comandos principales:
+Generación del cliente y migraciones son pasos distintos. `migrate deploy` aplica migraciones existentes al destino configurado; compruebe el entorno. `migrate dev` sirve para desarrollar nuevas migraciones. El seed prepara roles y categorías, sin cuenta ADMIN con contraseña compartida.
+
+La API local usa normalmente el puerto 3000. Flutter configura URL base sin `/api`; Android USB usa ADB reverse. La tarea conjunta está definida en `Proyecto/.vscode/tasks.json`. En `Proyecto/`, **Terminal — Run Task... — DonApp: Iniciar entorno** coordina Redis → ADB reverse → backend → Flutter. Requiere Docker Engine activo, contenedor existente `donapp-security-test-redis`, PostgreSQL disponible y Android autorizado. No inicia Docker Desktop/PostgreSQL ni worker. La tarea está fuera del repositorio y no está incluida al descargar solamente el backend.
+
+## APIs principales
+
+| Módulo | Operaciones |
+| --- | --- |
+| Auth | `POST /api/auth/register`, `/login`, `/refresh`, `/logout` |
+| Usuarios | `GET/PATCH /api/usuarios/perfil`, perfil público/calificaciones; `PUT /api/usuarios/password`, `/desactivar` |
+| Categorías | `GET/POST /api/categorias`, `GET/PATCH /{id}`, `PATCH /{id}/estado` |
+| Donaciones | `GET/POST /api/donaciones`, `GET /mias`, `GET/PATCH/DELETE /{id}`, retirada, entrega y calificación |
+| Imágenes | `POST /api/imagenes/firma`; archivo subido directamente a Cloudinary |
+| Solicitudes | Crear, enviadas/recibidas, detalle, aceptar/rechazar/cancelar y habilitar chat |
+| Chat | Listado/detalle y `GET/POST /api/chats/{id}/mensajes` |
+| Administración | Usuarios/sesiones, donaciones/resolución, solicitudes, metadatos de chats, calificaciones/exenciones y auditorías |
+
+El [inventario de APIs](docs/api.md) contiene todas las rutas, métodos, estados de éxito y restricciones. Éxito: `{ success: true, message, data }`; error: `{ success: false, status, message, data: null }`, con `errors` opcional por campo. Entradas inválidas usan 400, no 422; 405 incluye `Allow`.
+
+## CRUD, ciudad e idempotencia
+
+CREATE valida título, descripción, categoría activa y una a cinco referencias. Propietario proviene de la sesión y ciudad del perfil. Explorar devuelve `PUBLICADA` de la misma ciudad excluyendo propias; `/mias` consulta las del actor. Detalle aplica visibilidad por propiedad, publicación en la misma ciudad o receptor seleccionado según estado.
+
+UPDATE exige propietario y `PUBLICADA`; admite título, descripción, categoría e imágenes. Flutter solo modifica los tres primeros. Si recibe `imagenes`, reemplaza referencias completas sin borrar archivos Cloudinary. El validador también acepta `clientId` en PATCH por derivarse de CREATE, aunque el servicio no lo actualiza: limitación en [APIs](docs/api.md).
+
+DELETE exige propietario, `PUBLICADA` y ausencia de solicitudes de **cualquier estado**, solicitud aceptada, calificación, exención y auditoría de entidad `DONACION`. En una transacción bloquea la fila con `FOR UPDATE`, elimina `ImagenDonacion` y después `Donacion`. No borra solicitudes, chats, mensajes, calificaciones, exenciones, auditorías ni archivos Cloudinary. Retirada lógica conserva la publicación y cancela pendientes. DELETE responde 200 con `data: { id }`; ajena/inexistente 404, impedimentos de estado/historial 409. Edición/eliminación móvil son online.
+
+`POST /api/donaciones` acepta UUID `clientId` opcional y deduplica mediante `UNIQUE(propietarioId, clientId)`. Devuelve la misma fila incluso ante carrera de unicidad; responde 201 también en repetición. No compara ni reemplaza el payload repetido. `operationId` local y request ID HTTP son distintos.
+
+## Base de datos y optimizaciones
+
+El [modelo de datos](docs/data-model.md) describe los doce modelos de `prisma/schema.prisma`: Usuario, Rol, Sesion, Categoria, Donacion, ImagenDonacion, Solicitud, Chat, Mensaje, Calificacion, ExencionCalificacion y AuditoriaAdministrativa. Las FK usan `onDelete: Restrict`; estados, índices y restricciones SQL protegen historial. Auditoría identifica entidades por texto, sin FK al recurso.
+
+Listados paginados usan `skip/take`, conteos y selección limitada; donaciones selecciona una imagen principal y su cantidad. Categorías activas tiene caché en memoria por proceso de 60 s, invalidada al mutar; no es Redis distribuido y el catálogo no se pagina. Hay índices PostgreSQL y transacciones/actualizaciones condicionales. Benchmarks no prueban una mejora universal ni índices aplicados en una base concreta.
+
+BullMQ encola `donation-created` después del commit con ID determinista, cinco intentos y backoff exponencial base 2 s. Inicie aparte `yarn.cmd worker:donations`. El worker simula procesamiento: no envía push/notificaciones reales. Un fallo conocido de enqueue devuelve `PENDING_RECONCILIATION`; hay reconciliación explícita por ID, sin outbox transaccional PostgreSQL/Redis. Consulte [BullMQ](docs/bullmq-robustness.md).
+
+## Pruebas y despliegue
 
 ```powershell
 yarn.cmd lint
-yarn.cmd build
-yarn.cmd test
 yarn.cmd test:unit
-yarn.cmd test:integration
-yarn.cmd worker:donations
-yarn.cmd queue:reconcile:donations --donation-id=123
+yarn.cmd build
+yarn.cmd start
 ```
 
-El worker procesa de forma simulada `donation-created`; no envía notificaciones reales. Consulte [docs/bullmq-robustness.md](docs/bullmq-robustness.md).
+`yarn.cmd test` equivale a unitarias. Integración HTTP/BD/Redis usa el [entorno aislado](docs/testing.md), crea/limpia fixtures y no debe apuntar a datos habituales. Postman: `docs/postman/DonApp.postman_collection.json` y `docs/postman/DonApp.local.postman_environment.json`.
 
-## Creación idempotente de donaciones
+`start` requiere build previo. Despliegue necesita variables del servidor, PostgreSQL, Redis, HTTPS/proxy y worker separado si se utiliza. No hay infraestructura que certifique un despliegue productivo completo.
 
-`POST /api/donaciones` acepta `clientId` UUID opcional junto con `titulo`, `descripcion`, `categoriaId` e `imagenes`. El identificador representa de forma estable una creación del cliente y no reemplaza el ID del servidor, el `operationId` de la cola local ni el request ID HTTP.
+## Seguridad y limitaciones
 
-La restricción `UNIQUE(propietarioId, clientId)` impide duplicados para un mismo propietario. El servicio devuelve la fila existente tanto en un reintento detectado previamente como tras una carrera resuelta por PostgreSQL. La columna es nullable para conservar las donaciones históricas; `createdAt` y `updatedAt` son timestamps asignados por el servidor. Consulte el [contrato de Donaciones](spec/features/006-donaciones/spec.md).
+Bcrypt, JWT con `sid`, refresh opaco con hash SHA-256/rotación y sesiones persistentes. Guards comprueban sesión, usuario activo y rol actual en PostgreSQL. Límites Redis se aplican en Auth e imágenes según sus handlers y fallan cerrados si Redis no responde. Request ID/logging estructurado existen, con instrumentación principalmente en Auth/imágenes; no se generalizan a todos los endpoints.
 
-## Pruebas y Postman
+ADMIN consulta metadatos de chats, sin mensajes privados mediante las APIs administrativas. Errores técnicos se sanitizan. No versione `.env`, secretos, tokens, credenciales ni claves privadas; exportaciones Postman deben mantener valores vacíos/ficticios.
 
-La última verificación registró 10 pruebas unitarias y 6 de integración aprobadas (16/16): Auth, rate limiting, flujo completo, concurrencia, ADMIN y BullMQ. El conteo corresponde a esa ejecución, no es una promesa inmutable.
-
-La integración exige servicios aislados según `.env.test.example`; consulte [docs/testing.md](docs/testing.md). Postman se importa desde:
-
-- `docs/postman/DonApp.postman_collection.json`
-- `docs/postman/DonApp.local.postman_environment.json`
-
-Los valores versionados son ficticios o vacíos; nunca guarde secretos reales.
-
-## Seguridad
-
-Están implementados bcrypt, JWT, hash del refresh token, rotación, sesiones persistentes, rol actual desde PostgreSQL, ownership, rate limiting, protección básica de login, request ID y logging estructurado principalmente en Auth. El rate limiter falla cerrado si Redis no está disponible.
-
-## Limitaciones conocidas
-
-- No existe detección real de reutilización de refresh tokens por familia/historial.
-- El worker no envía notificaciones reales.
-- No existe Outbox transaccional PostgreSQL/Redis.
-- La caché de categorías es local en memoria, con TTL de 60 segundos.
-- HTTPS y proxy confiable dependen del despliegue.
-- El logging estructurado completo está centrado principalmente en Auth.
+No hay detección de reutilización de refresh por familia/historial, push real, WebSocket, mapa de donaciones ni búsqueda por distancia. HTTPS/proxy dependen del despliegue; caché de categorías es por proceso. `spec/features/` conserva especificaciones, planes y tareas históricos; el estado actual se describe en este README, `docs/api.md` y `docs/data-model.md`.
